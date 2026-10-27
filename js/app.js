@@ -1054,7 +1054,7 @@ function userPermissionsPage(id) {
                 </div>
             </div>
             
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;margin-bottom:28px">
+            <div class="perm-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:28px">
                 ${moduleCards}
             </div>
 

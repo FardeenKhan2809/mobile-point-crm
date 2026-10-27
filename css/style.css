@@ -60,14 +60,16 @@
 
         html,
         body {
-            height: 100%
+            height: 100%;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden
         }
 
         body {
             font: 14px/1.5 'Plus Jakarta Sans', system-ui, sans-serif;
             background: var(--bg);
             color: var(--tx);
-            overflow-x: hidden;
             -webkit-font-smoothing: antialiased
         }
 
@@ -117,7 +119,10 @@
 
         .app {
             display: flex;
-            min-height: 100%
+            min-height: 100%;
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden
         }
 
         .sd {
@@ -352,6 +357,8 @@
             padding: 24px;
             max-width: 1280px;
             margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
             animation: in .22s var(--ease)
         }
 
@@ -378,10 +385,13 @@
 
         .bar {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
             margin-bottom: 12px;
-            flex-wrap: wrap
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0
         }
 
         .bar .sb {
@@ -435,7 +445,12 @@
             gap: 6px;
             overflow-x: auto;
             scrollbar-width: none;
-            padding: 2px
+            padding: 2px 0;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            flex: 1 1 auto;
+            -webkit-overflow-scrolling: touch
         }
 
         .chip {
@@ -460,7 +475,10 @@
             background: var(--sf);
             border: 1px solid var(--bd);
             border-radius: 14px;
-            overflow: hidden
+            overflow: hidden;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box
         }
 
         .pad {
@@ -966,7 +984,11 @@
             }
 
             .top {
-                padding: 8px 0px
+                padding: 8px 12px;
+                gap: 6px;
+                width: 100%;
+                max-width: 100vw;
+                box-sizing: border-box
             }
 
             .gs {
@@ -974,11 +996,29 @@
             }
 
             .pg {
-                padding: 16px 0px 96px
+                padding: 16px 14px 96px;
+                width: 100%;
+                max-width: 100vw;
+                box-sizing: border-box
+            }
+
+            .bar .sb {
+                width: 100%;
+                max-width: 100%;
+                min-width: 0
             }
 
             .kp {
-                grid-template-columns: repeat(2, 1fr)
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+                width: 100%;
+                max-width: 100%
+            }
+
+            .k {
+                min-width: 0;
+                max-width: 100%;
+                overflow: hidden
             }
 
             .bn {
@@ -1009,12 +1049,20 @@
                 font-weight: 600
             }
 
+            table:not(.doc table):not(.rt) {
+                display: block;
+                width: 100%;
+                max-width: 100%
+            }
+
             table:not(.doc table):not(.rt) thead {
                 display: none
             }
 
             table:not(.doc table):not(.rt) tbody {
-                display: block
+                display: block;
+                width: 100%;
+                max-width: 100%
             }
 
             table:not(.doc table):not(.rt) tbody tr {
@@ -1027,7 +1075,10 @@
                 transition: background .12s;
                 position: relative;
                 cursor: pointer;
-                align-items: center
+                align-items: center;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box
             }
 
             table:not(.doc table):not(.rt) tbody tr:hover,
@@ -4035,4 +4086,13 @@
             font-size: 11px;
             font-weight: 500;
             color: var(--tx);
+        }
+
+        @media(max-width:640px) {
+            .perm-grid {
+                grid-template-columns: 1fr !important
+            }
+            .pg {
+                padding: 14px 12px 92px
+            }
         }
