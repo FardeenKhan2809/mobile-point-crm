@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Mobile Point AC Care</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="login-view" style="display:none"></div>
+    <div class="app" id="app">
+        <aside class="sd" id="sd" aria-label="Main navigation">
+            <div class="logo">
+                <img src="assets/icon.svg" alt="Mobile Point" width="32" height="32">
+                <div class="lb">Mobile Point AC Care<small>Service CRM · Demo</small></div>
+            </div>
+            <nav class="nv" id="nv"></nav>
+            <div class="us" id="user-badge">
+                <div class="av">RA</div>
+                <div class="lb us-info"><b>Rajesh Amin</b>
+                    <small>rajesh@mobilepoint.in</small>
+                </div><button class="ib lb" data-act="logout" aria-label="Log out" title="Log out"><svg class="i"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+                        <path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9" />
+                    </svg></button>
+            </div>
+        </aside>
+        <div class="bd" data-act="drawer"></div>
+        <div class="mn">
+            <header class="top"><button class="ib" data-act="menu" aria-label="Toggle navigation" title="Menu"
+                    id="mb"></button>
+                <div class="sb gs" id="gsb"></div>
+                <div class="sp"></div>
+                <button class="btn pri" data-act="new" id="nb"></button><button class="ib" data-act="actd"
+                    aria-label="Activity" title="Activity" id="ab"></button><button class="ib" data-act="bell"
+                    aria-label="Notifications" title="Notifications" id="bl"></button><button class="ib"
+                    data-act="theme" aria-label="Toggle theme" title="Theme" id="th"></button>
+            </header>
+            <main id="main"></main>
+        </div>
+    </div>
+    <nav class="bn" id="bn" aria-label="Quick navigation"></nav>
+    <div class="ts" id="ts" role="status" aria-live="polite"></div>
+    <div id="mdl"></div>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
