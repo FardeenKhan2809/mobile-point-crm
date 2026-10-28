@@ -1135,8 +1135,7 @@
                 font-weight: 600
             }
 
-            .panel:has(table:not(.rt)),
-            .panel:has(.tbl) {
+            .panel:has(.tbl:not(.rt)) {
                 background: transparent;
                 border: 0;
                 box-shadow: none;
@@ -1151,8 +1150,7 @@
                 padding: 10px 14px
             }
 
-            .tbl,
-            table:not(.rt) {
+            .tbl:not(.rt) {
                 display: block;
                 width: 100%;
                 max-width: 100%;
@@ -1161,20 +1159,17 @@
                 border-spacing: 0
             }
 
-            .tbl thead,
-            table:not(.rt) thead {
+            .tbl:not(.rt) thead {
                 display: none
             }
 
-            .tbl tbody,
-            table:not(.rt) tbody {
+            .tbl:not(.rt) tbody {
                 display: block;
                 width: 100%;
                 max-width: 100%
             }
 
-            .tbl tbody tr,
-            table:not(.rt) tbody tr {
+            .tbl:not(.rt) tbody tr {
                 display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 column-gap: 12px;
@@ -1192,22 +1187,18 @@
                 transition: border-color .15s, box-shadow .15s, background .15s
             }
 
-            .tbl tbody tr:last-child,
-            table:not(.rt) tbody tr:last-child {
+            .tbl:not(.rt) tbody tr:last-child {
                 margin-bottom: 0
             }
 
-            .tbl tbody tr:hover,
-            .tbl tbody tr:active,
-            table:not(.rt) tbody tr:hover,
-            table:not(.rt) tbody tr:active {
+            .tbl:not(.rt) tbody tr:hover,
+            .tbl:not(.rt) tbody tr:active {
                 background: color-mix(in srgb, var(--tx) 2.5%, var(--sf));
                 border-color: color-mix(in srgb, var(--ac) 40%, var(--bd));
                 box-shadow: 0 2px 8px rgba(0, 0, 0, .07)
             }
 
-            .tbl tbody td:first-child,
-            table:not(.rt) tbody td:first-child {
+            .tbl:not(.rt) tbody td:first-child {
                 grid-column: 1 / -1;
                 grid-row: 1;
                 font-size: 15px;
@@ -1228,37 +1219,27 @@
                 box-sizing: border-box
             }
 
-            .tbl tbody td:first-child .nm,
-            table:not(.rt) tbody td:first-child .nm {
+            .tbl:not(.rt) tbody td:first-child .nm {
                 min-width: 0;
                 max-width: 100%;
                 width: 100%
             }
 
-            .tbl tbody td:first-child::before,
-            table:not(.rt) tbody td:first-child::before {
+            .tbl:not(.rt) tbody td:first-child::before {
                 display: none !important
             }
 
-            .tbl tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:first-child,
-            table:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:first-child {
+            .tbl:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:first-child {
                 padding-right: 0;
             }
 
-            .tbl tbody td[data-status],
-            .tbl tbody td[data-label="Status"],
-            .tbl tbody td[data-label="Entitlement"],
-            .tbl tbody td[data-label="Stock"],
-            .tbl tbody td[data-label="Complaint"],
-            .tbl tbody td:has(.sw),
-            .tbl tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b),
-            table:not(.rt) tbody td[data-status],
-            table:not(.rt) tbody td[data-label="Status"],
-            table:not(.rt) tbody td[data-label="Entitlement"],
-            table:not(.rt) tbody td[data-label="Stock"],
-            table:not(.rt) tbody td[data-label="Complaint"],
-            table:not(.rt) tbody td:has(.sw),
-            table:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b) {
+            .tbl:not(.rt) tbody td[data-status],
+            .tbl:not(.rt) tbody td[data-label="Status"],
+            .tbl:not(.rt) tbody td[data-label="Entitlement"],
+            .tbl:not(.rt) tbody td[data-label="Stock"],
+            .tbl:not(.rt) tbody td[data-label="Complaint"],
+            .tbl:not(.rt) tbody td:has(.sw),
+            .tbl:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b) {
                 position: absolute;
                 right: 14px;
                 top: 7px;
@@ -1271,25 +1252,17 @@
                 z-index: 1
             }
 
-            .tbl tbody td[data-status]::before,
-            .tbl tbody td[data-label="Status"]::before,
-            .tbl tbody td[data-label="Entitlement"]::before,
-            .tbl tbody td[data-label="Stock"]::before,
-            .tbl tbody td[data-label="Complaint"]::before,
-            .tbl tbody td:has(.sw)::before,
-            .tbl tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b)::before,
-            table:not(.rt) tbody td[data-status]::before,
-            table:not(.rt) tbody td[data-label="Status"]::before,
-            table:not(.rt) tbody td[data-label="Entitlement"]::before,
-            table:not(.rt) tbody td[data-label="Stock"]::before,
-            table:not(.rt) tbody td[data-label="Complaint"]::before,
-            table:not(.rt) tbody td:has(.sw)::before,
-            table:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b)::before {
+            .tbl:not(.rt) tbody td[data-status]::before,
+            .tbl:not(.rt) tbody td[data-label="Status"]::before,
+            .tbl:not(.rt) tbody td[data-label="Entitlement"]::before,
+            .tbl:not(.rt) tbody td[data-label="Stock"]::before,
+            .tbl:not(.rt) tbody td[data-label="Complaint"]::before,
+            .tbl:not(.rt) tbody td:has(.sw)::before,
+            .tbl:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b)::before {
                 display: none !important
             }
 
-            .tbl tbody td,
-            table:not(.rt) tbody td {
+            .tbl:not(.rt) tbody td {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
@@ -1308,8 +1281,7 @@
                 box-sizing: border-box
             }
 
-            .tbl tbody td::before,
-            table:not(.rt) tbody td::before {
+            .tbl:not(.rt) tbody td::before {
                 content: attr(data-label);
                 color: var(--mu);
                 font-size: 10.5px;
@@ -1321,15 +1293,12 @@
                 flex-shrink: 0
             }
 
-            .tbl tbody td[data-label=""]::before,
-            table:not(.rt) tbody td[data-label=""]::before {
+            .tbl:not(.rt) tbody td[data-label=""]::before {
                 display: none !important
             }
 
-            .tbl tbody td>span,
-            .tbl tbody td>b,
-            table:not(.rt) tbody td>span,
-            table:not(.rt) tbody td>b {
+            .tbl:not(.rt) tbody td>span,
+            .tbl:not(.rt) tbody td>b {
                 min-width: 0;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -1337,8 +1306,8 @@
                 text-align: left
             }
 
-            .tbl tbody td[data-label="Next service"],
-            .tbl tbody td[data-label="Next free service"] {
+            .tbl:not(.rt) tbody td[data-label="Next service"],
+            .tbl:not(.rt) tbody td[data-label="Next free service"] {
                 grid-column: 1 / -1;
                 display: flex;
                 flex-direction: column;
@@ -1349,8 +1318,8 @@
                 border: 1px solid color-mix(in srgb, var(--ac) 22%, var(--bd))
             }
 
-            .tbl tbody td[data-label="Next service"] .ns-val,
-            .tbl tbody td[data-label="Next free service"] .ns-val {
+            .tbl:not(.rt) tbody td[data-label="Next service"] .ns-val,
+            .tbl:not(.rt) tbody td[data-label="Next free service"] .ns-val {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -1358,31 +1327,22 @@
                 gap: 8px
             }
 
-            .tbl tbody td[data-label="Next service"] .ns-date,
-            .tbl tbody td[data-label="Next free service"] .ns-date {
+            .tbl:not(.rt) tbody td[data-label="Next service"] .ns-date,
+            .tbl:not(.rt) tbody td[data-label="Next free service"] .ns-date {
                 font-size: 13.5px;
                 font-weight: 600;
                 color: var(--tx)
             }
 
-            .tbl tbody td[data-label="AC"],
-            .tbl tbody td[data-label="Product"],
-            .tbl tbody td[data-label="Comment"],
-            .tbl tbody td[data-label="Reference"],
-            .tbl tbody td[data-label="Notes"],
-            .tbl tbody td[data-label="Reason"],
-            .tbl tbody td[data-label="Template"],
-            .tbl tbody td[data-label="Trigger"],
-            .tbl tbody td[data-label="Approval"],
-            table:not(.rt) tbody td[data-label="AC"],
-            table:not(.rt) tbody td[data-label="Product"],
-            table:not(.rt) tbody td[data-label="Comment"],
-            table:not(.rt) tbody td[data-label="Reference"],
-            table:not(.rt) tbody td[data-label="Notes"],
-            table:not(.rt) tbody td[data-label="Reason"],
-            table:not(.rt) tbody td[data-label="Template"],
-            table:not(.rt) tbody td[data-label="Trigger"],
-            table:not(.rt) tbody td[data-label="Approval"] {
+            .tbl:not(.rt) tbody td[data-label="AC"],
+            .tbl:not(.rt) tbody td[data-label="Product"],
+            .tbl:not(.rt) tbody td[data-label="Comment"],
+            .tbl:not(.rt) tbody td[data-label="Reference"],
+            .tbl:not(.rt) tbody td[data-label="Notes"],
+            .tbl:not(.rt) tbody td[data-label="Reason"],
+            .tbl:not(.rt) tbody td[data-label="Template"],
+            .tbl:not(.rt) tbody td[data-label="Trigger"],
+            .tbl:not(.rt) tbody td[data-label="Approval"] {
                 grid-column: 1 / -1;
                 background: color-mix(in srgb, var(--bg) 60%, var(--sf));
                 padding: 7px 10px;
@@ -1390,20 +1350,20 @@
                 border: 1px solid color-mix(in srgb, var(--bd) 45%, transparent)
             }
 
-            .tbl tbody td[data-label="Comment"],
-            .tbl tbody td[data-label="Reference"],
-            .tbl tbody td[data-label="Notes"],
-            .tbl tbody td[data-label="Reason"],
-            table:not(.rt) tbody td[data-label="Comment"],
-            table:not(.rt) tbody td[data-label="Reference"],
-            table:not(.rt) tbody td[data-label="Notes"],
-            table:not(.rt) tbody td[data-label="Reason"] {
+            .tbl:not(.rt) tbody td[data-label="Comment"],
+            .tbl:not(.rt) tbody td[data-label="Reference"],
+            .tbl:not(.rt) tbody td[data-label="Notes"],
+            .tbl:not(.rt) tbody td[data-label="Reason"] {
                 white-space: normal;
                 line-height: 1.4
             }
 
-            .doc table {
-                display: table !important
+            .doc table,
+            .doc-tbl {
+                display: table !important;
+                width: 100% !important;
+                min-width: 680px !important;
+                border-collapse: collapse !important
             }
 
             .doc thead {
@@ -1420,7 +1380,32 @@
 
             .doc td,
             .doc th {
-                display: table-cell !important
+                display: table-cell !important;
+                padding: 8px 10px !important;
+                border: 1px solid var(--bd) !important
+            }
+
+            .doc th:first-child,
+            .doc td:first-child {
+                text-align: center !important;
+                width: 44px !important;
+                padding: 8px 6px !important;
+                font-size: 13px !important;
+                font-weight: 500 !important
+            }
+
+            .doc th:nth-child(2),
+            .doc td:nth-child(2) {
+                text-align: left !important
+            }
+
+            .doc th:nth-child(3),
+            .doc td:nth-child(3),
+            .doc th:nth-child(4),
+            .doc td:nth-child(4),
+            .doc th:nth-child(8),
+            .doc td:nth-child(8) {
+                text-align: center !important
             }
 
             .rt-sortbar {
@@ -1455,7 +1440,9 @@
             }
 
             .tbl.rt tbody td[data-label="Customer"],
-            .tbl.rt tbody td[data-label="Supplier"] {
+            .tbl.rt tbody td[data-label="Supplier"],
+            .tbl:not(.rt) tbody td[data-label="Customer"]:not(:first-child),
+            .tbl:not(.rt) tbody td[data-label="Supplier"]:not(:first-child) {
                 grid-column: 1 / -1;
                 background: color-mix(in srgb, var(--bg) 60%, var(--sf));
                 padding: 6px 10px;
@@ -1825,45 +1812,112 @@
         }
 
         .dw {
-            overflow-x: auto
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 12px 0;
+            border: 1px solid var(--bd);
+            border-radius: 8px;
         }
 
-        .doc table {
-            min-width: 640px
+        .doc table,
+        .doc-tbl {
+            width: 100%;
+            min-width: 680px;
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+            background: transparent;
+            margin: 0;
         }
 
         .doc thead {
-            display: table-header-group
+            display: table-header-group !important;
+        }
+
+        .doc tbody {
+            display: table-row-group !important;
         }
 
         .doc tr {
-            display: table-row;
-            padding: 0;
-            border: 0
+            display: table-row !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
         }
 
-        .doc td,
-        .doc th,
-        .doc tbody tr:last-child td {
-            display: table-cell;
-            text-align: right;
-            padding: 6px 8px;
+        .doc th {
+            display: table-cell !important;
+            text-align: right !important;
+            padding: 8px 10px !important;
             border: 1px solid var(--bd) !important;
-            color: #17191F
+            color: #344054 !important;
+            font-size: 11.5px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: .04em !important;
+            background: #F8F9FA !important;
+            vertical-align: middle !important;
+            white-space: nowrap !important;
+            box-sizing: border-box !important;
         }
 
-        .doc td::before {
-            content: none
+        .doc td {
+            display: table-cell !important;
+            text-align: right !important;
+            padding: 8px 10px !important;
+            border: 1px solid var(--bd) !important;
+            color: #17191F !important;
+            font-size: 13px !important;
+            vertical-align: middle !important;
+            background: transparent !important;
+            box-sizing: border-box !important;
+            white-space: normal !important;
         }
 
-        .doc td:nth-child(2),
-        .doc th:nth-child(2) {
-            text-align: left
+        .doc td::before,
+        .doc th::before {
+            display: none !important;
+            content: none !important;
+        }
+
+        .doc th:first-child,
+        .doc td:first-child {
+            text-align: center !important;
+            width: 44px !important;
+            padding: 8px 6px !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            border-bottom: 1px solid var(--bd) !important;
+            margin: 0 !important;
+        }
+
+        .doc th:nth-child(2),
+        .doc td:nth-child(2) {
+            text-align: left !important;
+        }
+
+        .doc th:nth-child(3),
+        .doc td:nth-child(3) {
+            text-align: center !important;
+            width: 76px !important;
+        }
+
+        .doc th:nth-child(4),
+        .doc td:nth-child(4) {
+            text-align: center !important;
+            width: 52px !important;
+        }
+
+        .doc th:nth-child(8),
+        .doc td:nth-child(8) {
+            text-align: center !important;
+            width: 64px !important;
         }
 
         .doc tbody tr:hover {
-            background: none;
-            cursor: default
+            background: color-mix(in srgb, var(--tx) 2%, transparent) !important;
+            cursor: default !important;
         }
 
         .doc .tot {
