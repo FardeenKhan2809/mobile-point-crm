@@ -1639,10 +1639,19 @@ document.addEventListener('mouseover', e => { const x = DP && DP.picking && e.ta
 
 const cmpN = v => { const a = Math.abs(v), f = (x, s) => +x.toFixed(1) + s; return a >= 1e7 ? f(v / 1e7, 'Cr') : a >= 1e5 ? f(v / 1e5, 'L') : a >= 1e3 ? f(v / 1e3, 'k') : String(+v.toFixed(1)) };
 function dchart(items, o = {}) {
-    const fmt = o.fmt || String, mx = Math.max(1, ...items.map(x => x.v)), s = Math.pow(10, Math.floor(Math.log10(mx))), st = [1, 2, 2.5, 5, 10].find(x => x * s * 4 >= mx) * s, top = st * 4;
-    const len = items.length, maxL = o.maxL || 5, k = o.all ? len : Math.min(len, maxL, Math.max(2, Math.floor((len + 1) / 2)));
-    const ticks = (o.all || k >= len) ? new Set(Array.from({ length: len }, (_, i) => i)) : new Set(Array.from({ length: k }, (_, t) => Math.round(t * (len - 1) / (k - 1))));
-    return `<div class="dc"><div class="dc-p"><div class="dc-g">${[4, 3, 2, 1, 0].map(i => `<span><em>${esc(o.ax ? o.ax(st * i) : cmpN(st * i))}</em></span>`).join('')}</div><div class="dc-b">${items.map(x => `<div class="dc-c" data-tip="${esc(x.t || x.fl || x.l)}|${esc(fmt(x.v))}"><i style="height:${x.v ? Math.max(1.5, x.v / top * 100) : 0}%;background:${x.c || 'var(--ac)'}"></i></div>`).join('')}</div></div><div class="dc-x${o.wrap ? ' wrap' : ''}">${items.map((x, i) => `<span title="${esc(x.t || x.fl || x.l)}">${ticks.has(i) ? (x.sl ? `<span class="xl-s">${esc(x.sl)}</span><span class="xl-f">${esc(x.l)}</span>` : esc(x.l)) : ''}</span>`).join('')}</div></div>`
+    const fmt = o.fmt || String, mx = Math.max(1, ...items.map(x => x.v)), s = Math.pow(10, Math.floor(Math.log10(mx))), st = [1, 2, 2.5, 5, 10].find(x => x * s * 4 >= mx) * s, top = st * 4, len = items.length;
+    let xHTML = '';
+    if (o.all) {
+        xHTML = `<div class="dc-x wrap">${items.map(x => `<span title="${esc(x.t || x.fl || x.l)}"><span class="xl-s">${esc(x.sl || x.l)}</span><span class="xl-f">${esc(x.fl || x.l)}</span></span>`).join('')}</div>`;
+    } else {
+        const k = Math.min(len, o.maxL || 5, Math.max(2, Math.floor((len + 1) / 2)));
+        const ticks = len <= 1 ? [0] : Array.from({ length: k }, (_, t) => Math.round(t * (len - 1) / (k - 1)));
+        xHTML = `<div class="dc-x dc-xt">${ticks.map((idx, ti) => {
+            const align = len <= 1 ? 'center' : ti == 0 ? 'left' : ti == ticks.length - 1 ? 'right' : 'center';
+            return `<span style="text-align:${align}" title="${esc(items[idx].t || items[idx].fl || items[idx].l)}">${esc(items[idx].l)}</span>`;
+        }).join('')}</div>`;
+    }
+    return `<div class="dc"><div class="dc-p"><div class="dc-g">${[4, 3, 2, 1, 0].map(i => `<span><em>${esc(o.ax ? o.ax(st * i) : cmpN(st * i))}</em></span>`).join('')}</div><div class="dc-b">${items.map(x => `<div class="dc-c" data-tip="${esc(x.t || x.fl || x.l)}|${esc(fmt(x.v))}"><i style="height:${x.v ? Math.max(1.5, x.v / top * 100) : 0}%;background:${x.c || 'var(--ac)'}"></i></div>`).join('')}</div></div>${xHTML}</div>`
 }
 function drBuckets(R) { const mode = R.n <= 31 ? 'd' : R.n <= 150 ? 'w' : 'm', key = d => mode == 'd' ? d : mode == 'm' ? d.slice(0, 7) : cdd(d, -new Date(d + 'T00:00:00Z').getUTCDay()), keys = []; for (let d = R.f; d <= R.e; d = cdd(d, 1)) { const k = key(d); if (keys[keys.length - 1] !== k) keys.push(k) } return { mode, key, keys } }
 function overview() {
