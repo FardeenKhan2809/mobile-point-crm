@@ -848,7 +848,8 @@ document.addEventListener('keydown', e => { if (e.key == 'Escape') { const c = $
 document.addEventListener('input', e => { if (e.target.id == 'q') { V.q = e.target.value; V.p = 0; $('#tb').innerHTML = tbody(V.k) } });
 
 function newM() {
-    return modal(`<h1>Create new</h1><p class="mu" style="margin:-4px 0 16px;font-size:13px">Choose an action or record to create across services, retail, and operations.</p>
+    const arr = `<svg class="qnc-arr" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>`;
+    return modal(`<div class="quick-new-handle"></div><div class="quick-new-head"><div><h1>Create new</h1><p>Choose an action or record to create across the system</p></div><button class="quick-new-close" data-act="close" aria-label="Close dialog"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
 <div class="quick-new-wrap">
     <div class="quick-new-sec">
         <div class="quick-new-sec-title">Services & Customers</div>
@@ -858,28 +859,28 @@ function newM() {
                 <div class="qnc-text">
                     <b>Schedule service</b>
                     <small>Book repair, install or maintenance</small>
-                </div>
+                </div>${arr}
             </button>
             <button class="quick-new-card" data-act="add-cust">
                 <span class="qnc-ic">${ic('users')}</span>
                 <div class="qnc-text">
                     <b>Add customer</b>
                     <small>Client profile & contact info</small>
-                </div>
+                </div>${arr}
             </button>
             <button class="quick-new-card" data-act="add-fb">
                 <span class="qnc-ic">${ic('star')}</span>
                 <div class="qnc-text">
                     <b>Record feedback</b>
                     <small>Customer rating or complaint</small>
-                </div>
+                </div>${arr}
             </button>
             <button class="quick-new-card" data-act="plan-new">
                 <span class="qnc-ic">${ic('list')}</span>
                 <div class="qnc-text">
                     <b>Service plan</b>
                     <small>Maintenance contract & visits</small>
-                </div>
+                </div>${arr}
             </button>
         </div>
     </div>
@@ -891,28 +892,28 @@ function newM() {
                 <div class="qnc-text">
                     <b>New sale</b>
                     <small>POS billing & tax invoice</small>
-                </div>
+                </div>${arr}
             </button>
             <button class="quick-new-card" data-act="prod-new">
                 <span class="qnc-ic">${ic('box')}</span>
                 <div class="qnc-text">
                     <b>Add product</b>
                     <small>Catalog item, price & barcode</small>
-                </div>
+                </div>${arr}
             </button>
             <button class="quick-new-card" data-act="po-new">
                 <span class="qnc-ic">${ic('truck')}</span>
                 <div class="qnc-text">
                     <b>Purchase order</b>
                     <small>Order stock from suppliers</small>
-                </div>
+                </div>${arr}
             </button>
             <button class="quick-new-card" data-act="adj">
                 <span class="qnc-ic">${ic('swap')}</span>
                 <div class="qnc-text">
                     <b>Adjust stock</b>
                     <small>Correction, damage or write-off</small>
-                </div>
+                </div>${arr}
             </button>
         </div>
     </div>
@@ -924,21 +925,21 @@ function newM() {
                 <div class="qnc-text">
                     <b>Add supplier</b>
                     <small>Vendor profile & terms</small>
-                </div>
+                </div>${arr}
             </button>
             <button class="quick-new-card" data-act="team-new">
                 <span class="qnc-ic">${ic('team')}</span>
                 <div class="qnc-text">
                     <b>Add team member</b>
                     <small>Technician or staff profile</small>
-                </div>
+                </div>${arr}
             </button>
             <button class="quick-new-card" data-act="user-new">
                 <span class="qnc-ic">${ic('gear')}</span>
                 <div class="qnc-text">
                     <b>Add user</b>
                     <small>Login account & permissions</small>
-                </div>
+                </div>${arr}
             </button>
         </div>
     </div>

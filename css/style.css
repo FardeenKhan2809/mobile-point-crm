@@ -929,15 +929,66 @@
         }
 
         .md:has(.quick-new-wrap) {
-            width: min(660px, 100%);
-            padding: 24px;
+            width: min(640px, 100%);
+            padding: 22px;
+        }
+
+        .quick-new-handle {
+            display: none;
+        }
+
+        .quick-new-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--bd);
+        }
+
+        .quick-new-head h1 {
+            font-size: 19px;
+            margin: 0 0 2px;
+            line-height: 1.25;
+        }
+
+        .quick-new-head p {
+            font-size: 12.5px;
+            color: var(--mu);
+            margin: 0;
+            line-height: 1.35;
+        }
+
+        .quick-new-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            color: var(--mu);
+            background: transparent;
+            cursor: pointer;
+            flex-shrink: 0;
+            border: 0;
+            transition: background .12s, color .12s;
+        }
+
+        .quick-new-close:hover {
+            background: var(--bg);
+            color: var(--tx);
         }
 
         .quick-new-wrap {
             display: flex;
             flex-direction: column;
-            gap: 18px;
-            margin-top: 4px;
+            gap: 16px;
+        }
+
+        .quick-new-sec {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .quick-new-sec-title {
@@ -946,20 +997,20 @@
             text-transform: uppercase;
             letter-spacing: .06em;
             color: var(--mu);
-            margin-bottom: 8px;
+            margin: 0;
         }
 
         .quick-new-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
+            gap: 8px;
         }
 
         .quick-new-card {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 11px 13px;
+            gap: 11px;
+            padding: 10px 12px;
             background: var(--bg);
             border: 1px solid var(--bd);
             border-radius: 12px;
@@ -984,8 +1035,8 @@
         }
 
         .qnc-ic {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -1004,6 +1055,7 @@
             display: flex;
             flex-direction: column;
             min-width: 0;
+            flex: 1;
             overflow: hidden;
             gap: 2px;
         }
@@ -1019,14 +1071,35 @@
             font-size: 11.5px;
             color: var(--mu);
             line-height: 1.3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            white-space: normal;
         }
 
-        @media(max-width:540px) {
+        .qnc-arr {
+            color: var(--mu);
+            opacity: .4;
+            flex-shrink: 0;
+            transition: transform .15s, opacity .15s, color .15s;
+        }
+
+        .quick-new-card:hover .qnc-arr {
+            opacity: 1;
+            transform: translateX(2px);
+            color: var(--ac);
+        }
+
+        @media(max-width:680px) {
             .quick-new-grid {
                 grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .quick-new-card {
+                padding: 10px 12px;
+            }
+
+            .qnc-ic {
+                width: 34px;
+                height: 34px;
             }
         }
 
@@ -1597,11 +1670,22 @@
                 padding: 0
             }
 
-            .md {
-                border-radius: 18px 18px 0 0;
+            .md,
+            .md:has(.quick-new-wrap) {
+                border-radius: 20px 20px 0 0;
                 width: 100%;
-                max-height: 92dvh;
-                padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px))
+                max-height: 90dvh;
+                padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+            }
+
+            .quick-new-handle {
+                display: block;
+                width: 38px;
+                height: 4px;
+                background: var(--bd);
+                border-radius: 2px;
+                margin: -4px auto 14px;
+                flex-shrink: 0;
             }
 
             .ts {
