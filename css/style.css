@@ -18,7 +18,7 @@
         }
 
         @media(prefers-color-scheme:dark) {
-            :root:not([data-theme=light]) {
+            :root[data-theme=system] {
                 --bg: #0F1117;
                 --sf: #171A22;
                 --tx: #ECEEF3;
@@ -1217,7 +1217,6 @@
                 margin-bottom: 2px;
                 border-bottom: 1px solid color-mix(in srgb, var(--bd) 70%, transparent);
                 display: flex;
-                align-items: center;
                 justify-content: flex-start;
                 text-align: left;
                 gap: 10px;
