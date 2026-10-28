@@ -312,7 +312,99 @@ function prodM(id) {
 }
 function prodF() { modal(`<h1>Add product</h1><form data-form="_prod" novalidate><div class="fg"><label>Product name<input name="name"></label><label>Brand<input name="brand"></label><label>Category<select name="cat">${S.cats.map(c => `<option>${esc(c)}</option>`).join('')}</select></label><label>Tracking<select name="type"><option value="Q">Quantity (accessories)</option><option value="S">Serialized (ACs, phones)</option></select></label><label>Cost price (₹)<input name="cost" type="number" min="0"></label><label>Selling price incl. GST (₹)<input name="price" type="number" min="0"></label><label>GST rate (%)<select name="gst"><option>18</option><option>28</option><option>12</option><option>5</option><option>0</option></select></label><label>Reorder level<input name="re" type="number" min="0" value="5"></label><label>Opening quantity (quantity-tracked)<input name="qty" type="number" min="0" value="0"></label><label>Serial numbers (serialized, comma separated)<input name="sn"></label></div><div class="acts"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri">Save product</button></div></form>`) }
 function adjF(id) { modal(`<h1>Adjust stock</h1><form data-form="_adj" novalidate><div class="fg"><label>Product${cb('p', S.products.filter(p => !p.ser).map(p => [p.id, p.name, p.sku + ' · ' + onh(p) + ' on hand']), { val: (S.products.find(p => !p.ser) || {}).id, ph: 'Search product or SKU' })}</label><label>Adjustment type<select name="t"><option>Stock found</option><option>Damaged</option><option>Written off</option><option>Correction</option></select></label><label>Quantity<input name="q" type="number" min="1"></label><label>Reason<textarea name="r" rows="2"></textarea></label></div><p class="mu">Serialized units change only through receipts and sales.</p><div class="acts"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri">Record adjustment</button></div></form>`); if (id && !prod(id).ser) $('[name=p]').value = id; cbSync() }
-function poF(pid) { modal(`<h1>New purchase order</h1><form data-form="_po" novalidate><div class="fg"><label>Supplier${cb('s', S.suppliers.map(s => [s.id, s.name, s.contact + ' · ' + s.phone]), { val: S.suppliers[0].id, ph: 'Search supplier' })}</label><label>Product${cb('p', S.products.map(p => [p.id, p.name, p.sku + ' · ' + onh(p) + ' on hand']), { val: S.products[0].id, ph: 'Search product or SKU' })}</label><label>Quantity<input name="q" type="number" min="1"></label><label>Unit cost (₹, blank for current cost)<input name="c" type="number" min="0"></label></div><div class="acts"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri">Create draft</button></div></form>`); if (pid) { const p = prod(pid); $('[name=p]').value = pid; $('[name=s]').value = p.sup; cbSync() } }
+function poF(pid) {
+    const selP = pid ? prod(pid) : null;
+    const supOpts = S.suppliers.map(s => `<option value="${esc(s.id)}"${selP && selP.sup == s.id ? ' selected' : ''}>${esc(s.name)}${s.city ? ` (${esc(s.city)})` : ''}</option>`).join('');
+    const prodOpts = S.products.map(p => `<option value="${esc(p.id)}"${selP && selP.id == p.id ? ' selected' : ''} data-cost="${p.cost}" data-sup="${esc(p.sup || '')}" data-onh="${onh(p)}">${esc(p.name)} · ${esc(p.sku)} (${onh(p)} in stock)</option>`).join('');
+    modal(`<h1>New Purchase Order</h1>
+    <p class="mu" style="margin:-6px 0 16px">Order inventory stock directly from registered vendors.</p>
+    <form data-form="_po" id="po-form" novalidate>
+        <div class="fg">
+            <label>Supplier *
+                <select name="s" id="po-sup" required>
+                    <option value="">-- Select Supplier --</option>
+                    ${supOpts}
+                </select>
+            </label>
+            <label>Product *
+                <select name="p" id="po-prod" required>
+                    <option value="">-- Select Product --</option>
+                    ${prodOpts}
+                </select>
+            </label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+                <label>Quantity *
+                    <input name="q" id="po-qty" type="number" min="1" value="${selP ? Math.max(1, selP.re * 2 - onh(selP)) : '1'}" placeholder="e.g. 5" required>
+                </label>
+                <label>Unit Cost (₹)
+                    <input name="c" id="po-cost" type="number" min="0" value="${selP ? selP.cost : ''}" placeholder="${selP ? selP.cost : 'Cost price ex GST'}">
+                </label>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+                <label>PO Date
+                    <input name="date" type="date" value="${D(0)}">
+                </label>
+                <label>Reference / Notes
+                    <input name="notes" placeholder="e.g. PO for seasonal restocking">
+                </label>
+            </div>
+            <div id="po-preview" class="panel pad" style="background:color-mix(in srgb,var(--acs) 20%,var(--sf));display:${selP ? 'block' : 'none'};padding:12px 14px">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+                    <div>
+                        <b id="po-prev-title" style="font-size:13.5px">${selP ? esc(selP.name) : ''}</b>
+                        <small id="po-prev-sub" class="mu" style="display:block;font-size:11.5px">${selP ? `Current stock: ${onh(selP)} · Reorder point: ${selP.re}` : ''}</small>
+                    </div>
+                    <div style="text-align:right">
+                        <span class="mu" style="font-size:11.5px;display:block">Estimated Subtotal</span>
+                        <b id="po-prev-total" style="font-size:15px;color:var(--ac)">${selP ? inr(Math.max(1, selP.re * 2 - onh(selP)) * selP.cost) : '₹0'}</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="acts">
+            <button type="button" class="btn" data-act="close">Cancel</button>
+            <button type="submit" class="btn pri">Create Purchase Order</button>
+        </div>
+    </form>`);
+    const pSel = $('#po-prod'), sSel = $('#po-sup'), qInp = $('#po-qty'), cInp = $('#po-cost'), prev = $('#po-preview');
+    const updatePreview = () => {
+        if (!pSel || !pSel.value) {
+            if (prev) prev.style.display = 'none';
+            return;
+        }
+        const pr = prod(pSel.value);
+        if (!pr) return;
+        const q = Math.max(1, +qInp.value || 1);
+        const cost = cInp.value !== '' ? (+cInp.value || 0) : pr.cost;
+        if (prev) {
+            prev.style.display = 'block';
+            $('#po-prev-title').textContent = pr.name + ' (' + pr.sku + ')';
+            $('#po-prev-sub').textContent = 'Current on hand: ' + onh(pr) + ' · Reorder point: ' + pr.re;
+            $('#po-prev-total').textContent = inr(q * cost);
+        }
+    };
+    if (pSel) {
+        pSel.addEventListener('change', () => {
+            const val = pSel.value;
+            if (!val) {
+                if (cInp) { cInp.value = ''; cInp.placeholder = 'Cost price ex GST'; }
+                updatePreview();
+                return;
+            }
+            const pr = prod(val);
+            if (pr) {
+                if (sSel && !sSel.value && pr.sup) sSel.value = pr.sup;
+                if (cInp) {
+                    cInp.value = pr.cost;
+                    cInp.placeholder = String(pr.cost);
+                }
+            }
+            updatePreview();
+        });
+    }
+    if (qInp) qInp.addEventListener('input', updatePreview);
+    if (cInp) cInp.addEventListener('input', updatePreview);
+}
 function poM(id) { const o = S.pos.find(x => x.id == id), open = ['Ordered', 'Partially received'].includes(o.status); modal(`<h1>${esc(o.id)}</h1><p>${B(o.status)} <span class="mu">${esc(sup(o.sup).name)} · ${fd(o.date)}</span></p>${o.lines.map(l => `<div class="li" style="padding-left:0"><div><b>${esc(prod(l.p).name)}</b><small>${l.rec} of ${l.qty} received · ${inr(l.cost)} each</small></div><b>${inr(l.qty * l.cost)}</b></div>`).join('')}<div class="acts"><button class="btn" data-act="close">Close</button>${o.status == 'Draft' ? `<button class="btn pri" data-act="po-place" data-id="${id}">Place order</button>` : ''}${open ? `<button class="btn pri" data-act="po-recv" data-id="${id}">Receive goods</button>` : ''}</div>`) }
 function recvM(id) { const o = S.pos.find(x => x.id == id); modal(`<h1>Receive goods · ${esc(id)}</h1><form data-form="_recv" data-id="${id}" novalidate><div class="fg">${o.lines.map((l, i) => { const p = prod(l.p), out = l.qty - l.rec; return out > 0 ? `<label>${esc(p.name)} (ordered ${l.qty}, received ${l.rec})<input name="q${i}" type="number" min="0" max="${out}" value="${out}">${p.ser ? `<input name="s${i}" placeholder="Serial numbers, comma separated">` : ''}</label>` : '' }).join('')}</div><div class="acts"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn pri">Receive stock</button></div></form>`) }
 function invM(id) { const i = S.invoices.find(x => x.id == id); let tax = 0; const rows = i.lines.map(l => { const p = prod(l.p); tax += l.q * l.pr * p.gst / (100 + p.gst); return `<div class="li" style="padding-left:0"><div><b>${esc(p.name)}</b><small>${l.q} × ${inr(l.pr)} · GST ${p.gst}%${l.sn ? ' · Serial ' + esc(l.sn) : ''}</small></div><b>${inr(l.q * l.pr)}</b></div>` }).join(''); modal(`<h1>${esc(i.id)}</h1><p class="mu">${fd(i.date)} · ${esc(i.cid ? cust(i.cid).name : 'Walk-in customer')} · ${esc(i.pay)} (simulated) ${B('Paid')}</p>${rows}<dl class="kv" style="grid-template-columns:1fr auto"><dt>GST included</dt><dd>${inr(Math.round(tax))}</dd><dt><b>Total</b></dt><dd><b>${inr(i.total)}</b></dd></dl><div class="acts"><button class="btn" data-act="close">Close</button></div>`) }
@@ -356,7 +448,24 @@ document.addEventListener('submit', e => {
         const i = S.products.length, p = { id: 'P' + (1001 + i), sku: 'MP-' + (101 + i), bar: '8901' + String(Date.now()).slice(-8), name: d.name.trim(), brand: d.brand.trim() || 'Generic', cat: d.cat, ser, cost: n(d.cost), price: n(d.price), mrp: n(d.price), gst: n(d.gst), re: n(d.re), sup: 'SP1', qty: ser ? 0 : n(d.qty), units: sns.map(sn => ({ sn, st: 'In stock' })) }; S.products.push(p); if (onh(p) > 0) mv(p, 'Opening stock', onh(p), p.sku, 'New product'); toast('Product added')
     }
     if (k == '_adj') { const p = prod(d.p), q = n(d.q), s = ['Stock found', 'Correction'].includes(d.t) ? 1 : -1; if (!I(d.q) || q < 1) E('q', 'Enter a whole quantity of 1 or more'); else if (s < 0 && q > onh(p)) E('q', 'Only ' + onh(p) + ' on hand. Stock cannot go below zero'); if (!d.r.trim()) E('r', 'Enter a reason'); if (!ok) return; p.qty += s * q; mv(p, d.t == 'Correction' ? 'Adjustment' : d.t, s * q, 'Manual', d.r.trim()); toast('Stock adjusted') }
-    if (k == '_po') { if (!I(d.q) || n(d.q) < 1) return void E('q', 'Enter a whole quantity of 1 or more'); const p = prod(d.p); S.pos.unshift({ id: 'PO-' + (2001 + S.pos.length), sup: d.s, date: D(0), status: 'Draft', lines: [{ p: d.p, qty: n(d.q), rec: 0, cost: d.c === '' ? p.cost : n(d.c) }] }); toast('Draft purchase order created') }
+    if (k == '_po') {
+        if (!d.s) return void E('s', 'Please select a supplier');
+        if (!d.p) return void E('p', 'Please select a product');
+        if (!I(d.q) || n(d.q) < 1) return void E('q', 'Enter a whole quantity of 1 or more');
+        const p = prod(d.p);
+        if (!p) return void E('p', 'Selected product is invalid');
+        const unitCost = d.c === '' || d.c == null ? p.cost : n(d.c);
+        if (unitCost < 0) return void E('c', 'Cost cannot be negative');
+        S.pos.unshift({
+            id: 'PO-' + (2001 + S.pos.length),
+            sup: d.s,
+            date: d.date || D(0),
+            status: 'Draft',
+            notes: (d.notes || '').trim(),
+            lines: [{ p: d.p, qty: n(d.q), rec: 0, cost: unitCost }]
+        });
+        toast('Draft purchase order ' + S.pos[0].id + ' created');
+    }
     if (k == '_recv') {
         const o = S.pos.find(x => x.id == f.dataset.id), seen = new Set(all), plan = []; let tot = 0; o.lines.forEach((l, i) => { const out = l.qty - l.rec; if (out <= 0) return; const q = n(d['q' + i] || 0), p = prod(l.p); if (!Number.isInteger(q) || q < 0 || q > out) return E('q' + i, 'Enter 0 to ' + out); let sns = []; if (p.ser && q > 0) { sns = (d['s' + i] || '').split(',').map(x => x.trim()).filter(Boolean); if (sns.length != q) return E('s' + i, 'Enter exactly ' + q + ' serial numbers'); if (new Set(sns).size != q || sns.some(s => seen.has(s))) return E('s' + i, 'Serial numbers must be unique and not already registered'); sns.forEach(s => seen.add(s)) } tot += q; plan.push([l, p, q, sns]) });
         if (!ok) return; if (!tot) return void E('q' + o.lines.findIndex(l => l.qty > l.rec), 'Enter a received quantity');
