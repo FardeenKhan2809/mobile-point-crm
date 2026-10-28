@@ -2315,16 +2315,17 @@
 
         .sxp {
             position: fixed;
-            z-index: 95;
+            z-index: 9999;
             padding: 4px;
             background: var(--sf);
             color: var(--tx);
             border: 1px solid var(--bd);
             border-radius: 8px;
             box-shadow: 0 12px 32px -8px rgba(0, 0, 0, .28), 0 2px 6px rgba(0, 0, 0, .06);
-            overflow: auto;
+            overflow: hidden;
             animation: sxin .12s var(--ease);
-            transform-origin: top
+            transform-origin: top;
+            box-sizing: border-box
         }
 
         @keyframes sxin {
@@ -2334,16 +2335,88 @@
             }
         }
 
+        .sxs {
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--bd);
+            margin: -4px -4px 4px -4px;
+            background: var(--sf);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            box-sizing: border-box
+        }
+
+        .sxs-ic {
+            position: absolute;
+            left: 17px;
+            width: 14px;
+            height: 14px;
+            color: var(--mu);
+            pointer-events: none
+        }
+
+        .sxi-q {
+            width: 100%;
+            height: 32px;
+            padding: 0 28px 0 28px;
+            border: 1px solid var(--bd);
+            border-radius: 6px;
+            background: var(--bg);
+            color: var(--tx);
+            font-size: 13px;
+            outline: 0;
+            box-sizing: border-box;
+            transition: border-color .15s, box-shadow .15s
+        }
+
+        .sxi-q:focus {
+            border-color: var(--ac);
+            box-shadow: 0 0 0 2px var(--ring)
+        }
+
+        .sxs-clr {
+            position: absolute;
+            right: 14px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            background: transparent;
+            color: var(--mu);
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 0
+        }
+
+        .sxs-clr:hover {
+            color: var(--tx);
+            background: color-mix(in srgb, var(--tx) 8%, transparent)
+        }
+
+        .sxl {
+            overflow-y: auto;
+            max-height: 260px;
+            overscroll-behavior: contain;
+            box-sizing: border-box
+        }
+
         .sxi {
             display: flex;
             align-items: center;
             position: relative;
             padding: 7px 10px 7px 30px;
             border-radius: 6px;
-            font-size: 14px;
-            cursor: default;
+            font-size: 13px;
+            cursor: pointer;
             user-select: none;
-            white-space: nowrap
+            line-height: 1.35;
+            box-sizing: border-box
         }
 
         .sxi svg {
@@ -2370,6 +2443,35 @@
         .sxi[aria-disabled=true] {
             opacity: .45;
             pointer-events: none
+        }
+
+        .sxi-m {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column
+        }
+
+        .sxi-m>span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .sxi-sub {
+            font-size: 11px;
+            color: var(--mu);
+            margin-top: 1px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .sxi-none {
+            padding: 14px 10px;
+            text-align: center;
+            color: var(--mu);
+            font-size: 13px
         }
 
         .sxg {
