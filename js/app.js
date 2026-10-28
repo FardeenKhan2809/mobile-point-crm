@@ -590,7 +590,7 @@ function invPage(id) {
     const rt = Math.round(tx), rg = Math.round(gt);
     return `<div class='pg'><nav class='bc mu noprint'><button class='lnk' data-act='nav' data-p='invoices'>Invoices</button> / ${esc(i.id)}</nav><div class='ph noprint'><div><h1>Invoice ${esc(i.id)}</h1><p>Viewing or printing never changes stock. Stock was deducted once when the sale was completed.</p></div><div style='display:flex;gap:8px;flex-wrap:wrap'>${c ? `<button class='btn' data-act='nav' data-p='customers'>Customers</button>` : ''}<button class='btn' data-act='nav' data-p='sales'>New sale</button><button class='btn pri' data-act='print'>Print or save as PDF</button></div></div>
  <div class='doc'><div style='display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;border-bottom:2px solid #17191F;padding-bottom:12px'><div style='display:flex;gap:12px;align-items:center'>${s.logo ? `<img src='${esc(s.logo)}' alt='Logo' style='width:44px;height:44px;object-fit:contain'>` : `<img src='assets/icon.svg' alt='Logo' style='width:44px;height:44px;border-radius:12px;object-fit:contain'>`}<div><b style='font-size:18px'>${esc(s.store)}</b><div>${esc(s.addr)}</div><div>${esc(s.phone)} · ${esc(s.email)}</div><div>GSTIN: ${esc(s.gstin)}</div></div></div><div style='text-align:right'><b style='font-size:16px'>TAX INVOICE</b><div>No: <b>${esc(i.id)}</b></div><div>Date: ${new Date(i.date + 'T00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div></div></div>
- <div style='display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:12px 0'><div><b>Billed to</b><div>${esc(c ? c.name : 'Walk-in customer')}</div>${c ? `<div>${esc(c.city || '')} · ${esc(c.phone)}</div>` : ''}</div><div style='text-align:right'><b>Payment</b><div>${esc(i.pay)} · Paid (simulated)</div><div>Supply: ${inter ? 'Inter-state (IGST)' : 'Intra-state (CGST + SGST)'}</div></div></div>
+ <div style='display:flex;justify-content:space-between;gap:16px;margin:12px 0'><div><b>Billed to</b><div>${esc(c ? c.name : 'Walk-in customer')}</div>${c ? `<div>${esc(c.city || '')} · ${esc(c.phone)}</div>` : ''}</div><div style='text-align:right'><b>Payment</b><div>${esc(i.pay)} · Paid (simulated)</div><div>Supply: ${inter ? 'Inter-state (IGST)' : 'Intra-state (CGST + SGST)'}</div></div></div>
  <div class='dw'><table class='doc-tbl'><thead><tr><th>#</th><th>Description</th><th>HSN</th><th>Qty</th><th>Rate</th><th>Disc.</th><th>Taxable</th><th>GST</th><th>GST amt</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table></div>
  <div class='tot' style='margin-top:12px'><div><span>Taxable amount</span><span>${inr(rt)}</span></div>${inter ? `<div><span>IGST</span><span>${inr(rg)}</span></div>` : `<div><span>CGST</span><span>${inr(Math.floor(rg / 2))}</span></div><div><span>SGST</span><span>${inr(rg - Math.floor(rg / 2))}</span></div>`}<div><span>Round-off</span><span>${inr(i.total - rt - rg)}</span></div><div style='border-top:2px solid #17191F;font-weight:700;font-size:15px'><span>Grand total</span><span>${inr(i.total)}</span></div></div>
  <p style='margin-top:8px'><b>Amount in words:</b> Rupees ${words(i.total)} only</p><p style='margin-top:12px;color:#667085'>Terms: ${esc(s.terms || 'Goods once sold are covered by manufacturer warranty only.')} Demo document, not a certified tax invoice.</p><div style='display:flex;justify-content:space-between;margin-top:40px'><span>Thank you for shopping at ${esc(s.store)}.</span><span style='border-top:1px solid #17191F;padding-top:4px'>Authorized signatory</span></div></div></div>`
@@ -612,7 +612,7 @@ function settings() {
 function retailAct2(d) {
     if (notifAct(d)) return 1;
     switch (d.act) {
-        case 'inv': go('invoices/' + d.id); return 1; case 'prod-new': go('products/new'); return 1; case 'popen': go('products/' + d.id); return 1; case 'pedit': go('products/edit/' + d.id); return 1; case 'pcancel': go('products'); return 1; case 'psave': psave(d.id); return 1;
+        case 'inv': go('invoices/' + d.id); return 1; case 'prod-new': closeM(); go('products/new'); return 1; case 'popen': go('products/' + d.id); return 1; case 'pedit': go('products/edit/' + d.id); return 1; case 'pcancel': go('products'); return 1; case 'psave': psave(d.id); return 1;
         case 'pdup': { const o = prod(d.id), p = { ...o, id: 'P' + (1001 + S.products.length), sku: o.sku + '-COPY', name: o.name + ' (copy)', qty: 0, units: [], bar: '8901' + String(Date.now()).slice(-8) }; S.products.push(p); save(); toast('Duplicated. Review the copy and save'); go('products/edit/' + p.id); return 1 }
         case 'pv': SS().view = d.v; save(); render(true); return 1; case 'set': SS()[d.k] = d.v; save(); applySet(); render(true); return 1; case 'tab': ST = d.v; render(true); return 1;
         case 'cal': calNav(d.v); return 1;
@@ -847,6 +847,105 @@ document.addEventListener('click', e => {
 document.addEventListener('keydown', e => { if (e.key == 'Escape') { const c = $('#cart'); if (c && c.classList.contains('open')) { c.classList.remove('open'); $('.pos-cart-bd')?.classList.remove('open'); return } closeM() } if (e.key == '/' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); ($('#gq') || { focus() { } }).focus() } if (e.key == 'Enter' && e.target.matches('tr[data-open]')) e.target.click() });
 document.addEventListener('input', e => { if (e.target.id == 'q') { V.q = e.target.value; V.p = 0; $('#tb').innerHTML = tbody(V.k) } });
 
+function newM() {
+    return modal(`<h1>Create new</h1><p class="mu" style="margin:-4px 0 16px;font-size:13px">Choose an action or record to create across services, retail, and operations.</p>
+<div class="quick-new-wrap">
+    <div class="quick-new-sec">
+        <div class="quick-new-sec-title">Services & Customers</div>
+        <div class="quick-new-grid">
+            <button class="quick-new-card" data-act="add-job">
+                <span class="qnc-ic">${ic('wrench')}</span>
+                <div class="qnc-text">
+                    <b>Schedule service</b>
+                    <small>Book repair, install or maintenance</small>
+                </div>
+            </button>
+            <button class="quick-new-card" data-act="add-cust">
+                <span class="qnc-ic">${ic('users')}</span>
+                <div class="qnc-text">
+                    <b>Add customer</b>
+                    <small>Client profile & contact info</small>
+                </div>
+            </button>
+            <button class="quick-new-card" data-act="add-fb">
+                <span class="qnc-ic">${ic('star')}</span>
+                <div class="qnc-text">
+                    <b>Record feedback</b>
+                    <small>Customer rating or complaint</small>
+                </div>
+            </button>
+            <button class="quick-new-card" data-act="plan-new">
+                <span class="qnc-ic">${ic('list')}</span>
+                <div class="qnc-text">
+                    <b>Service plan</b>
+                    <small>Maintenance contract & visits</small>
+                </div>
+            </button>
+        </div>
+    </div>
+    <div class="quick-new-sec">
+        <div class="quick-new-sec-title">Sales & Stock</div>
+        <div class="quick-new-grid">
+            <button class="quick-new-card" data-act="sale-new">
+                <span class="qnc-ic">${ic('cart')}</span>
+                <div class="qnc-text">
+                    <b>New sale</b>
+                    <small>POS billing & tax invoice</small>
+                </div>
+            </button>
+            <button class="quick-new-card" data-act="prod-new">
+                <span class="qnc-ic">${ic('box')}</span>
+                <div class="qnc-text">
+                    <b>Add product</b>
+                    <small>Catalog item, price & barcode</small>
+                </div>
+            </button>
+            <button class="quick-new-card" data-act="po-new">
+                <span class="qnc-ic">${ic('truck')}</span>
+                <div class="qnc-text">
+                    <b>Purchase order</b>
+                    <small>Order stock from suppliers</small>
+                </div>
+            </button>
+            <button class="quick-new-card" data-act="adj">
+                <span class="qnc-ic">${ic('swap')}</span>
+                <div class="qnc-text">
+                    <b>Adjust stock</b>
+                    <small>Correction, damage or write-off</small>
+                </div>
+            </button>
+        </div>
+    </div>
+    <div class="quick-new-sec">
+        <div class="quick-new-sec-title">Organization & Staff</div>
+        <div class="quick-new-grid">
+            <button class="quick-new-card" data-act="sup-new">
+                <span class="qnc-ic">${ic('truck')}</span>
+                <div class="qnc-text">
+                    <b>Add supplier</b>
+                    <small>Vendor profile & terms</small>
+                </div>
+            </button>
+            <button class="quick-new-card" data-act="team-new">
+                <span class="qnc-ic">${ic('team')}</span>
+                <div class="qnc-text">
+                    <b>Add team member</b>
+                    <small>Technician or staff profile</small>
+                </div>
+            </button>
+            <button class="quick-new-card" data-act="user-new">
+                <span class="qnc-ic">${ic('gear')}</span>
+                <div class="qnc-text">
+                    <b>Add user</b>
+                    <small>Login account & permissions</small>
+                </div>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="acts" style="margin-top:16px"><button class="btn" data-act="close">Close</button></div>`);
+}
+
 function act(a, e) {
     const d = a.dataset, j = () => S.jobs.find(x => x.id == d.id); if (retailAct(d, e)) return;
     switch (d.act) {
@@ -857,7 +956,7 @@ function act(a, e) {
         case 'theme': { const r = document.documentElement, next = r.dataset.theme == 'dark' ? 'light' : 'dark'; r.dataset.theme = next; SS().theme = next; save(); return }
         case 'add-cust': closeM(); return go('customers/new'); case 'add-fb': return formM('fb');
         case 'add-job': formM('job'); if (d.c) { const s = $('[name=ac]'); const m = S.assets.find(x => x.cid == d.c); m && (s.value = m.sn) } return;
-        case 'new': return modal('<h1>Create new</h1><div class="fg"><button class="btn" data-act="add-cust">Add customer</button><button class="btn" data-act="add-job">Schedule service</button><button class="btn" data-act="add-fb">Record feedback</button></div>');
+        case 'new': return newM();
         case 'bell': { const n = [...S.msgs.filter(m => m.status == 'Failed').map(m => `Failed ${m.ch} message to ${cust(m.cid).name}`), ...S.fb.filter(f => f.status == 'Open').map(f => `Low rating from ${cust(f.cid).name}`), ...S.jobs.filter(j => j.status == 'Due' || (!j.tech && j.status != 'Completed' && j.status != 'Cancelled')).map(j => `${j.id} needs a technician or booking`)]; return modal(`<h1>Notifications</h1>${n.map(x => `<div class="li" style="padding-left:0">${esc(x)}</div>`).join('') || '<div class="empty">All clear</div>'}<div class="acts"><button class="btn" data-act="close">Close</button></div>`) }
         case 'st': j().status = d.s; save(); toast('Status updated to ' + d.s); closeM(); return render(true);
         case 'assign': { const x = j(); x.tech = $('#tsel').value; if (x.status == 'Due' || x.status == 'Booked') x.status = 'Assigned'; save(); toast('Assigned to ' + x.tech + '. Notification queued (simulated)'); closeM(); return render(true) }
@@ -1464,7 +1563,7 @@ function teamM(id) {
 }
 function planM(id) { const p = id ? S.plans.find(x => x.id == id) : { name: '', visits: 2, days: 180, active: true }; modal(`<h1>${id ? 'Plan: ' + esc(p.name) : 'Add service plan'}</h1><div class="fg"><label>Plan name<input id="pln" value="${esc(p.name)}"></label><label>Included visits<input id="plv" type="number" min="1" value="${p.visits}"></label><label>Interval between visits (days)<input id="pld" type="number" min="1" value="${p.days}"></label><label class="row"><input id="pla" type="checkbox" ${p.active ? 'checked' : ''}>Active</label></div>${id ? `<p class="mu">${S.assets.filter(a => a.plan == id).length} AC(s) use this plan. Changes affect their calculated entitlements.</p>` : ''}<div class="acts"><button class="btn" data-act="close">Cancel</button><button class="btn pri" data-act="plan-save" data-id="${id || ''}">Save plan</button></div>`) }
 const ACT2 = {
-    'sup-new': () => go('suppliers/new'), 'team-new': () => go('team/new'), 'sale-new': () => go('sales'), 'plan-new': () => planM(), 'po-open': d => poM(d.id), 'sup-edit': d => { closeM(); go('suppliers/edit/' + d.id) }, 'team-edit': d => { closeM(); go('team/edit/' + d.id) }, 'cust-edit': d => { closeM(); go('customers/edit/' + d.id) }, 'fsave': d => fsave(d.k, d.id), 'fcancel': d => go(FM[d.k].back),
+    'sup-new': () => { closeM(); go('suppliers/new') }, 'team-new': () => { closeM(); go('team/new') }, 'sale-new': () => { closeM(); go('sales') }, 'plan-new': () => planM(), 'po-open': d => poM(d.id), 'sup-edit': d => { closeM(); go('suppliers/edit/' + d.id) }, 'team-edit': d => { closeM(); go('team/edit/' + d.id) }, 'cust-edit': d => { closeM(); go('customers/edit/' + d.id) }, 'fsave': d => fsave(d.k, d.id), 'fcancel': d => go(FM[d.k].back),
     'sup-po': d => { poF(); $('[name=s]').value = d.id; cbSync() }, 'team-toggle': d => { const t = S.team.find(x => x.id == d.id); if (t.active !== false && !confirm('Deactivate ' + t.name + '? They will no longer be offered for new jobs.')) return; t.active = t.active === false; save(); toast(t.name + (t.active ? ' activated' : ' deactivated')); closeM(); render(true) },
     'plan-save': d => { const n = $('#pln').value.trim(), v = +$('#plv').value, y = +$('#pld').value; if (!n) return toast('Enter a plan name', 'er'); if (!Number.isInteger(v) || v < 1 || !Number.isInteger(y) || y < 1) return toast('Visits and interval must be whole numbers of 1 or more', 'er'); if (S.plans.some(p => p.id != d.id && p.name.toLowerCase() == n.toLowerCase())) return toast('A plan with this name exists', 'er'); if (d.id) { Object.assign(S.plans.find(p => p.id == d.id), { name: n, visits: v, days: y, active: $('#pla').checked }) } else S.plans.push({ id: 'P' + (Math.max(0, ...S.plans.map(p => +p.id.replace(/\D/g, '') || 0)) + 1), name: n, visits: v, days: y, start: 'Purchase date', active: $('#pla').checked }); save(); toast('Plan saved'); closeM(); render(true) }
 };
