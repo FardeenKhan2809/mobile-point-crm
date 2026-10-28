@@ -1096,25 +1096,66 @@
                 max-width: 100%
             }
 
+            .panel:has(table:not(.doc table):not(.rt)) {
+                background: transparent;
+                border: 0;
+                box-shadow: none;
+                overflow: visible
+            }
+
+            .panel:has(table:not(.doc table):not(.rt)) .pgn {
+                background: var(--sf);
+                border: 1px solid var(--bd);
+                border-radius: 12px;
+                margin-top: 8px;
+                padding: 10px 14px
+            }
+
+            table:not(.doc table):not(.rt) {
+                display: block;
+                width: 100%;
+                max-width: 100%;
+                background: transparent;
+                border-collapse: separate;
+                border-spacing: 0
+            }
+
+            table:not(.doc table):not(.rt) thead {
+                display: none
+            }
+
+            table:not(.doc table):not(.rt) tbody {
+                display: block;
+                width: 100%;
+                max-width: 100%
+            }
+
             table:not(.doc table):not(.rt) tbody tr {
                 display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 5px 14px;
-                padding: 12px 14px;
-                border-bottom: 1px solid var(--bd);
+                column-gap: 12px;
+                row-gap: 10px;
+                padding: 14px 14px 12px;
+                margin-bottom: 10px;
                 background: var(--sf);
-                transition: background .12s;
+                border: 1px solid var(--bd);
+                border-radius: 12px;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
                 position: relative;
                 cursor: pointer;
-                align-items: center;
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box
+                box-sizing: border-box;
+                transition: border-color .15s, box-shadow .15s, background .15s
+            }
+
+            table:not(.doc table):not(.rt) tbody tr:last-child {
+                margin-bottom: 0
             }
 
             table:not(.doc table):not(.rt) tbody tr:hover,
             table:not(.doc table):not(.rt) tbody tr:active {
-                background: var(--bg)
+                background: color-mix(in srgb, var(--tx) 2.5%, var(--sf));
+                border-color: color-mix(in srgb, var(--ac) 40%, var(--bd));
+                box-shadow: 0 2px 8px rgba(0, 0, 0, .07)
             }
 
             table:not(.doc table):not(.rt) tbody td:first-child {
@@ -1123,10 +1164,12 @@
                 font-size: 15px;
                 font-weight: 600;
                 color: var(--tx);
-                padding: 0 85px 0 0;
+                padding: 0 85px 10px 0;
+                margin-bottom: 2px;
+                border-bottom: 1px solid color-mix(in srgb, var(--bd) 70%, transparent);
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 10px;
                 min-width: 0;
                 max-width: 100%;
                 overflow: hidden;
@@ -1152,7 +1195,7 @@
             table:not(.doc table):not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b) {
                 position: absolute;
                 right: 14px;
-                top: 12px;
+                top: 13px;
                 padding: 0;
                 margin: 0;
                 display: flex;
@@ -1174,10 +1217,11 @@
 
             table:not(.doc table):not(.rt) tbody td {
                 display: flex;
-                align-items: center;
-                gap: 6px;
-                padding: 2px 0;
-                font-size: 13px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
+                padding: 1px 0;
+                font-size: 13.5px;
                 color: var(--tx);
                 min-width: 0;
                 max-width: 100%;
@@ -1190,10 +1234,13 @@
             }
 
             table:not(.doc table):not(.rt) tbody td::before {
-                content: attr(data-label) ": ";
+                content: attr(data-label);
                 color: var(--mu);
-                font-size: 12px;
-                font-weight: 500;
+                font-size: 10.5px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: .05em;
+                line-height: 1.1;
                 flex-shrink: 0
             }
 
@@ -1220,7 +1267,11 @@
             table:not(.doc table):not(.rt) tbody td[data-label="Template"],
             table:not(.doc table):not(.rt) tbody td[data-label="Trigger"],
             table:not(.doc table):not(.rt) tbody td[data-label="Approval"] {
-                grid-column: 1 / -1
+                grid-column: 1 / -1;
+                background: color-mix(in srgb, var(--bg) 60%, var(--sf));
+                padding: 7px 10px;
+                border-radius: 8px;
+                border: 1px solid color-mix(in srgb, var(--bd) 45%, transparent)
             }
 
             table:not(.doc table):not(.rt) tbody td[data-label="Comment"],
