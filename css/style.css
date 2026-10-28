@@ -501,7 +501,8 @@
             font-weight: 600;
             white-space: nowrap;
             background: var(--bg);
-            color: var(--mu)
+            color: var(--mu);
+            width: fit-content;
         }
 
         .b.ok {
@@ -1241,7 +1242,7 @@
             }
 
             .tbl tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:first-child,
-            table:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:first-child {
+            table:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) {
                 padding-right: 0;
             }
 
@@ -1261,7 +1262,7 @@
             table:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b) {
                 position: absolute;
                 right: 14px;
-                top: 13px;
+                top: 7px;
                 padding: 0;
                 margin: 0;
                 display: flex;
@@ -3125,21 +3126,50 @@
             display: flex;
             gap: clamp(2px, 1.2%, 10px);
             padding-left: 44px;
-            font-size: 11px;
+            font-size: 10.5px;
             color: var(--mu);
             line-height: 1.2;
-            min-height: 15px
+            min-height: 16px;
+            overflow: hidden
         }
 
         .dc-x span {
             flex: 1;
             min-width: 0;
             text-align: center;
-            white-space: nowrap
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 1px;
+            box-sizing: border-box
         }
 
         .dc-x.wrap span {
             white-space: normal
+        }
+
+        .dc-x .xl-s {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        .dc-x .xl-f {
+            display: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap
+        }
+
+        @media(min-width:1400px) {
+            .dc-x .xl-s {
+                display: none
+            }
+
+            .dc-x .xl-f {
+                display: block
+            }
         }
 
         .dc-v {
