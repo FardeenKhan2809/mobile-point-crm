@@ -560,6 +560,8 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            justify-content: flex-start;
+            text-align: left;
             font-weight: 600;
             min-width: 0;
             max-width: 100%
@@ -1080,30 +1082,15 @@
                 font-weight: 600
             }
 
-            table:not(.doc table):not(.rt) {
-                display: block;
-                width: 100%;
-                max-width: 100%
-            }
-
-            table:not(.doc table):not(.rt) thead {
-                display: none
-            }
-
-            table:not(.doc table):not(.rt) tbody {
-                display: block;
-                width: 100%;
-                max-width: 100%
-            }
-
-            .panel:has(table:not(.doc table):not(.rt)) {
+            .panel:has(table:not(.rt)),
+            .panel:has(.tbl) {
                 background: transparent;
                 border: 0;
                 box-shadow: none;
                 overflow: visible
             }
 
-            .panel:has(table:not(.doc table):not(.rt)) .pgn {
+            .panel .pgn {
                 background: var(--sf);
                 border: 1px solid var(--bd);
                 border-radius: 12px;
@@ -1111,7 +1098,8 @@
                 padding: 10px 14px
             }
 
-            table:not(.doc table):not(.rt) {
+            .tbl,
+            table:not(.rt) {
                 display: block;
                 width: 100%;
                 max-width: 100%;
@@ -1120,17 +1108,20 @@
                 border-spacing: 0
             }
 
-            table:not(.doc table):not(.rt) thead {
+            .tbl thead,
+            table:not(.rt) thead {
                 display: none
             }
 
-            table:not(.doc table):not(.rt) tbody {
+            .tbl tbody,
+            table:not(.rt) tbody {
                 display: block;
                 width: 100%;
                 max-width: 100%
             }
 
-            table:not(.doc table):not(.rt) tbody tr {
+            .tbl tbody tr,
+            table:not(.rt) tbody tr {
                 display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
                 column-gap: 12px;
@@ -1144,21 +1135,26 @@
                 position: relative;
                 cursor: pointer;
                 box-sizing: border-box;
+                text-align: left;
                 transition: border-color .15s, box-shadow .15s, background .15s
             }
 
-            table:not(.doc table):not(.rt) tbody tr:last-child {
+            .tbl tbody tr:last-child,
+            table:not(.rt) tbody tr:last-child {
                 margin-bottom: 0
             }
 
-            table:not(.doc table):not(.rt) tbody tr:hover,
-            table:not(.doc table):not(.rt) tbody tr:active {
+            .tbl tbody tr:hover,
+            .tbl tbody tr:active,
+            table:not(.rt) tbody tr:hover,
+            table:not(.rt) tbody tr:active {
                 background: color-mix(in srgb, var(--tx) 2.5%, var(--sf));
                 border-color: color-mix(in srgb, var(--ac) 40%, var(--bd));
                 box-shadow: 0 2px 8px rgba(0, 0, 0, .07)
             }
 
-            table:not(.doc table):not(.rt) tbody td:first-child {
+            .tbl tbody td:first-child,
+            table:not(.rt) tbody td:first-child {
                 grid-column: 1 / -1;
                 grid-row: 1;
                 font-size: 15px;
@@ -1169,6 +1165,8 @@
                 border-bottom: 1px solid color-mix(in srgb, var(--bd) 70%, transparent);
                 display: flex;
                 align-items: center;
+                justify-content: flex-start;
+                text-align: left;
                 gap: 10px;
                 min-width: 0;
                 max-width: 100%;
@@ -1178,21 +1176,30 @@
                 box-sizing: border-box
             }
 
-            table:not(.doc table):not(.rt) tbody td:first-child::before {
+            .tbl tbody td:first-child::before,
+            table:not(.rt) tbody td:first-child::before {
                 display: none !important
             }
 
-            table:not(.doc table):not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:first-child {
+            .tbl tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:first-child,
+            table:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:first-child {
                 padding-right: 0
             }
 
-            table:not(.doc table):not(.rt) tbody td[data-status],
-            table:not(.doc table):not(.rt) tbody td[data-label="Status"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Entitlement"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Stock"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Complaint"],
-            table:not(.doc table):not(.rt) tbody td:has(.sw),
-            table:not(.doc table):not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b) {
+            .tbl tbody td[data-status],
+            .tbl tbody td[data-label="Status"],
+            .tbl tbody td[data-label="Entitlement"],
+            .tbl tbody td[data-label="Stock"],
+            .tbl tbody td[data-label="Complaint"],
+            .tbl tbody td:has(.sw),
+            .tbl tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b),
+            table:not(.rt) tbody td[data-status],
+            table:not(.rt) tbody td[data-label="Status"],
+            table:not(.rt) tbody td[data-label="Entitlement"],
+            table:not(.rt) tbody td[data-label="Stock"],
+            table:not(.rt) tbody td[data-label="Complaint"],
+            table:not(.rt) tbody td:has(.sw),
+            table:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b) {
                 position: absolute;
                 right: 14px;
                 top: 13px;
@@ -1205,20 +1212,29 @@
                 z-index: 1
             }
 
-            table:not(.doc table):not(.rt) tbody td[data-status]::before,
-            table:not(.doc table):not(.rt) tbody td[data-label="Status"]::before,
-            table:not(.doc table):not(.rt) tbody td[data-label="Entitlement"]::before,
-            table:not(.doc table):not(.rt) tbody td[data-label="Stock"]::before,
-            table:not(.doc table):not(.rt) tbody td[data-label="Complaint"]::before,
-            table:not(.doc table):not(.rt) tbody td:has(.sw)::before,
-            table:not(.doc table):not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b)::before {
+            .tbl tbody td[data-status]::before,
+            .tbl tbody td[data-label="Status"]::before,
+            .tbl tbody td[data-label="Entitlement"]::before,
+            .tbl tbody td[data-label="Stock"]::before,
+            .tbl tbody td[data-label="Complaint"]::before,
+            .tbl tbody td:has(.sw)::before,
+            .tbl tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b)::before,
+            table:not(.rt) tbody td[data-status]::before,
+            table:not(.rt) tbody td[data-label="Status"]::before,
+            table:not(.rt) tbody td[data-label="Entitlement"]::before,
+            table:not(.rt) tbody td[data-label="Stock"]::before,
+            table:not(.rt) tbody td[data-label="Complaint"]::before,
+            table:not(.rt) tbody td:has(.sw)::before,
+            table:not(.rt) tbody tr:not(:has([data-status])):not(:has([data-label="Status"])):not(:has([data-label="Entitlement"])):not(:has([data-label="Stock"])):not(:has([data-label="Complaint"])):not(:has(.sw)) td:last-child:has(.b)::before {
                 display: none !important
             }
 
-            table:not(.doc table):not(.rt) tbody td {
+            .tbl tbody td,
+            table:not(.rt) tbody td {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
+                justify-content: flex-start;
                 gap: 2px;
                 padding: 1px 0;
                 font-size: 13.5px;
@@ -1233,7 +1249,8 @@
                 box-sizing: border-box
             }
 
-            table:not(.doc table):not(.rt) tbody td::before {
+            .tbl tbody td::before,
+            table:not(.rt) tbody td::before {
                 content: attr(data-label);
                 color: var(--mu);
                 font-size: 10.5px;
@@ -1241,32 +1258,48 @@
                 text-transform: uppercase;
                 letter-spacing: .05em;
                 line-height: 1.1;
+                text-align: left;
                 flex-shrink: 0
             }
 
-            table:not(.doc table):not(.rt) tbody td[data-label=""]::before {
+            .tbl tbody td[data-label=""]::before,
+            table:not(.rt) tbody td[data-label=""]::before {
                 display: none !important
             }
 
-            table:not(.doc table):not(.rt) tbody td>span,
-            table:not(.doc table):not(.rt) tbody td>b {
+            .tbl tbody td>span,
+            .tbl tbody td>b,
+            table:not(.rt) tbody td>span,
+            table:not(.rt) tbody td>b {
                 min-width: 0;
                 overflow: hidden;
                 text-overflow: ellipsis;
-                white-space: nowrap
+                white-space: nowrap;
+                text-align: left
             }
 
-            table:not(.doc table):not(.rt) tbody td[data-label="Next service"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Next free service"],
-            table:not(.doc table):not(.rt) tbody td[data-label="AC"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Product"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Comment"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Reference"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Notes"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Reason"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Template"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Trigger"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Approval"] {
+            .tbl tbody td[data-label="Next service"],
+            .tbl tbody td[data-label="Next free service"],
+            .tbl tbody td[data-label="AC"],
+            .tbl tbody td[data-label="Product"],
+            .tbl tbody td[data-label="Comment"],
+            .tbl tbody td[data-label="Reference"],
+            .tbl tbody td[data-label="Notes"],
+            .tbl tbody td[data-label="Reason"],
+            .tbl tbody td[data-label="Template"],
+            .tbl tbody td[data-label="Trigger"],
+            .tbl tbody td[data-label="Approval"],
+            table:not(.rt) tbody td[data-label="Next service"],
+            table:not(.rt) tbody td[data-label="Next free service"],
+            table:not(.rt) tbody td[data-label="AC"],
+            table:not(.rt) tbody td[data-label="Product"],
+            table:not(.rt) tbody td[data-label="Comment"],
+            table:not(.rt) tbody td[data-label="Reference"],
+            table:not(.rt) tbody td[data-label="Notes"],
+            table:not(.rt) tbody td[data-label="Reason"],
+            table:not(.rt) tbody td[data-label="Template"],
+            table:not(.rt) tbody td[data-label="Trigger"],
+            table:not(.rt) tbody td[data-label="Approval"] {
                 grid-column: 1 / -1;
                 background: color-mix(in srgb, var(--bg) 60%, var(--sf));
                 padding: 7px 10px;
@@ -1274,12 +1307,37 @@
                 border: 1px solid color-mix(in srgb, var(--bd) 45%, transparent)
             }
 
-            table:not(.doc table):not(.rt) tbody td[data-label="Comment"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Reference"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Notes"],
-            table:not(.doc table):not(.rt) tbody td[data-label="Reason"] {
+            .tbl tbody td[data-label="Comment"],
+            .tbl tbody td[data-label="Reference"],
+            .tbl tbody td[data-label="Notes"],
+            .tbl tbody td[data-label="Reason"],
+            table:not(.rt) tbody td[data-label="Comment"],
+            table:not(.rt) tbody td[data-label="Reference"],
+            table:not(.rt) tbody td[data-label="Notes"],
+            table:not(.rt) tbody td[data-label="Reason"] {
                 white-space: normal;
                 line-height: 1.4
+            }
+
+            .doc table {
+                display: table !important
+            }
+
+            .doc thead {
+                display: table-header-group !important
+            }
+
+            .doc tbody {
+                display: table-row-group !important
+            }
+
+            .doc tr {
+                display: table-row !important
+            }
+
+            .doc td,
+            .doc th {
+                display: table-cell !important
             }
 
             table.rt {
