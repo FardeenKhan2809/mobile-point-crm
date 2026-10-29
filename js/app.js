@@ -860,11 +860,11 @@ function salesPage() {
                             <td data-label="Installation">
                                 ${s.installDate ? `<b>${fd(s.installDate)}</b>` : '<span class="b wa">Pending</span>'}
                             </td>
-                            <td data-label="1st Service Due" data-status="1">
+                            <td data-label="1st Service Due">
                                 <div><b>${fd(s.srv1Date)}</b></div>
                                 ${srvBadge(s.srv1Status, s.srv1Date)}
                             </td>
-                            <td data-label="2nd Service Due" data-status="1">
+                            <td data-label="2nd Service Due">
                                 <div><b>${fd(s.srv2Date)}</b></div>
                                 ${srvBadge(s.srv2Status, s.srv2Date)}
                             </td>
@@ -2312,10 +2312,10 @@ function reports() {
     <div class="panel">
         <div class="hd">
             <h2>Detailed Sales &amp; Service Audit Log</h2>
-            <span class="mu">${sales.length} sales records</span>
+            <span class="mu">${sales.length} sales records · Swipe horizontally on mobile</span>
         </div>
         <div class="tw">
-            <table class="tbl">
+            <table class="tbl rt" style="min-width:760px">
                 <thead>
                     <tr>
                         <th>Sale ID</th>
@@ -2339,8 +2339,8 @@ function reports() {
                             <td data-label="Serial Number"><span class="tag-pill">${esc(s.sn)}</span></td>
                             <td data-label="Purchase Date">${fd(s.date)}</td>
                             <td data-label="Installation">${s.installDate ? fd(s.installDate) : '<span class="b wa">Pending</span>'}</td>
-                            <td data-label="1st Service" data-status="1"><div>${fd(s.srv1Date)}</div>${srvBadge(s.srv1Status, s.srv1Date)}</td>
-                            <td data-label="2nd Service" data-status="1"><div>${fd(s.srv2Date)}</div>${srvBadge(s.srv2Status, s.srv2Date)}</td>
+                            <td data-label="1st Service"><div>${fd(s.srv1Date)}</div>${srvBadge(s.srv1Status, s.srv1Date)}</td>
+                            <td data-label="2nd Service"><div>${fd(s.srv2Date)}</div>${srvBadge(s.srv2Status, s.srv2Date)}</td>
                         </tr>
                     `).join('') || '<tr><td colspan="9" class="empty">No sales records in selected date range</td></tr>'}
                 </tbody>
