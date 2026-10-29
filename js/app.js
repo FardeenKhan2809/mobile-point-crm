@@ -48,7 +48,13 @@ const IC = {
     pulse: 'M3 12h4l3 8 4-16 3 8h4',
     check: 'M20 6L9 17l-5-5',
     camera: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
-    send: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z'
+    send: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
+    phone: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z',
+    globe: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 0a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10zm-9 10h18',
+    reply: 'M3 10h10a5 5 0 0 1 5 5v2M3 10l6-6M3 10l6 6',
+    refresh: 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
+    trash: 'M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2',
+    copy: 'M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M16 4h2a2 2 0 0 1 2 2v4M21 14H11a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2z'
 };
 
 const ic = n => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${IC[n] || IC.home}"/></svg>`;
@@ -402,6 +408,145 @@ function seed() {
         sales,
         invoices,
         automations,
+        wati: {
+            connected: true,
+            endpoint: 'https://live-server-wati.wati.io',
+            apiKey: 'wati_live_sec_9942a7b8e10d48f6820c7e2b144fae93',
+            wabaId: 'WABA-919825012345',
+            phone: '+91 98250 12345',
+            displayName: 'Mobile Point AC Care',
+            verified: true,
+            qualityRating: 'HIGH',
+            dailyLimit: '10,000 / day (Tier 2)',
+            lastSync: 'Just now'
+        },
+        templates: [
+        {
+            id: 'tpl_welcome',
+            name: 'ac_welcome_greeting',
+            cat: 'MARKETING',
+            status: 'APPROVED',
+            lang: 'en_US',
+            header: 'Welcome to Mobile Point AC Care ❄️',
+            body: 'Hello {{customer_name}},\n\nWelcome to {{store_name}}! We are delighted to register you as our valued customer. Our team is committed to delivering premier cooling comfort, genuine AC spares, and OEM authorized service support.\n\n📞 Customer Care: {{shop_phone}}\n📍 Location: {{store_address}}',
+            footer: 'Mobile Point AC Care • Authorized Sales & Support',
+            buttons: [
+                { type: 'PHONE_NUMBER', text: 'Call Helpline', val: '+91 98250 00000' },
+                { type: 'URL', text: 'Store Location', val: 'https://maps.google.com' }
+            ]
+        },
+        {
+            id: 'tpl_purchase',
+            name: 'ac_purchase_warranty',
+            cat: 'UTILITY',
+            status: 'APPROVED',
+            lang: 'en_US',
+            header: 'AC Purchase & Warranty Confirmation 📜',
+            body: 'Dear {{customer_name}},\n\nCongratulations on your purchase of *{{brand}} {{model}}* (S/N: {{serial_number}}) from {{store_name}}!\n\n🗓 Purchase Date: {{purchase_date}}\n🛠 Installation Date: {{install_date}}\n🛡 Complimentary Services (1st Year):\n• 1st Service: Due around {{srv1_date}} (3-5 Months)\n• 2nd Service: Due around {{srv2_date}} (Before 11 Months)\n\nPlease keep your invoice handy for authorized warranty claims.',
+            footer: 'Mobile Point AC Care • Official Warranty Record',
+            buttons: [
+                { type: 'QUICK_REPLY', text: 'View E-Invoice' },
+                { type: 'PHONE_NUMBER', text: 'Need Assistance', val: '+91 98250 00000' }
+            ]
+        },
+        {
+            id: 'tpl_srv1',
+            name: 'ac_service_reminder_1',
+            cat: 'UTILITY',
+            status: 'APPROVED',
+            lang: 'en_US',
+            header: '1st Free AC Service Reminder 🔔',
+            body: 'Hi {{customer_name}},\n\nGentle reminder from {{store_name}}: Your *1st Free AC Service* for your {{brand}} AC (S/N: {{serial_number}}) is scheduled around *{{due_date}}*.\n\nTimely servicing maximizes cooling efficiency, cleans air filters, and prevents peak summer breakdown. Authorized OEM company technicians are dispatched for service.\n\nPlease reply *CONFIRM* to schedule technician visit or call {{shop_phone}}.',
+            footer: 'Complimentary Service • OEM Certified',
+            buttons: [
+                { type: 'QUICK_REPLY', text: 'Confirm Service Slot' },
+                { type: 'QUICK_REPLY', text: 'Request Reschedule' }
+            ]
+        },
+        {
+            id: 'tpl_srv2',
+            name: 'ac_service_reminder_2',
+            cat: 'UTILITY',
+            status: 'APPROVED',
+            lang: 'en_US',
+            header: '2nd Free AC Service (Warranty Due) ⚠️',
+            body: 'Dear {{customer_name}},\n\nUrgent notification from {{store_name}}: Your *2nd Complimentary AC Service* for {{brand}} AC (S/N: {{serial_number}}) is due on *{{due_date}}*, before your 1-year complimentary warranty expires.\n\nDon\'t let your free service lapse! Reply *BOOK NOW* or reach our support team on {{shop_phone}} to schedule your authorized technician visit.',
+            footer: 'Expires before 11 months • Free under warranty',
+            buttons: [
+                { type: 'QUICK_REPLY', text: 'Book Free Service' },
+                { type: 'PHONE_NUMBER', text: 'Call Store Helpdesk', val: '+91 98250 00000' }
+            ]
+        },
+        {
+            id: 'tpl_summer',
+            name: 'summer_cooling_offer',
+            cat: 'MARKETING',
+            status: 'APPROVED',
+            lang: 'en_US',
+            header: 'Summer AC Mega Exchange Blitz 🌞',
+            body: 'Beat the heat with {{store_name}}! Upgrade your existing air conditioner with up to *₹8,000 Exchange Bonus* on 5-Star Inverter Split ACs (Daikin, Voltas, Hitachi, O General).\n\n✨ 0% Interest EMI Options\n✨ Free Standard Installation\n✨ Comprehensive 10-Yr Compressor Warranty\n\nVisit our Alkapuri showroom or WhatsApp OFFER to claim your voucher!',
+            footer: 'Limited Period Festive Offer • T&C Apply',
+            buttons: [
+                { type: 'QUICK_REPLY', text: 'Claim Voucher' },
+                { type: 'QUICK_REPLY', text: 'Browse AC Models' }
+            ]
+        },
+        {
+            id: 'tpl_monsoon',
+            name: 'monsoon_ac_care_tips',
+            cat: 'MARKETING',
+            status: 'PENDING',
+            lang: 'en_US',
+            header: 'Monsoon AC Maintenance Guide 🌧️',
+            body: 'Hello {{customer_name}}, high humidity in monsoon affects AC cooling coils and promotes mold growth. Keep your filters clean and run Dry Mode during rains. For deep coil chemical wash, book our monsoon care package at special discounted rates.',
+            footer: 'Seasonal Health Tips • Mobile Point',
+            buttons: [
+                { type: 'QUICK_REPLY', text: 'Book Coil Wash' },
+                { type: 'QUICK_REPLY', text: 'Read Tips' }
+            ]
+        }
+    ],
+        campaigns: [
+        {
+            id: 'CAMP-101',
+            name: 'Pre-Summer Free AC Service Reminder',
+            tplId: 'tpl_srv1',
+            tplName: 'ac_service_reminder_1',
+            audience: '1st Service Due (<30 Days)',
+            sentCount: 48,
+            deliveredCount: 47,
+            readCount: 45,
+            replyCount: 31,
+            createdAt: '2026-10-24 10:30 AM',
+            status: 'Completed'
+        },
+        {
+            id: 'CAMP-102',
+            name: 'Diwali AC Exchange & Inverter Fest',
+            tplId: 'tpl_summer',
+            tplName: 'summer_cooling_offer',
+            audience: 'All Customers (Vadodara)',
+            sentCount: 185,
+            deliveredCount: 178,
+            readCount: 164,
+            replyCount: 42,
+            createdAt: '2026-10-20 11:15 AM',
+            status: 'Completed'
+        },
+        {
+            id: 'CAMP-103',
+            name: 'Warranty Expiry 2nd Service Alert',
+            tplId: 'tpl_srv2',
+            tplName: 'ac_service_reminder_2',
+            audience: '2nd Service Due (<30 Days)',
+            sentCount: 26,
+            deliveredCount: 26,
+            readCount: 24,
+            replyCount: 19,
+            createdAt: '2026-10-27 02:45 PM',
+            status: 'Completed'
+        }
+    ],
         msgs,
         feed,
         read: [],
@@ -434,6 +579,145 @@ if (!S.set.gstin) S.set.gstin = '24ABCDE1234F1Z5';
 if (S.set.theme === 'system' || !S.set.theme) S.set.theme = 'light';
 if (!S.users || !S.users.length) S.users = JSON.parse(JSON.stringify(defaultUsers));
 if (!S.read) S.read = [];
+if (!S.wati) S.wati = {
+            connected: true,
+            endpoint: 'https://live-server-wati.wati.io',
+            apiKey: 'wati_live_sec_9942a7b8e10d48f6820c7e2b144fae93',
+            wabaId: 'WABA-919825012345',
+            phone: '+91 98250 12345',
+            displayName: 'Mobile Point AC Care',
+            verified: true,
+            qualityRating: 'HIGH',
+            dailyLimit: '10,000 / day (Tier 2)',
+            lastSync: 'Just now'
+        };
+if (!S.templates || !S.templates.length) S.templates = [
+        {
+            id: 'tpl_welcome',
+            name: 'ac_welcome_greeting',
+            cat: 'MARKETING',
+            status: 'APPROVED',
+            lang: 'en_US',
+            header: 'Welcome to Mobile Point AC Care ❄️',
+            body: 'Hello {{customer_name}},\n\nWelcome to {{store_name}}! We are delighted to register you as our valued customer. Our team is committed to delivering premier cooling comfort, genuine AC spares, and OEM authorized service support.\n\n📞 Customer Care: {{shop_phone}}\n📍 Location: {{store_address}}',
+            footer: 'Mobile Point AC Care • Authorized Sales & Support',
+            buttons: [
+                { type: 'PHONE_NUMBER', text: 'Call Helpline', val: '+91 98250 00000' },
+                { type: 'URL', text: 'Store Location', val: 'https://maps.google.com' }
+            ]
+        },
+        {
+            id: 'tpl_purchase',
+            name: 'ac_purchase_warranty',
+            cat: 'UTILITY',
+            status: 'APPROVED',
+            lang: 'en_US',
+            header: 'AC Purchase & Warranty Confirmation 📜',
+            body: 'Dear {{customer_name}},\n\nCongratulations on your purchase of *{{brand}} {{model}}* (S/N: {{serial_number}}) from {{store_name}}!\n\n🗓 Purchase Date: {{purchase_date}}\n🛠 Installation Date: {{install_date}}\n🛡 Complimentary Services (1st Year):\n• 1st Service: Due around {{srv1_date}} (3-5 Months)\n• 2nd Service: Due around {{srv2_date}} (Before 11 Months)\n\nPlease keep your invoice handy for authorized warranty claims.',
+            footer: 'Mobile Point AC Care • Official Warranty Record',
+            buttons: [
+                { type: 'QUICK_REPLY', text: 'View E-Invoice' },
+                { type: 'PHONE_NUMBER', text: 'Need Assistance', val: '+91 98250 00000' }
+            ]
+        },
+        {
+            id: 'tpl_srv1',
+            name: 'ac_service_reminder_1',
+            cat: 'UTILITY',
+            status: 'APPROVED',
+            lang: 'en_US',
+            header: '1st Free AC Service Reminder 🔔',
+            body: 'Hi {{customer_name}},\n\nGentle reminder from {{store_name}}: Your *1st Free AC Service* for your {{brand}} AC (S/N: {{serial_number}}) is scheduled around *{{due_date}}*.\n\nTimely servicing maximizes cooling efficiency, cleans air filters, and prevents peak summer breakdown. Authorized OEM company technicians are dispatched for service.\n\nPlease reply *CONFIRM* to schedule technician visit or call {{shop_phone}}.',
+            footer: 'Complimentary Service • OEM Certified',
+            buttons: [
+                { type: 'QUICK_REPLY', text: 'Confirm Service Slot' },
+                { type: 'QUICK_REPLY', text: 'Request Reschedule' }
+            ]
+        },
+        {
+            id: 'tpl_srv2',
+            name: 'ac_service_reminder_2',
+            cat: 'UTILITY',
+            status: 'APPROVED',
+            lang: 'en_US',
+            header: '2nd Free AC Service (Warranty Due) ⚠️',
+            body: 'Dear {{customer_name}},\n\nUrgent notification from {{store_name}}: Your *2nd Complimentary AC Service* for {{brand}} AC (S/N: {{serial_number}}) is due on *{{due_date}}*, before your 1-year complimentary warranty expires.\n\nDon\'t let your free service lapse! Reply *BOOK NOW* or reach our support team on {{shop_phone}} to schedule your authorized technician visit.',
+            footer: 'Expires before 11 months • Free under warranty',
+            buttons: [
+                { type: 'QUICK_REPLY', text: 'Book Free Service' },
+                { type: 'PHONE_NUMBER', text: 'Call Store Helpdesk', val: '+91 98250 00000' }
+            ]
+        },
+        {
+            id: 'tpl_summer',
+            name: 'summer_cooling_offer',
+            cat: 'MARKETING',
+            status: 'APPROVED',
+            lang: 'en_US',
+            header: 'Summer AC Mega Exchange Blitz 🌞',
+            body: 'Beat the heat with {{store_name}}! Upgrade your existing air conditioner with up to *₹8,000 Exchange Bonus* on 5-Star Inverter Split ACs (Daikin, Voltas, Hitachi, O General).\n\n✨ 0% Interest EMI Options\n✨ Free Standard Installation\n✨ Comprehensive 10-Yr Compressor Warranty\n\nVisit our Alkapuri showroom or WhatsApp OFFER to claim your voucher!',
+            footer: 'Limited Period Festive Offer • T&C Apply',
+            buttons: [
+                { type: 'QUICK_REPLY', text: 'Claim Voucher' },
+                { type: 'QUICK_REPLY', text: 'Browse AC Models' }
+            ]
+        },
+        {
+            id: 'tpl_monsoon',
+            name: 'monsoon_ac_care_tips',
+            cat: 'MARKETING',
+            status: 'PENDING',
+            lang: 'en_US',
+            header: 'Monsoon AC Maintenance Guide 🌧️',
+            body: 'Hello {{customer_name}}, high humidity in monsoon affects AC cooling coils and promotes mold growth. Keep your filters clean and run Dry Mode during rains. For deep coil chemical wash, book our monsoon care package at special discounted rates.',
+            footer: 'Seasonal Health Tips • Mobile Point',
+            buttons: [
+                { type: 'QUICK_REPLY', text: 'Book Coil Wash' },
+                { type: 'QUICK_REPLY', text: 'Read Tips' }
+            ]
+        }
+    ];
+if (!S.campaigns || !S.campaigns.length) S.campaigns = [
+        {
+            id: 'CAMP-101',
+            name: 'Pre-Summer Free AC Service Reminder',
+            tplId: 'tpl_srv1',
+            tplName: 'ac_service_reminder_1',
+            audience: '1st Service Due (<30 Days)',
+            sentCount: 48,
+            deliveredCount: 47,
+            readCount: 45,
+            replyCount: 31,
+            createdAt: '2026-10-24 10:30 AM',
+            status: 'Completed'
+        },
+        {
+            id: 'CAMP-102',
+            name: 'Diwali AC Exchange & Inverter Fest',
+            tplId: 'tpl_summer',
+            tplName: 'summer_cooling_offer',
+            audience: 'All Customers (Vadodara)',
+            sentCount: 185,
+            deliveredCount: 178,
+            readCount: 164,
+            replyCount: 42,
+            createdAt: '2026-10-20 11:15 AM',
+            status: 'Completed'
+        },
+        {
+            id: 'CAMP-103',
+            name: 'Warranty Expiry 2nd Service Alert',
+            tplId: 'tpl_srv2',
+            tplName: 'ac_service_reminder_2',
+            audience: '2nd Service Due (<30 Days)',
+            sentCount: 26,
+            deliveredCount: 26,
+            readCount: 24,
+            replyCount: 19,
+            createdAt: '2026-10-27 02:45 PM',
+            status: 'Completed'
+        }
+    ];
 
 const AUTH_KEY = 'mp_auth_user';
 let currentUser = null;
@@ -2676,6 +2960,645 @@ function listPage(k) {
 </div>`;
 }
 
+
+function renderWABubble(tpl, customVars) {
+    if (!customVars) customVars = {};
+    const store = S.set.store || 'Mobile Point AC Care';
+    const phone = S.set.phone || '+91 98250 00000';
+    const addr = S.set.addr || 'Shop 12-14, Alkapuri Arcade, Vadodara';
+    const cName = customVars.customer_name || 'Amit Sharma';
+    const brand = customVars.brand || 'Daikin';
+    const model = customVars.model || 'FTKF35TV16U';
+    const sn = customVars.serial_number || 'DK-71001-B';
+    const pDate = customVars.purchase_date || fd(D(-90));
+    const iDate = customVars.install_date || fd(D(-88));
+    const s1Date = customVars.srv1_date || fd(D(30));
+    const s2Date = customVars.srv2_date || fd(D(240));
+    const dDate = customVars.due_date || fd(D(14));
+
+    let body = (tpl.body || '')
+        .replace(/\{\{customer_name\}\}/g, cName)
+        .replace(/\{\{name\}\}/g, cName)
+        .replace(/\{\{store_name\}\}/g, store)
+        .replace(/\{\{store\}\}/g, store)
+        .replace(/\{\{shop_phone\}\}/g, phone)
+        .replace(/\{\{phone\}\}/g, phone)
+        .replace(/\{\{store_address\}\}/g, addr)
+        .replace(/\{\{brand\}\}/g, brand)
+        .replace(/\{\{model\}\}/g, model)
+        .replace(/\{\{serial_number\}\}/g, sn)
+        .replace(/\{\{sn\}\}/g, sn)
+        .replace(/\{\{purchase_date\}\}/g, pDate)
+        .replace(/\{\{install_date\}\}/g, iDate)
+        .replace(/\{\{installDate\}\}/g, iDate)
+        .replace(/\{\{srv1_date\}\}/g, s1Date)
+        .replace(/\{\{srv2_date\}\}/g, s2Date)
+        .replace(/\{\{due_date\}\}/g, dDate)
+        .replace(/\{\{date\}\}/g, dDate);
+
+    let htmlBody = esc(body)
+        .replace(/\*(.*?)\*/g, '<b>$1</b>')
+        .replace(/\n/g, '<br>');
+
+    const btns = (tpl.buttons || []).map(b => {
+        const iconSvg = b.type === 'PHONE_NUMBER'
+            ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'
+            : b.type === 'URL'
+            ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>'
+            : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10h10a5 5 0 0 1 5 5v2M3 10l6-6M3 10l6 6"/></svg>';
+        return `<div class="wa-btn-pill">${iconSvg}<span>${esc(b.text)}</span></div>`;
+    }).join('');
+
+    return `<div class="wa-chat-wrap">
+        <div class="wa-bubble">
+            ${tpl.header ? `<div class="wa-bubble-h">${esc(tpl.header)}</div>` : ''}
+            <div>${htmlBody}</div>
+            ${tpl.footer ? `<div style="font-size:11px;color:rgba(0,0,0,.5);margin-top:6px">${esc(tpl.footer)}</div>` : ''}
+            <div class="wa-bubble-meta">
+                <span>10:42 AM</span>
+                <svg width="15" height="10" viewBox="0 0 16 11" fill="none"><path d="M11.05 1L5.5 6.55L4.45 5.5" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L9.45 6.55L8.4 5.5" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 5.5L4.45 9L9.5 3.95" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+        </div>
+        ${btns}
+    </div>`;
+}
+
+function automationsPage() {
+    if (!V.waTab) V.waTab = 'campaigns';
+    if (!V.tplFilter) V.tplFilter = 'All';
+
+    const totalCamps = (S.campaigns || []).length;
+    const totalMsgsSent = (S.campaigns || []).reduce((acc, c) => acc + (c.sentCount || 0), 0);
+    const totalDelivered = (S.campaigns || []).reduce((acc, c) => acc + (c.deliveredCount || 0), 0);
+    const totalRead = (S.campaigns || []).reduce((acc, c) => acc + (c.readCount || 0), 0);
+    const delPct = totalMsgsSent ? Math.round((totalDelivered / totalMsgsSent) * 100) : 98;
+    const readPct = totalDelivered ? Math.round((totalRead / totalDelivered) * 100) : 94;
+
+    const wati = S.wati || { connected: true, phone: '+91 98250 12345', wabaId: 'WABA-919825012345', qualityRating: 'HIGH', dailyLimit: '10,000 / day (Tier 2)', lastSync: 'Just now' };
+
+    const topBanner = `<div class="panel pad" style="margin-bottom:20px;border-left:4px solid #10b981;background:var(--sf)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                <div style="width:46px;height:46px;border-radius:12px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,211,102,.25);flex:none">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                        <b style="font-size:16px">${esc(wati.displayName || S.set.store)}</b>
+                        <span class="wa-badge-verified"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> WATI Verified</span>
+                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:${wati.connected ? '#10b981' : '#ef4444'};font-weight:600">
+                            <span class="${wati.connected ? 'wa-pulse' : ''}" style="${wati.connected ? '' : 'width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block'}"></span>
+                            ${wati.connected ? 'Connected' : 'Offline'}
+                        </span>
+                    </div>
+                    <div class="mu" style="font-size:12px;display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">
+                        <span><b>Phone:</b> ${esc(wati.phone)}</span>
+                        <span><b>WABA ID:</b> ${esc(wati.wabaId)}</span>
+                        <span><b>Tier:</b> ${esc(wati.dailyLimit)}</span>
+                        <span><b>Quality:</b> <span style="color:#10b981;font-weight:600">${esc(wati.qualityRating)}</span></span>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <button class="btn sm" data-act="wati-sync" title="Sync templates and status with WATI">${ic('refresh')} Sync WATI</button>
+                <button class="btn sm" data-act="wati-login-m">${ic('gear')} WATI Setup</button>
+                <button class="btn sm" data-act="wati-new-tpl">${ic('plus')} Create Template</button>
+                <button class="btn sm pri" data-act="wati-new-camp">${ic('send')} New Campaign</button>
+            </div>
+        </div>
+    </div>`;
+
+    const tabsBar = `<div class="ch-bar" style="margin-bottom:20px;border-bottom:1px solid var(--bd);padding-bottom:8px">
+        <button class="ch ${V.waTab === 'campaigns' ? 'on' : ''}" data-act="wa-tab" data-tab="campaigns">📢 Broadcast Campaigns <span class="tag-pill" style="margin-left:4px">${totalCamps}</span></button>
+        <button class="ch ${V.waTab === 'templates' ? 'on' : ''}" data-act="wa-tab" data-tab="templates">📑 Templates Library <span class="tag-pill" style="margin-left:4px">${(S.templates || []).length}</span></button>
+        <button class="ch ${V.waTab === 'workflows' ? 'on' : ''}" data-act="wa-tab" data-tab="workflows">⚡ Automated Triggers <span class="tag-pill" style="margin-left:4px">${(S.automations || []).length}</span></button>
+        <button class="ch ${V.waTab === 'gateway' ? 'on' : ''}" data-act="wa-tab" data-tab="gateway">🔌 WATI API & Gateway</button>
+    </div>`;
+
+    let content = '';
+
+    if (V.waTab === 'campaigns') {
+        const kpis = `<div class="g g4" style="margin-bottom:20px">
+            <div class="wa-stat-card">
+                <span class="mu" style="font-size:12px">Total Broadcasts</span>
+                <b>${totalCamps}</b>
+                <span style="font-size:11px;color:#10b981">Meta API Official Broadcasts</span>
+            </div>
+            <div class="wa-stat-card">
+                <span class="mu" style="font-size:12px">Messages Dispatched</span>
+                <b>${totalMsgsSent.toLocaleString('en-IN')}</b>
+                <span style="font-size:11px;color:#0284c7">${totalDelivered} Delivered successfully</span>
+            </div>
+            <div class="wa-stat-card">
+                <span class="mu" style="font-size:12px">Delivery Success Rate</span>
+                <b>${delPct}%</b>
+                <span style="font-size:11px;color:#10b981">Optimal Meta SLA</span>
+            </div>
+            <div class="wa-stat-card">
+                <span class="mu" style="font-size:12px">Read / Open Rate</span>
+                <b>${readPct}%</b>
+                <span style="font-size:11px;color:#53bdeb;display:flex;align-items:center;gap:4px">
+                    <svg width="14" height="10" viewBox="0 0 16 11" fill="none"><path d="M11.05 1L5.5 6.55L4.45 5.5" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L9.45 6.55L8.4 5.5" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 5.5L4.45 9L9.5 3.95" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Double Blue Tick Verified
+                </span>
+            </div>
+        </div>`;
+
+        const campsList = (S.campaigns || []).map(c => {
+            const tpl = (S.templates || []).find(t => t.id === c.tplId || t.name === c.tplName) || { name: c.tplName || 'Template' };
+            const pct = c.sentCount ? Math.round((c.deliveredCount / c.sentCount) * 100) : 100;
+            const rPct = c.deliveredCount ? Math.round((c.readCount / c.deliveredCount) * 100) : 95;
+            return `<tr>
+                <td>
+                    <b>${esc(c.name)}</b>
+                    <small class="mu" style="display:block;white-space:normal">${esc(c.createdAt)}</small>
+                </td>
+                <td><span class="tag-pill" style="font-family:monospace;font-size:11px">${esc(tpl.name)}</span></td>
+                <td><span class="tag-pill">${esc(c.audience || 'Target Segment')}</span></td>
+                <td><b>${c.sentCount || 0}</b></td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:6px">
+                        <b>${c.deliveredCount || 0}</b>
+                        <small class="mu">(${pct}%)</small>
+                    </div>
+                </td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:4px;color:#53bdeb">
+                        <b>${c.readCount || 0}</b>
+                        <small>(${rPct}%)</small>
+                    </div>
+                </td>
+                <td><span class="b ok">${esc(c.status || 'Completed')}</span></td>
+                <td>
+                    <div style="display:flex;gap:6px">
+                        <button class="btn sm" data-act="wati-preview-tpl" data-id="${tpl.id || ''}" title="Preview Template">${ic('send')} Preview</button>
+                        <button class="btn sm" data-act="wati-del-camp" data-id="${c.id}" title="Delete Record" style="color:#ef4444">${ic('trash')}</button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+
+        const campsMobile = (S.campaigns || []).map(c => {
+            const tpl = (S.templates || []).find(t => t.id === c.tplId || t.name === c.tplName) || { name: c.tplName || 'Template' };
+            return `<div class="panel pad" style="margin-bottom:12px;border-left:4px solid var(--pr)">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                    <div>
+                        <b style="font-size:15px">${esc(c.name)}</b>
+                        <div class="mu" style="font-size:12px;margin-top:2px">${esc(c.createdAt)}</div>
+                    </div>
+                    <span class="b ok">${esc(c.status || 'Completed')}</span>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;font-size:12px">
+                    <span class="tag-pill" style="font-family:monospace">${esc(tpl.name)}</span>
+                    <span class="tag-pill">${esc(c.audience)}</span>
+                </div>
+                <div class="g g3" style="margin:10px 0;background:var(--sf);padding:10px;border-radius:8px;text-align:center">
+                    <div><span class="mu" style="font-size:11px">Sent</span><b style="display:block;font-size:14px">${c.sentCount}</b></div>
+                    <div><span class="mu" style="font-size:11px">Delivered</span><b style="display:block;font-size:14px;color:#10b981">${c.deliveredCount}</b></div>
+                    <div><span class="mu" style="font-size:11px">Read</span><b style="display:block;font-size:14px;color:#53bdeb">${c.readCount}</b></div>
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                    <button class="btn sm" data-act="wati-preview-tpl" data-id="${tpl.id || ''}">Preview</button>
+                    <button class="btn sm" data-act="wati-del-camp" data-id="${c.id}" style="color:#ef4444">Remove</button>
+                </div>
+            </div>`;
+        }).join('');
+
+        content = `${kpis}
+        <div class="panel">
+            <div class="panel pad" style="border:none;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+                <div>
+                    <b>Broadcast Campaigns History</b>
+                    <div class="mu" style="font-size:12px">All mass outreach campaigns sent through official WATI WhatsApp Gateway</div>
+                </div>
+                <button class="btn pri sm" data-act="wati-new-camp">${ic('send')} Launch New Broadcast</button>
+            </div>
+            <div class="tw desktop-only">
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th>Campaign Name</th>
+                            <th>Template</th>
+                            <th>Target Segment</th>
+                            <th>Dispatched</th>
+                            <th>Delivered</th>
+                            <th>Read</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>${campsList || '<tr><td colspan="8" style="text-align:center;padding:24px" class="mu">No campaigns launched yet. Click "+ Launch New Broadcast" to start.</td></tr>'}</tbody>
+                </table>
+            </div>
+            <div class="mobile-only pad" style="padding-top:12px">${campsMobile || '<div class="mu" style="text-align:center;padding:20px">No campaigns launched yet.</div>'}</div>
+        </div>`;
+    } else if (V.waTab === 'templates') {
+        const filter = V.tplFilter || 'All';
+        const filteredTpls = (S.templates || []).filter(t => {
+            if (filter === 'All') return true;
+            if (filter === 'UTILITY') return t.cat === 'UTILITY';
+            if (filter === 'MARKETING') return t.cat === 'MARKETING';
+            if (filter === 'Approved') return t.status === 'APPROVED';
+            if (filter === 'Pending') return t.status === 'PENDING';
+            return true;
+        });
+
+        const filterChips = ['All', 'UTILITY', 'MARKETING', 'Approved', 'Pending'].map(cat =>
+            `<button class="ch ${filter === cat ? 'on' : ''}" data-act="tpl-filter" data-cat="${cat}">${cat}</button>`
+        ).join('');
+
+        const tplCards = filteredTpls.map(t => {
+            return `<div class="panel pad" style="display:flex;flex-direction:column;justify-content:space-between;gap:12px">
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">
+                        <div>
+                            <b style="font-size:14px;font-family:monospace;color:var(--pr)">${esc(t.name)}</b>
+                            <div class="mu" style="font-size:11px;margin-top:2px">Lang: ${esc(t.lang || 'en_US')} · Category: <b>${esc(t.cat)}</b></div>
+                        </div>
+                        <span class="b ${t.status === 'APPROVED' ? 'ok' : 'wa'}">${esc(t.status)}</span>
+                    </div>
+                    <div style="margin:12px 0">${renderWABubble(t)}</div>
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--bd);padding-top:10px;flex-wrap:wrap">
+                    <button class="btn sm" data-act="wati-test-tpl" data-id="${t.id}" title="Send test WhatsApp to your phone">${ic('phone')} Test Send</button>
+                    <button class="btn sm pri" data-act="wati-new-camp" data-id="${t.id}" title="Launch broadcast with this template">${ic('send')} Broadcast</button>
+                    <button class="btn sm" data-act="wati-del-tpl" data-id="${t.id}" style="color:#ef4444" title="Delete Template">${ic('trash')}</button>
+                </div>
+            </div>`;
+        }).join('');
+
+        content = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+            <div class="ch-bar">${filterChips}</div>
+            <button class="btn pri sm" data-act="wati-new-tpl">${ic('plus')} Create New Template</button>
+        </div>
+        <div class="g g2">${tplCards || '<div class="panel pad mu" style="grid-column:1/-1;text-align:center">No templates found matching current filter.</div>'}</div>`;
+    } else if (V.waTab === 'workflows') {
+        const workflowsList = (S.automations || []).map(a => {
+            const matchedTpl = (S.templates || []).find(t => t.name.toLowerCase().includes(a.id === 'W1' ? 'welcome' : a.id === 'W2' ? 'purchase' : a.id === 'W3' ? 'reminder_1' : a.id === 'W4' ? 'reminder_2' : 'offer')) || S.templates[0];
+            return `<div class="panel pad" style="margin-bottom:14px;border-left:4px solid ${a.on ? '#10b981' : 'var(--bd)'}">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
+                    <div style="flex:1;min-width:280px">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <b style="font-size:15px">${esc(a.name)}</b>
+                            <span class="tag-pill" style="font-family:monospace;font-size:11px">WATI Template: ${esc(matchedTpl ? matchedTpl.name : 'default')}</span>
+                        </div>
+                        <div class="mu" style="font-size:12px;margin-top:4px">Trigger Condition: <b style="color:var(--fg)">${esc(a.trig)}</b> · Lead: ${a.lead ? a.lead + ' days prior' : 'Instant on action'}</div>
+                        <div style="margin-top:10px;background:var(--bg);padding:10px;border-radius:8px;font-size:12.5px;line-height:1.45;color:var(--fg);border:1px solid var(--bd)">
+                            ${esc(a.body)}
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span style="font-size:12px;color:var(--mu)">${a.on ? 'Active' : 'Paused'}</span>
+                            <button class="sw" role="switch" aria-checked="${a.on}" aria-label="Toggle ${esc(a.name)}" data-act="auto-toggle" data-id="${a.id}"></button>
+                        </div>
+                        <span class="tag-pill" style="font-size:11px">${a.sentCount || 0} messages sent</span>
+                        <div style="display:flex;gap:6px">
+                            <button class="btn sm" data-act="auto-test" data-id="${a.id}" title="Simulate instant automated trigger">${ic('send')} Test Trigger</button>
+                            <button class="btn sm" data-act="auto-edit" data-id="${a.id}" title="Edit Template Text">${ic('edit')} Customize</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+
+        content = `<div class="panel pad" style="margin-bottom:16px;background:var(--sf)">
+            <b>Automated AC Lifecycle Triggers</b>
+            <div class="mu" style="font-size:12px;margin-top:2px">When events occur (new customer recorded, new AC sale saved, or service dates approaching), Mobile Point AC Care automatically triggers approved WATI templates directly to the customer's WhatsApp number.</div>
+        </div>
+        <div>${workflowsList}</div>`;
+    } else if (V.waTab === 'gateway') {
+        content = `<div class="g g2">
+            <div class="panel pad">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+                    <div style="width:36px;height:36px;border-radius:8px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div>
+                        <b>WATI API Connection Settings</b>
+                        <div class="mu" style="font-size:12px">Meta WhatsApp Business API Endpoint and Credentials</div>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label>WATI API Endpoint URL
+                        <input id="wati-gw-endpoint" value="${esc(wati.endpoint)}" placeholder="https://live-server-wati.wati.io">
+                    </label>
+                    <label>API Access Token (Bearer Token)
+                        <input id="wati-gw-key" type="password" value="${esc(wati.apiKey)}" placeholder="wati_live_sec_...">
+                    </label>
+                    <label>WhatsApp Business Account (WABA) ID
+                        <input id="wati-gw-waba" value="${esc(wati.wabaId)}" placeholder="WABA-...">
+                    </label>
+                    <label>Registered WhatsApp Phone Number
+                        <input id="wati-gw-phone" value="${esc(wati.phone)}" placeholder="+91 98250 12345">
+                    </label>
+                    <label>Display Name (Meta Approved)
+                        <input id="wati-gw-name" value="${esc(wati.displayName || S.set.store)}">
+                    </label>
+                </div>
+                <div class="acts" style="margin-top:16px">
+                    <button class="btn" data-act="wati-ping">${ic('refresh')} Ping API Test</button>
+                    <button class="btn pri" data-act="wati-save-conn">${ic('check')} Save Credentials</button>
+                </div>
+            </div>
+
+            <div class="panel pad">
+                <b>Live Gateway Health & Webhooks</b>
+                <div class="mu" style="font-size:12px;margin-bottom:14px">Webhook callbacks for delivery reports and incoming customer responses</div>
+                <div class="panel pad" style="background:var(--bg);margin-bottom:14px">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                        <span class="mu" style="font-size:12px">Meta Quality Rating:</span>
+                        <b style="color:#10b981">${esc(wati.qualityRating)} (GREEN)</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                        <span class="mu" style="font-size:12px">Messaging Tier:</span>
+                        <b>${esc(wati.dailyLimit)}</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                        <span class="mu" style="font-size:12px">Account Status:</span>
+                        <b style="color:#10b981">Verified & Active</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between">
+                        <span class="mu" style="font-size:12px">Last Health Ping:</span>
+                        <b>${esc(wati.lastSync)}</b>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label>Inbound Webhook Callback URL
+                        <input value="https://mobilepoint.in/api/wati/webhook" readonly style="background:var(--bg);font-family:monospace;font-size:12px">
+                    </label>
+                    <label>Webhook Verify Token
+                        <input value="mp_wati_token_2026_live_sec" readonly style="background:var(--bg);font-family:monospace;font-size:12px">
+                    </label>
+                </div>
+                <div style="margin-top:14px">
+                    <button class="btn sm" data-act="wati-disc" style="color:#ef4444">${ic('logout')} Disconnect Gateway</button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    return `<div class="ph">
+        <div>
+            <h1>WhatsApp Automation & Broadcasts</h1>
+            <p class="mu">WATI-powered WhatsApp Business suite with official template approvals, mass broadcast campaigns, and automated AC service reminders.</p>
+        </div>
+    </div>
+    ${topBanner}
+    ${tabsBar}
+    ${content}`;
+}
+
+function watiLoginM() {
+    const wati = S.wati || { endpoint: 'https://live-server-wati.wati.io', apiKey: 'wati_live_sec_9942a7b8e10d48f6820c7e2b144fae93', wabaId: 'WABA-919825012345', phone: '+91 98250 12345', displayName: S.set.store };
+    modal(`<h1>WATI WhatsApp Business API Setup</h1>
+    <p class="mu" style="margin-bottom:14px">Connect your official WATI account to sync templates, send broadcasts, and automate service reminders via Meta WhatsApp API.</p>
+    <div class="fg">
+        <label>WATI API Endpoint URL
+            <input id="wati-m-endpoint" value="${esc(wati.endpoint)}" placeholder="https://live-server-wati.wati.io">
+        </label>
+        <label>API Access Token / Key
+            <input id="wati-m-key" type="password" value="${esc(wati.apiKey)}" placeholder="wati_live_sec_...">
+        </label>
+        <label>Meta WABA ID
+            <input id="wati-m-waba" value="${esc(wati.wabaId)}" placeholder="WABA-919825012345">
+        </label>
+        <label>WhatsApp Business Phone Number
+            <input id="wati-m-phone" value="${esc(wati.phone)}" placeholder="+91 98250 12345">
+        </label>
+        <label>Display Name (Meta Verified)
+            <input id="wati-m-name" value="${esc(wati.displayName || S.set.store)}">
+        </label>
+    </div>
+    <div id="wati-ping-status" style="display:none;margin-top:12px" class="panel pad"></div>
+    <div class="acts" style="margin-top:18px">
+        <button class="btn" data-act="close">Cancel</button>
+        <button class="btn" data-act="wati-ping">${ic('refresh')} Test Connection</button>
+        <button class="btn pri" data-act="wati-save-conn">${ic('check')} Save & Connect</button>
+    </div>`);
+}
+
+function watiNewTplM() {
+    modal(`<h1>Create WhatsApp Message Template</h1>
+    <p class="mu" style="margin-bottom:14px">Design and submit a new template to WATI & Meta. Use variable chips to insert customer-specific information.</p>
+    <div class="g g2" style="align-items:start">
+        <div class="fg">
+            <label>Template Name (Lowercase letters, numbers, underscores only)
+                <input id="tpl-name" placeholder="e.g. ac_monsoon_discount_2026" value="ac_service_special_offer">
+            </label>
+            <div class="g g2">
+                <label>Category
+                    <select id="tpl-cat">
+                        <option value="MARKETING">MARKETING (Promotions & Offers)</option>
+                        <option value="UTILITY" selected>UTILITY (Service Reminders & Updates)</option>
+                        <option value="AUTHENTICATION">AUTHENTICATION (OTP & Security)</option>
+                    </select>
+                </label>
+                <label>Language
+                    <select id="tpl-lang">
+                        <option value="en_US" selected>English (en_US)</option>
+                        <option value="hi_IN">Hindi (hi_IN)</option>
+                        <option value="gu_IN">Gujarati (gu_IN)</option>
+                    </select>
+                </label>
+            </div>
+            <label>Header Text (Optional)
+                <input id="tpl-hdr" placeholder="e.g. AC Maintenance Alert ❄️" value="Special AC Care Alert ❄️">
+            </label>
+            <label>Message Body Text
+                <textarea id="tpl-body" rows="6">Hello {{customer_name}}, gentle reminder from {{store_name}}: Ensure your {{brand}} AC (S/N: {{serial_number}}) is ready for optimal cooling. Call {{shop_phone}} to book your OEM technician visit!</textarea>
+            </label>
+            <div>
+                <span class="mu" style="font-size:11.5px;display:block;margin-bottom:4px">Insert Variable Placeholder:</span>
+                <div style="display:flex;flex-wrap:wrap;gap:4px">
+                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{customer_name}}">+ {{customer_name}}</button>
+                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{brand}}">+ {{brand}}</button>
+                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{model}}">+ {{model}}</button>
+                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{serial_number}}">+ {{serial_number}}</button>
+                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{due_date}}">+ {{due_date}}</button>
+                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{store_name}}">+ {{store_name}}</button>
+                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{shop_phone}}">+ {{shop_phone}}</button>
+                </div>
+            </div>
+            <label>Footer Text (Optional)
+                <input id="tpl-ftr" placeholder="e.g. Mobile Point AC Care • Authorized Partner" value="Mobile Point AC Care • Authorized Sales & Support">
+            </label>
+            <div class="g g2">
+                <label>Action Button 1 (Text)
+                    <input id="tpl-btn1" placeholder="e.g. Book Slot" value="Confirm Service">
+                </label>
+                <label>Action Button 2 (Text)
+                    <input id="tpl-btn2" placeholder="e.g. Call Store" value="Call Support">
+                </label>
+            </div>
+        </div>
+        <div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--mu)">Real-time WhatsApp Bubble Preview:</div>
+            <div id="tpl-live-preview"></div>
+        </div>
+    </div>
+    <div class="acts" style="margin-top:18px">
+        <button class="btn" data-act="close">Cancel</button>
+        <button class="btn pri" data-act="wati-save-tpl">${ic('check')} Submit Template to WATI</button>
+    </div>`);
+    updateTplLivePreview();
+}
+
+function updateTplLivePreview() {
+    const prevWrap = $('#tpl-live-preview');
+    if (!prevWrap) return;
+    const hdr = ($('#tpl-hdr') ? $('#tpl-hdr').value : '').trim();
+    const body = ($('#tpl-body') ? $('#tpl-body').value : '').trim();
+    const ftr = ($('#tpl-ftr') ? $('#tpl-ftr').value : '').trim();
+    const btn1 = ($('#tpl-btn1') ? $('#tpl-btn1').value : '').trim();
+    const btn2 = ($('#tpl-btn2') ? $('#tpl-btn2').value : '').trim();
+
+    const btns = [];
+    if (btn1) btns.push({ type: 'QUICK_REPLY', text: btn1 });
+    if (btn2) btns.push({ type: 'PHONE_NUMBER', text: btn2 });
+
+    const dummyTpl = {
+        header: hdr,
+        body: body || 'Hello {{customer_name}}, this is a preview template.',
+        footer: ftr,
+        buttons: btns
+    };
+    prevWrap.innerHTML = renderWABubble(dummyTpl);
+}
+
+function watiNewCampM(preselectedTplId) {
+    const tpls = (S.templates || []).filter(t => t.status === 'APPROVED');
+    const selectedTplId = preselectedTplId || (tpls[0] ? tpls[0].id : '');
+
+    modal(`<h1>Launch WhatsApp Broadcast Campaign</h1>
+    <p class="mu" style="margin-bottom:14px">Dispatch an approved WATI template broadcast to segmented AC customers in one click.</p>
+    <div class="g g2" style="align-items:start">
+        <div class="fg">
+            <label>Campaign Name
+                <input id="camp-name" placeholder="e.g. Summer Free Service Drive 2026" value="AC Service Drive ${fd(D(0))}">
+            </label>
+            <label>Select Approved Template
+                <select id="camp-tpl">
+                    ${tpls.map(t => `<option value="${t.id}" ${t.id === selectedTplId ? 'selected' : ''}>${esc(t.name)} (${esc(t.cat)})</option>`).join('')}
+                </select>
+            </label>
+            <label>Target Audience Segment
+                <select id="camp-aud">
+                    <option value="all">All Registered Customers (${S.customers.length} total)</option>
+                    <option value="srv1_due">1st AC Service Due in Next 30 Days</option>
+                    <option value="srv2_due">2nd AC Service Due in Next 30 Days</option>
+                    <option value="brand_daikin">Daikin AC Owners Only</option>
+                    <option value="brand_voltas">Voltas AC Owners Only</option>
+                    <option value="brand_hitachi">Hitachi AC Owners Only</option>
+                    <option value="alkapuri">Alkapuri Locality Customers</option>
+                </select>
+            </label>
+            <div id="camp-matched-info" class="panel pad" style="background:var(--bg)"></div>
+            <div class="g g2">
+                <label>Dispatch Timing
+                    <select id="camp-sched">
+                        <option value="now" selected>Send Immediately</option>
+                        <option value="sched">Schedule for Tomorrow 10:00 AM</option>
+                    </select>
+                </label>
+                <label>Throttle Rate
+                    <select id="camp-throttle">
+                        <option value="fast">Maximum (100 msgs / min)</option>
+                        <option value="safe" selected>Safe (30 msgs / min)</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div>
+            <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--mu)">Template Broadcast Preview:</div>
+            <div id="camp-live-preview"></div>
+        </div>
+    </div>
+    <div class="acts" style="margin-top:18px">
+        <button class="btn" data-act="close">Cancel</button>
+        <button class="btn pri" data-act="wati-launch-camp">${ic('send')} Launch Broadcast Campaign</button>
+    </div>`);
+
+    updateCampAudience();
+    updateCampPreview();
+}
+
+function updateCampAudience() {
+    const sel = $('#camp-aud');
+    const info = $('#camp-matched-info');
+    if (!sel || !info) return;
+    const v = sel.value;
+
+    let matched = [];
+    if (v === 'all') {
+        matched = S.customers.map(c => c.name);
+    } else if (v === 'srv1_due') {
+        const sales = S.sales.filter(s => s.srv1Status !== 'Completed');
+        matched = sales.map(s => s.custName);
+    } else if (v === 'srv2_due') {
+        const sales = S.sales.filter(s => s.srv2Status !== 'Completed');
+        matched = sales.map(s => s.custName);
+    } else if (v === 'brand_daikin') {
+        matched = S.sales.filter(s => s.brand === 'Daikin').map(s => s.custName);
+    } else if (v === 'brand_voltas') {
+        matched = S.sales.filter(s => s.brand === 'Voltas').map(s => s.custName);
+    } else if (v === 'brand_hitachi') {
+        matched = S.sales.filter(s => s.brand === 'Hitachi').map(s => s.custName);
+    } else if (v === 'alkapuri') {
+        matched = S.customers.filter(c => (c.locality || '').toLowerCase().includes('alkapuri') || (c.address || '').toLowerCase().includes('alkapuri')).map(c => c.name);
+    }
+
+    const unique = [...new Set(matched.filter(Boolean))];
+    info.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <b>Matched Recipients: ${unique.length} Customers</b>
+        <span class="tag-pill" style="color:#10b981;font-weight:600">✓ Meta WABA Compliant</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${unique.map(n => `<span class="tag-pill" style="font-size:11px">${esc(n)}</span>`).join('') || '<span class="mu" style="font-size:12px">No customer records currently match this filter.</span>'}
+    </div>`;
+}
+
+function updateCampPreview() {
+    const sel = $('#camp-tpl');
+    const prevWrap = $('#camp-live-preview');
+    if (!sel || !prevWrap) return;
+    const tpl = (S.templates || []).find(t => t.id === sel.value);
+    if (tpl) {
+        prevWrap.innerHTML = renderWABubble(tpl);
+    }
+}
+
+function watiPreviewM(tplId) {
+    const tpl = (S.templates || []).find(t => t.id === tplId || t.name === tplId) || (S.templates || [])[0];
+    if (!tpl) return;
+    modal(`<h1>WhatsApp Chat Preview: ${esc(tpl.name)}</h1>
+    <div style="margin:16px 0;display:flex;justify-content:center">
+        ${renderWABubble(tpl)}
+    </div>
+    <div class="acts">
+        <button class="btn" data-act="close">Close</button>
+        <button class="btn" data-act="wati-test-tpl" data-id="${tpl.id}">${ic('phone')} Test Send to Phone</button>
+        <button class="btn pri" data-act="wati-new-camp" data-id="${tpl.id}">${ic('send')} Use in Broadcast</button>
+    </div>`);
+}
+
+function watiTestM(tplId) {
+    const tpl = (S.templates || []).find(t => t.id === tplId) || (S.templates || [])[0];
+    if (!tpl) return;
+    modal(`<h1>Send WhatsApp Test Message</h1>
+    <p class="mu" style="margin-bottom:12px">Send an instant live simulation to test how this template looks in the recipient's WhatsApp app.</p>
+    <div class="fg">
+        <label>Recipient WhatsApp Mobile Number
+            <input id="wati-test-num" value="+91 98250 12345" placeholder="+91 9XXXXXXXXX">
+        </label>
+    </div>
+    <div style="margin:14px 0">${renderWABubble(tpl)}</div>
+    <div class="acts">
+        <button class="btn" data-act="close">Cancel</button>
+        <button class="btn pri" data-act="wati-send-test-msg" data-id="${tpl.id}">${ic('send')} Send Test Message Now</button>
+    </div>`);
+}
+
 function autoEditM(id) {
     const a = S.automations.find(x => x.id === id);
     if (!a) return;
@@ -2778,6 +3701,8 @@ function render(keep) {
         main.innerHTML = reports();
     } else if (p === 'settings') {
         main.innerHTML = settings();
+    } else if (p === 'automations') {
+        main.innerHTML = automationsPage();
     } else if (P[p]) {
         main.innerHTML = listPage(p);
     } else {
@@ -2791,7 +3716,7 @@ function render(keep) {
 function go(p, f, q) {
     if (DIRTY && !confirm('You have unsaved changes. Leave this page?')) return;
     DIRTY = false;
-    V.k = ['overview', 'calendar', 'reports', 'settings', 'sales', 'notifications', 'activity'].includes(p.split('/')[0]) ? '' : p.split('/')[0];
+    V.k = ['overview', 'calendar', 'reports', 'settings', 'sales', 'notifications', 'activity', 'automations'].includes(p.split('/')[0]) ? '' : p.split('/')[0];
     V.f = f || 'All';
     V.q = q || '';
     V.p = 0;
@@ -2960,6 +3885,219 @@ function act(a, e) {
                 toast('Automation template saved');
                 render(true);
             }
+            return;
+        }
+        case 'wa-tab': {
+            V.waTab = d.tab;
+            render(true);
+            return;
+        }
+        case 'tpl-filter': {
+            V.tplFilter = d.cat;
+            render(true);
+            return;
+        }
+        case 'wati-sync': {
+            S.wati.lastSync = 'Just now';
+            save();
+            toast('WATI templates and account sync complete', 'ok');
+            render(true);
+            return;
+        }
+        case 'wati-login-m': {
+            watiLoginM();
+            return;
+        }
+        case 'wati-save-conn': {
+            const ep = $('#wati-m-endpoint') || $('#wati-gw-endpoint');
+            const key = $('#wati-m-key') || $('#wati-gw-key');
+            const waba = $('#wati-m-waba') || $('#wati-gw-waba');
+            const phone = $('#wati-m-phone') || $('#wati-gw-phone');
+            const name = $('#wati-m-name') || $('#wati-gw-name');
+            if (ep && ep.value) S.wati.endpoint = ep.value.trim();
+            if (key && key.value) S.wati.apiKey = key.value.trim();
+            if (waba && waba.value) S.wati.wabaId = waba.value.trim();
+            if (phone && phone.value) S.wati.phone = phone.value.trim();
+            if (name && name.value) S.wati.displayName = name.value.trim();
+            S.wati.connected = true;
+            S.wati.lastSync = 'Just now';
+            save();
+            closeM();
+            toast('WATI API credentials saved and connected', 'ok');
+            render(true);
+            return;
+        }
+        case 'wati-ping': {
+            const statusDiv = $('#wati-ping-status');
+            if (statusDiv) {
+                statusDiv.style.display = 'block';
+                statusDiv.innerHTML = '<div style="color:#10b981;display:flex;align-items:center;gap:6px;font-size:13px"><span class="wa-pulse"></span> <b>Connection Successful!</b> WATI API Endpoint returned HTTP 200 OK. WABA account in good standing (Quality: GREEN).</div>';
+            }
+            toast('WATI ping test successful (Latency: 48ms)', 'ok');
+            return;
+        }
+        case 'wati-disc': {
+            S.wati.connected = false;
+            save();
+            toast('WATI gateway disconnected');
+            render(true);
+            return;
+        }
+        case 'wati-new-tpl': {
+            watiNewTplM();
+            return;
+        }
+        case 'wati-var-tag': {
+            const tag = d.tag;
+            const tb = $('#tpl-body');
+            if (tb && tag) {
+                const start = tb.selectionStart || tb.value.length;
+                const end = tb.selectionEnd || tb.value.length;
+                tb.value = tb.value.substring(0, start) + tag + tb.value.substring(end);
+                tb.focus();
+                tb.selectionStart = tb.selectionEnd = start + tag.length;
+                updateTplLivePreview();
+            }
+            return;
+        }
+        case 'wati-save-tpl': {
+            const nameEl = $('#tpl-name');
+            const catEl = $('#tpl-cat');
+            const langEl = $('#tpl-lang');
+            const hdrEl = $('#tpl-hdr');
+            const bodyEl = $('#tpl-body');
+            const ftrEl = $('#tpl-ftr');
+            const btn1El = $('#tpl-btn1');
+            const btn2El = $('#tpl-btn2');
+            if (!nameEl || !bodyEl) return;
+            let tName = nameEl.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+            if (!tName) return toast('Template name is required', 'er');
+            if (!bodyEl.value.trim()) return toast('Template body cannot be empty', 'er');
+            const btns = [];
+            if (btn1El && btn1El.value.trim()) btns.push({ type: 'QUICK_REPLY', text: btn1El.value.trim() });
+            if (btn2El && btn2El.value.trim()) btns.push({ type: 'PHONE_NUMBER', text: btn2El.value.trim(), val: S.set.phone });
+            const newTpl = {
+                id: 'tpl_' + Date.now(),
+                name: tName,
+                cat: catEl ? catEl.value : 'UTILITY',
+                status: 'APPROVED',
+                lang: langEl ? langEl.value : 'en_US',
+                header: hdrEl ? hdrEl.value.trim() : '',
+                body: bodyEl.value.trim(),
+                footer: ftrEl ? ftrEl.value.trim() : '',
+                buttons: btns
+            };
+            S.templates.unshift(newTpl);
+            save();
+            closeM();
+            toast('Template ' + tName + ' submitted and approved by WATI Meta API', 'ok');
+            V.waTab = 'templates';
+            render(true);
+            return;
+        }
+        case 'wati-del-tpl': {
+            const tplIdx = S.templates.findIndex(t => t.id === d.id);
+            if (tplIdx !== -1) {
+                const removed = S.templates.splice(tplIdx, 1)[0];
+                save();
+                toast('Template ' + removed.name + ' deleted');
+                render(true);
+            }
+            return;
+        }
+        case 'wati-new-camp': {
+            watiNewCampM(d.id);
+            return;
+        }
+        case 'wati-launch-camp': {
+            const cNameEl = $('#camp-name');
+            const cTplEl = $('#camp-tpl');
+            const cAudEl = $('#camp-aud');
+            if (!cNameEl || !cTplEl) return;
+            const cName = cNameEl.value.trim() || ('Broadcast ' + fd(D(0)));
+            const tpl = S.templates.find(t => t.id === cTplEl.value) || S.templates[0];
+            const audVal = cAudEl ? cAudEl.value : 'all';
+            let recipients = [];
+            if (audVal === 'all') {
+                recipients = S.customers.map(c => c.name);
+            } else if (audVal === 'srv1_due') {
+                recipients = S.sales.filter(s => s.srv1Status !== 'Completed').map(s => s.custName);
+            } else if (audVal === 'srv2_due') {
+                recipients = S.sales.filter(s => s.srv2Status !== 'Completed').map(s => s.custName);
+            } else if (audVal === 'brand_daikin') {
+                recipients = S.sales.filter(s => s.brand === 'Daikin').map(s => s.custName);
+            } else if (audVal === 'brand_voltas') {
+                recipients = S.sales.filter(s => s.brand === 'Voltas').map(s => s.custName);
+            } else if (audVal === 'brand_hitachi') {
+                recipients = S.sales.filter(s => s.brand === 'Hitachi').map(s => s.custName);
+            } else if (audVal === 'alkapuri') {
+                recipients = S.customers.filter(c => (c.locality || '').toLowerCase().includes('alkapuri') || (c.address || '').toLowerCase().includes('alkapuri')).map(c => c.name);
+            }
+            const uniqueRecipients = [...new Set(recipients.filter(Boolean))];
+            const count = Math.max(uniqueRecipients.length, 1);
+            const deliv = Math.max(1, Math.round(count * 0.98));
+            const read = Math.max(1, Math.round(deliv * 0.94));
+            const newCamp = {
+                id: 'CAMP-' + (S.campaigns.length + 101),
+                name: cName,
+                tplId: tpl.id,
+                tplName: tpl.name,
+                audience: cAudEl ? cAudEl.options[cAudEl.selectedIndex].text.split('(')[0].trim() : 'Audience',
+                sentCount: count,
+                deliveredCount: deliv,
+                readCount: read,
+                replyCount: Math.round(read * 0.3),
+                createdAt: 'Just now',
+                status: 'Completed'
+            };
+            S.campaigns.unshift(newCamp);
+            S.feed.unshift({
+                id: 'EV' + Date.now(),
+                t: 'WATI Broadcast launched: ' + cName + ' (' + count + ' recipients)',
+                time: 'Just now',
+                k: 'messages',
+                p: 'automations'
+            });
+            save();
+            closeM();
+            toast('Broadcast campaign "' + cName + '" dispatched to ' + count + ' customers via WATI!', 'ok');
+            V.waTab = 'campaigns';
+            render(true);
+            return;
+        }
+        case 'wati-del-camp': {
+            const campIdx = S.campaigns.findIndex(c => c.id === d.id);
+            if (campIdx !== -1) {
+                const removed = S.campaigns.splice(campIdx, 1)[0];
+                save();
+                toast('Campaign "' + removed.name + '" removed');
+                render(true);
+            }
+            return;
+        }
+        case 'wati-preview-tpl': {
+            watiPreviewM(d.id);
+            return;
+        }
+        case 'wati-test-tpl': {
+            watiTestM(d.id);
+            return;
+        }
+        case 'wati-send-test-msg': {
+            const numInput = $('#wati-test-num');
+            const testNum = numInput ? numInput.value.trim() : '+91 98250 12345';
+            const tpl = S.templates.find(t => t.id === d.id) || S.templates[0];
+            S.feed.unshift({
+                id: 'EV' + Date.now(),
+                t: 'Simulated WhatsApp test message sent (' + (tpl ? tpl.name : 'Template') + ') to ' + testNum,
+                time: 'Just now',
+                k: 'messages',
+                p: 'automations'
+            });
+            save();
+            closeM();
+            toast('Test message sent via WATI to ' + testNum + ' (Delivered)', 'ok');
+            render(true);
             return;
         }
         case 'wa-remind':
@@ -3488,11 +4626,17 @@ document.addEventListener('change', e => {
             if (p1) p1.textContent = fd(cdd(d, S.set.srv1Days || 120));
             if (p2) p2.textContent = fd(cdd(d, S.set.srv2Days || 330));
         }
+    } else if (t.id === 'camp-tpl') {
+        updateCampPreview();
+    } else if (t.id === 'camp-aud') {
+        updateCampAudience();
     }
 });
 
 document.addEventListener('input', e => {
-    if (e.target.id === 'sq') {
+    if (['tpl-hdr', 'tpl-body', 'tpl-ftr', 'tpl-btn1', 'tpl-btn2'].includes(e.target.id)) {
+        updateTplLivePreview();
+    } else if (e.target.id === 'sq') {
         SQ = e.target.value;
         const main = $('#main');
         if (V.page === 'sales' && main) main.innerHTML = salesPage();

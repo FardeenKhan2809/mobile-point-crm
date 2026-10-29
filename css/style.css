@@ -5336,3 +5336,147 @@
                 padding: 14px 12px 92px
             }
         }
+
+
+        .wa-chat-wrap {
+            background: #e5ddd5;
+            background-image: radial-gradient(#d4cbbf 1px, transparent 1px);
+            background-size: 16px 16px;
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 420px;
+            border: 1px solid var(--bd);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,.04)
+        }
+
+        :root[data-theme=dark] .wa-chat-wrap {
+            background: #0b141a;
+            background-image: radial-gradient(#1c272e 1px, transparent 1px);
+        }
+
+        .wa-bubble {
+            background: #dcf8c6;
+            color: #111b21;
+            padding: 10px 14px;
+            border-radius: 12px 12px 4px 12px;
+            max-width: 92%;
+            margin-left: auto;
+            position: relative;
+            box-shadow: 0 1px 2px rgba(0,0,0,.15);
+            font-size: 13.5px;
+            line-height: 1.45
+        }
+
+        :root[data-theme=dark] .wa-bubble {
+            background: #005c4b;
+            color: #e9edef;
+        }
+
+        .wa-bubble-h {
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #075e54;
+            font-size: 13px
+        }
+
+        :root[data-theme=dark] .wa-bubble-h {
+            color: #25d366;
+        }
+
+        .wa-bubble-meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            margin-top: 4px;
+            font-size: 10.5px;
+            color: rgba(0,0,0,.45)
+        }
+
+        :root[data-theme=dark] .wa-bubble-meta {
+            color: rgba(255,255,255,.6);
+        }
+
+        .wa-bubble-meta svg {
+            color: #53bdeb
+        }
+
+        .wa-btn-pill {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: #fff;
+            color: #00a884;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,.08);
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0,0,0,.08);
+            margin-top: 4px;
+            text-align: center;
+            cursor: pointer
+        }
+
+        :root[data-theme=dark] .wa-btn-pill {
+            background: #1f2c34;
+            color: #00a884;
+            border-color: rgba(255,255,255,.08);
+        }
+
+        .wa-btn-pill:hover {
+            background: #f7f8fa;
+        }
+
+        .wa-badge-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #dcfce7;
+            color: #15803d;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 600
+        }
+
+        :root[data-theme=dark] .wa-badge-verified {
+            background: #14532d;
+            color: #86efac;
+        }
+
+        .wa-stat-card {
+            background: var(--sf);
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0
+        }
+
+        .wa-stat-card b {
+            font-size: 22px;
+            letter-spacing: -.02em
+        }
+
+        .wa-pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: waPulse 1.8s infinite
+        }
+
+        @keyframes waPulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
