@@ -1946,22 +1946,14 @@ function npToggle() {
     npPos();
 }
 
+const bellBdg = () => {
+    const unread = notifs().filter(n => !isRd(n.id)).length;
+    return unread > 0 ? `<i class="bdg">${unread > 9 ? '9+' : unread}</i>` : '';
+};
+
 function npRef() {
     const b = $('#bl');
-    if (!b) return;
-    const unread = notifs().filter(n => !isRd(n.id)).length;
-    let badge = b.querySelector('.notif-dot');
-    if (unread > 0) {
-        if (!badge) {
-            badge = document.createElement('span');
-            badge.className = 'notif-dot';
-            badge.style.cssText = 'position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ef4444';
-            b.style.position = 'relative';
-            b.append(badge);
-        }
-    } else if (badge) {
-        badge.remove();
-    }
+    if (b) b.innerHTML = ic('bell') + bellBdg();
 }
 
 function notifPage() {
@@ -2407,30 +2399,36 @@ function waRemindM(saleId, type) {
 function render(keep) {
     const main = $('#main');
     if (!main) return;
-    const p = V.page || 'overview';
-    const p0 = p.split('/')[0];
+    const p0 = V.page || 'overview';
+    const p = p0.split('/')[0];
 
     const nv = $('#nv');
     if (nv) {
-        nv.innerHTML = NAV.map(([k, label, icon]) => `
-            <button class="nvi${(p0 === k) ? ' on' : ''}" data-act="nav" data-p="${k}">
-                ${ic(icon)}
-                <span>${esc(label)}</span>
-            </button>
-        `).join('');
+        nv.innerHTML = NAV.map((n, i) => (n[3] != (NAV[i - 1] || [])[3] ? '<div class="gh lb">' + esc(n[3]) + '</div>' : '') + `<button class="ni${n[0] == p ? ' on' : ''}" data-act="nav" data-p="${n[0]}" title="${esc(n[1])}"${n[0] == p ? ' aria-current="page"' : ''}>${ic(n[2])}<span class="lb">${esc(n[1])}</span></button>`).join('');
     }
 
     const ub = $('#user-badge');
     if (ub && currentUser) {
-        ub.innerHTML = `<div class="av">${esc(ini(currentUser.name))}</div>
-        <div class="lb us-info">
-            <b>${esc(currentUser.name)}</b>
-            <small>${esc(currentUser.email)}</small>
-        </div>
-        <button class="ib lb" data-act="logout" aria-label="Log out" title="Log out">${ic('logout')}</button>`;
+        ub.innerHTML = `<span class="av" title="${esc(currentUser.name)}">${esc(ini(currentUser.name))}</span><div class="lb us-info"><b title="${esc(currentUser.name)}">${esc(currentUser.name)}</b><small title="${esc(currentUser.email)}">${esc(currentUser.email)}</small></div><button class="ib lb" data-act="logout" aria-label="Sign out" title="Sign out">${ic('logout')}</button>`;
     }
 
-    const sub = subPage(p);
+    const bn = $('#bn');
+    if (bn) {
+        bn.innerHTML = [
+            ['overview', 'Home', 'home'],
+            ['sales', 'Sales', 'cart'],
+            ['calendar', 'Calendar', 'cal'],
+            ['customers', 'Customers', 'users']
+        ].map(n => `<button class="${n[0] == p ? 'on' : ''}" data-act="nav" data-p="${n[0]}">${ic(n[2])}${n[1]}</button>`).join('') + `<button data-act="menu">${ic('more')}More</button>`;
+    }
+
+    const mb = $('#mb'); if (mb) mb.innerHTML = ic('menu');
+    const nb = $('#nb'); if (nb) nb.innerHTML = ic('plus') + '<span class="cl">New</span>';
+    const bl = $('#bl'); if (bl) bl.innerHTML = ic('bell') + bellBdg();
+    const th = $('#th'); if (th) th.innerHTML = ic('moon');
+    const ab = $('#ab'); if (ab) ab.innerHTML = ic('pulse');
+
+    const sub = subPage(p0);
     if (sub) {
         main.innerHTML = sub;
     } else if (p === 'sales') {
