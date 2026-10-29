@@ -710,7 +710,7 @@ function overview() {
         <div class="k"><span>2nd Service Due Soon</span><b style="color:var(--wa)">${srv2Due}</b><small>Before 11 months window</small></div>
     </div>
 
-    <div class="cw2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px">
+    <div class="cw2">
         <div class="panel">
             <div class="hd" style="display:flex;justify-content:space-between;align-items:center">
                 <h2>Upcoming AC Services (Free Warranty Milestones)</h2>
@@ -827,7 +827,7 @@ function salesPage() {
 
     <div class="panel">
         <div class="tw">
-            <table class="tb">
+            <table class="tbl">
                 <thead>
                     <tr>
                         <th>Sale # / Date</th>
@@ -844,35 +844,35 @@ function salesPage() {
                 <tbody>
                     ${list.map(s => `
                         <tr style="cursor:pointer" data-act="nav" data-p="sales/${s.id}">
-                            <td>
+                            <td data-label="Sale # / Date">
                                 <b>${esc(s.id)}</b>
                                 <small class="mu" style="display:block">${fd(s.date)}</small>
                             </td>
-                            <td>
+                            <td data-label="Customer">
                                 <b>${esc(s.custName)}</b>
                                 <small class="mu" style="display:block">${esc(s.custPhone)} · ${esc(s.custLocality || '')}</small>
                             </td>
-                            <td>
+                            <td data-label="AC Unit & Serial #">
                                 <b>${esc(s.brand)} ${esc(s.model)}</b>
                                 <small class="mu" style="display:block">S/N: ${esc(s.sn)}</small>
                             </td>
-                            <td><small>${esc(s.shopName || S.set.store)}</small></td>
-                            <td>
+                            <td data-label="Shop Name"><small>${esc(s.shopName || S.set.store)}</small></td>
+                            <td data-label="Installation">
                                 ${s.installDate ? `<b>${fd(s.installDate)}</b>` : '<span class="b wa">Pending</span>'}
                             </td>
-                            <td>
+                            <td data-label="1st Service Due" data-status="1">
                                 <div><b>${fd(s.srv1Date)}</b></div>
                                 ${srvBadge(s.srv1Status, s.srv1Date)}
                             </td>
-                            <td>
+                            <td data-label="2nd Service Due" data-status="1">
                                 <div><b>${fd(s.srv2Date)}</b></div>
                                 ${srvBadge(s.srv2Status, s.srv2Date)}
                             </td>
-                            <td>
+                            <td data-label="Docs">
                                 ${(s.images || []).length > 0 ? `<span class="tag-pill">${s.images.length} photos</span>` : '<span class="mu">None</span>'}
                             </td>
-                            <td style="text-align:right" onclick="event.stopPropagation()">
-                                <div style="display:flex;justify-content:flex-end;gap:4px">
+                            <td data-label="Actions" onclick="event.stopPropagation()">
+                                <div style="display:flex;gap:4px">
                                     <button class="btn sm" data-act="nav" data-p="sales/${s.id}">View</button>
                                     <button class="btn sm" data-act="nav" data-p="sales/edit/${s.id}">Edit</button>
                                 </div>
@@ -952,7 +952,7 @@ function saleFormPage(id) {
                     <label>Customer Name *
                         <input name="cust_name" id="sc_name" value="${esc(s ? s.custName : c.name || '')}" placeholder="Full Name" required>
                     </label>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                         <label>WhatsApp Number *
                             <input name="cust_phone" id="sc_phone" value="${esc(s ? s.custPhone : c.phone || '')}" placeholder="+91 98250 XXXXX" required>
                         </label>
@@ -963,7 +963,7 @@ function saleFormPage(id) {
                     <label>Complete Address (including Flat/House/Street) *
                         <textarea name="cust_address" id="sc_addr" rows="2" placeholder="Full residential or commercial address" required>${esc(s ? s.custAddress : c.address || '')}</textarea>
                     </label>
-                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
                         <label>Locality / Area *
                             <input name="cust_locality" id="sc_loc" value="${esc(s ? (s.custLocality || '') : c.locality || '')}" placeholder="e.g. Alkapuri" required>
                         </label>
@@ -999,7 +999,7 @@ function saleFormPage(id) {
                 </div>
 
                 <div class="fg">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                         <label>Brand Name *
                             <input name="prod_brand" id="sp_brand" value="${esc(s ? s.brand : p.brand || 'Daikin')}" placeholder="e.g. Daikin, LG, Voltas" required>
                         </label>
@@ -1010,7 +1010,7 @@ function saleFormPage(id) {
                     <label>Product Serial Number *
                         <input name="prod_sn" id="sp_sn" value="${esc(s ? s.sn : '')}" placeholder="e.g. DK-71001 or scan serial plate" required>
                     </label>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                         <label>Capacity / Tonnage
                             <input name="prod_cap" id="sp_cap" value="${esc(p.capacity || '1.5 Ton')}" placeholder="e.g. 1.5 Ton">
                         </label>
@@ -1030,7 +1030,7 @@ function saleFormPage(id) {
             <div class="panel pad">
                 <h2>Purchase & Shop Information</h2>
                 <div class="fg">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                         <label>Date of Purchase *
                             <input name="sale_date" id="sale-date-input" type="date" value="${purchaseDate}" required>
                         </label>
@@ -1066,7 +1066,7 @@ function saleFormPage(id) {
             <div class="panel pad" style="grid-column:1/-1;background:color-mix(in srgb,var(--acs) 25%,var(--sf))">
                 <h2>Automated Free Service Milestones (2 per Year)</h2>
                 <p class="mu">Calculated automatically based on the purchase date. Reminders will trigger via WhatsApp.</p>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:12px">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:12px">
                     <div class="panel pad" style="background:var(--sf)">
                         <div style="display:flex;justify-content:space-between;align-items:center">
                             <b>1st Free Service Milestone</b>
@@ -1134,7 +1134,7 @@ function saleDetailPage(id) {
         </div>
     </div>
 
-    <div class="cw2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px">
+    <div class="cw2">
 
         <div style="display:flex;flex-direction:column;gap:20px">
             <div class="panel pad">
@@ -1142,7 +1142,7 @@ function saleDetailPage(id) {
                     <h2>Customer Information</h2>
                     <button class="btn sm" data-act="nav" data-p="customers/${s.cid}">Profile</button>
                 </div>
-                <dl class="kv" style="grid-template-columns:120px 1fr">
+                <dl class="kv">
                     <dt>Customer Name</dt>
                     <dd><b>${esc(s.custName)}</b></dd>
                     <dt>WhatsApp No.</dt>
@@ -1162,7 +1162,7 @@ function saleDetailPage(id) {
 
             <div class="panel pad">
                 <h2>AC Product Details (Zero Price Record)</h2>
-                <dl class="kv" style="grid-template-columns:120px 1fr">
+                <dl class="kv">
                     <dt>Brand Name</dt>
                     <dd><b>${esc(s.brand)}</b></dd>
                     <dt>Model Number</dt>
@@ -1254,10 +1254,10 @@ function prodPage(id) {
         </div>
     </div>
 
-    <div class="cw2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px">
+    <div class="cw2">
         <div class="panel pad">
             <h2>AC Specifications (Minimal)</h2>
-            <dl class="kv" style="grid-template-columns:140px 1fr;margin-top:12px">
+            <dl class="kv" style="margin-top:12px">
                 <dt>Brand Name</dt>
                 <dd><b>${esc(p.brand)}</b></dd>
                 <dt>Model Number</dt>
@@ -1349,7 +1349,7 @@ function prodFormPage(id) {
             <div class="panel pad">
                 <h2>Technical Specifications</h2>
                 <div class="fg">
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                         <label>Capacity / Tonnage
                             <select name="capacity">
                                 ${['1.0 Ton', '1.5 Ton', '2.0 Ton', '0.8 Ton', '2.5 Ton'].map(c => `<option ${(e && e.capacity === c) ? 'selected' : ''}>${c}</option>`).join('')}
@@ -1361,7 +1361,7 @@ function prodFormPage(id) {
                             </select>
                         </label>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                         <label>Inverter Type
                             <select name="invType">
                                 ${['Inverter', 'Dual Inverter', 'Fixed Speed', 'Triple Inverter'].map(c => `<option ${(e && e.invType === c) ? 'selected' : ''}>${c}</option>`).join('')}
@@ -1371,7 +1371,7 @@ function prodFormPage(id) {
                             <input name="condenser" value="${esc(e ? e.condenser : '100% Copper')}" placeholder="e.g. 100% Copper">
                         </label>
                     </div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                         <label>Refrigerant Gas
                             <input name="gas" value="${esc(e ? e.gas : 'R32')}" placeholder="e.g. R32, R410A">
                         </label>
@@ -1421,10 +1421,10 @@ function custPage(id) {
         </div>
     </div>
 
-    <div class="cw2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px">
+    <div class="cw2">
         <div class="panel pad">
             <h2>Customer Details</h2>
-            <dl class="kv" style="grid-template-columns:130px 1fr;margin-top:12px">
+            <dl class="kv" style="margin-top:12px">
                 <dt>Full Name</dt>
                 <dd><b>${esc(c.name)}</b></dd>
                 <dt>WhatsApp No.</dt>
@@ -1525,7 +1525,7 @@ function custFormPage(id) {
                     <label>Complete Address (House/Flat, Building, Street) *
                         <textarea name="address" rows="3" placeholder="Complete physical address" required>${esc(c ? c.address : '')}</textarea>
                     </label>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                         <label>Locality / Area (e.g. Alkapuri, Manjalpur) *
                             <input name="locality" value="${esc(c ? (c.locality || '') : '')}" placeholder="Locality or Area" required>
                         </label>
@@ -1587,7 +1587,7 @@ function invPage(id) {
             </div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;font-size:13px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:20px;font-size:13px">
             <div style="background:#f9fafb;padding:12px;border-radius:6px;border:1px solid #e5e7eb">
                 <b style="color:#374151;text-transform:uppercase;font-size:11px;letter-spacing:0.5px">Billed To (Customer Details)</b>
                 <div style="font-size:15px;font-weight:700;margin:4px 0">${esc(c.name)}</div>
@@ -1968,7 +1968,7 @@ function notifPage() {
     </div>
     <div class="panel">
         <div class="tw">
-            <table class="tb">
+            <table class="tbl">
                 <thead>
                     <tr>
                         <th>Notification</th>
@@ -1981,14 +1981,14 @@ function notifPage() {
                 <tbody>
                     ${allN.map(n => `
                         <tr class="${isRd(n.id) ? '' : 'unread'}">
-                            <td>
+                            <td data-label="Notification">
                                 <b>${esc(n.t)}</b>
                                 <small class="mu" style="display:block">${esc(n.sub)}</small>
                             </td>
-                            <td><span class="tag-pill">${esc(n.cat)}</span></td>
-                            <td>${esc(n.time)}</td>
-                            <td>${isRd(n.id) ? '<span class="mu">Read</span>' : '<span class="b ok">New</span>'}</td>
-                            <td style="text-align:right">
+                            <td data-label="Category"><span class="tag-pill">${esc(n.cat)}</span></td>
+                            <td data-label="Due Date">${esc(n.time)}</td>
+                            <td data-label="Status" data-status="1">${isRd(n.id) ? '<span class="mu">Read</span>' : '<span class="b ok">New</span>'}</td>
+                            <td data-label="Action" style="text-align:right">
                                 <button class="btn sm" data-act="nav" data-p="${n.go[0]}">Open Sale</button>
                             </td>
                         </tr>
@@ -2081,58 +2081,270 @@ function actPage() {
 </div>`;
 }
 
+const PAL = ['#0284c7', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b', '#f97316'];
+const rcol = i => PAL[i % PAL.length];
+
+const cmpN = v => {
+    const a = Math.abs(v);
+    const f = (x, s) => +x.toFixed(1) + s;
+    return a >= 1e7 ? f(v / 1e7, 'Cr') : a >= 1e5 ? f(v / 1e5, 'L') : a >= 1e3 ? f(v / 1e3, 'k') : String(+v.toFixed(1));
+};
+
+function dchart(items, o = {}) {
+    const fmt = o.fmt || String, mx = Math.max(1, ...items.map(x => x.v)), s = Math.pow(10, Math.floor(Math.log10(mx))), st = [1, 2, 2.5, 5, 10].find(x => x * s * 4 >= mx) * s, top = st * 4, len = items.length;
+    let xHTML = '';
+    if (o.all) {
+        xHTML = `<div class="dc-x wrap">${items.map(x => `<span title="${esc(x.t || x.fl || x.l)}"><span class="xl-s">${esc(x.sl || x.l)}</span><span class="xl-f">${esc(x.fl || x.l)}</span></span>`).join('')}</div>`;
+    } else {
+        const k = Math.min(len, o.maxL || 5, Math.max(2, Math.floor((len + 1) / 2)));
+        const ticks = len <= 1 ? [0] : Array.from({ length: k }, (_, t) => Math.round(t * (len - 1) / (k - 1)));
+        xHTML = `<div class="dc-x dc-xt">${ticks.map((idx, ti) => {
+            const align = len <= 1 ? 'center' : ti == 0 ? 'left' : ti == ticks.length - 1 ? 'right' : 'center';
+            return `<span style="text-align:${align}" title="${esc(items[idx].t || items[idx].fl || items[idx].l)}">${esc(items[idx].l)}</span>`;
+        }).join('')}</div>`;
+    }
+    return `<div class="dc"><div class="dc-p"><div class="dc-g">${[4, 3, 2, 1, 0].map(i => `<span><em>${esc(o.ax ? o.ax(st * i) : cmpN(st * i))}</em></span>`).join('')}</div><div class="dc-b">${items.map(x => `<div class="dc-c" data-tip="${esc(x.t || x.fl || x.l)}|${esc(fmt(x.v))}"><i style="height:${x.v ? Math.max(1.5, x.v / top * 100) : 0}%;background:${x.c || 'var(--ac)'}"></i></div>`).join('')}</div></div>${xHTML}</div>`;
+}
+
+function donut(items, fmt, ctr) {
+    items = items.filter(x => x.v > 0);
+    const T = items.reduce((s, x) => s + x.v, 0);
+    if (!T) return '<div class="empty">No data to display</div>';
+    const r = 68, C = 2 * Math.PI * r, gp = items.length > 1 ? 2.5 : 0, pc = x => (x.v / T * 100).toFixed(1), top = items.reduce((a, x) => x.v > a.v ? x : a, items[0]);
+    let off = 0;
+    const seg = items.map((x, i) => {
+        const d = Math.max(0, x.v / T * C - gp);
+        const s = `<circle class="ds" data-dsi="${i}" cx="100" cy="100" r="${r}" fill="none" stroke="${x.c || rcol(i)}" stroke-width="26" stroke-dasharray="${d} ${C - d}" stroke-dashoffset="${-off}" transform="rotate(-90 100 100)" data-tip="${esc(x.l + '|' + fmt(x.v) + ' · ' + pc(x) + '%')}"></circle>`;
+        off += x.v / T * C;
+        return s;
+    }).join('');
+    const cn = [[fmt(T), ctr || 'Total', items.length + (items.length == 1 ? ' brand' : ' brands')], ...items.map(x => [fmt(x.v), x.l, pc(x) + '% of total'])];
+    const fz = n => n.length > 9 ? 14 : n.length > 7 ? 16 : 18;
+    return `<div class="dn3" data-cn="${esc(JSON.stringify(cn))}"><div class="dn3c"><svg viewBox="0 0 200 200" role="img" aria-label="Donut chart: ${esc(ctr || 'Total')}"><circle cx="100" cy="100" r="${r}" fill="none" stroke="var(--bg)" stroke-width="26"/>${seg}<text class="dcv" x="100" y="97" text-anchor="middle" style="font-size:${fz(cn[0][0])}px">${esc(cn[0][0])}</text><text class="dcl" x="100" y="115" text-anchor="middle">${esc(cn[0][1])}</text><text class="dcs" x="100" y="130" text-anchor="middle">${esc(cn[0][2])}</text></svg></div>
+<ul>${items.map((x, i) => `<li data-dsi="${i}"><i style="background:${x.c || rcol(i)}"></i><span class="dl" title="${esc(x.l)}">${esc(x.l)}</span><span class="dv">${esc(fmt(x.v))}<small>${pc(x)}%</small></span><div class="db"><b style="width:${pc(x)}%;background:${x.c || rcol(i)}"></b></div></li>`).join('')}</ul>
+<div class="dn3f"><div><span>Total</span><b>${esc(fmt(T))}</b></div><div><span>Top Brand</span><b title="${esc(top.l)}">${esc(top.l)} · ${pc(top)}%</b></div><div><span>Brands</span><b>${items.length}</b></div></div></div>`;
+}
+
+function dnSet(root, i) {
+    const raw = root.dataset.cn;
+    if (!raw) return;
+    let data;
+    try { data = JSON.parse(raw); } catch (e) { return; }
+    const a = data[i == null ? 0 : i + 1] || data[0];
+    const fz = a[0].length > 9 ? 14 : a[0].length > 7 ? 16 : 18;
+    const vEl = root.querySelector('.dcv');
+    if (vEl) {
+        vEl.textContent = a[0];
+        vEl.style.fontSize = fz + 'px';
+    }
+    const lEl = root.querySelector('.dcl');
+    if (lEl) lEl.textContent = a[1].length > 18 ? a[1].slice(0, 17) + '…' : a[1];
+    const sEl = root.querySelector('.dcs');
+    if (sEl) sEl.textContent = a[2];
+    root.classList.toggle('hv', i != null);
+    root.querySelectorAll('[data-dsi]').forEach(x => x.classList.toggle('hot', x.dataset.dsi == i));
+}
+
+let REP_RANGE = 'all';
+
 function reports() {
+    const t = D(0);
+    let sales = S.sales;
+    if (REP_RANGE === '7d') sales = sales.filter(s => s.date >= cdd(t, -7));
+    else if (REP_RANGE === '30d') sales = sales.filter(s => s.date >= cdd(t, -30));
+    else if (REP_RANGE === 'tm') sales = sales.filter(s => s.date.startsWith(t.slice(0, 7)));
+    else if (REP_RANGE === 'ty') sales = sales.filter(s => s.date.startsWith(t.slice(0, 4)));
+
+    const totalSold = sales.length;
+    const srv1Done = sales.filter(s => s.srv1Status === 'Completed').length;
+    const srv1Due = sales.filter(s => s.srv1Status !== 'Completed').length;
+    const srv2Done = sales.filter(s => s.srv2Status === 'Completed').length;
+    const srv2Due = sales.filter(s => s.srv2Status !== 'Completed').length;
+    const totalSrvDone = srv1Done + srv2Done;
+    const totalSrvScheduled = sales.length * 2;
+    const complianceRate = totalSrvScheduled > 0 ? Math.round((totalSrvDone / totalSrvScheduled) * 100) : 100;
+
     const brandCounts = {};
-    S.sales.forEach(s => {
+    sales.forEach(s => {
         brandCounts[s.brand] = (brandCounts[s.brand] || 0) + 1;
     });
+
+    const donutItems = Object.entries(brandCounts).map(([brand, count], idx) => ({
+        l: brand,
+        v: count,
+        c: rcol(idx)
+    })).sort((a, b) => b.v - a.v);
+
+    const monthBuckets = {};
+    const last6Months = [];
+    for (let i = 5; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const ym = d.toISOString().slice(0, 7);
+        const label = d.toLocaleDateString('en-IN', { month: 'short' });
+        last6Months.push({ ym, label });
+        monthBuckets[ym] = 0;
+    }
+    sales.forEach(s => {
+        const ym = (s.date || '').slice(0, 7);
+        if (monthBuckets[ym] !== undefined) monthBuckets[ym]++;
+    });
+
+    const trendItems = last6Months.map(m => ({
+        l: m.label,
+        fl: m.ym,
+        v: monthBuckets[m.ym] || 0,
+        t: m.label + ' Sales'
+    }));
+
+    const localityMap = {};
+    sales.forEach(s => {
+        const loc = s.custLocality || 'Other Locality';
+        if (!localityMap[loc]) localityMap[loc] = { units: 0, customers: new Set() };
+        localityMap[loc].units++;
+        localityMap[loc].customers.add(s.cid);
+    });
+
+    const localityList = Object.entries(localityMap).map(([loc, data]) => ({
+        loc,
+        units: data.units,
+        customers: data.customers.size
+    })).sort((a, b) => b.units - a.units);
 
     return `<div class="pg">
     <div class="ph">
         <div>
-            <h1>Reports &amp; Analytics</h1>
-            <p>AC sales volumes, brand distribution, and complimentary service tracking metrics.</p>
+            <h1>Detailed Reports &amp; Analytics</h1>
+            <p>Sales volume trends, brand distribution, locality breakdown, and 1st &amp; 2nd service milestones.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" data-act="export">${ic('file')} Export All Data (JSON)</button>
+        </div>
+    </div>
+
+    <div class="bar">
+        <div class="chips">
+            ${[
+                ['all', 'All Time'],
+                ['ty', 'This Year'],
+                ['tm', 'This Month'],
+                ['30d', 'Last 30 Days'],
+                ['7d', 'Last 7 Days']
+            ].map(([k, label]) => `
+                <button class="chip${REP_RANGE === k ? ' on' : ''}" data-act="rep-range" data-v="${k}">${label}</button>
+            `).join('')}
         </div>
     </div>
 
     <div class="kp k4" style="margin-bottom:20px">
-        <div class="k"><span>Total ACs Sold</span><b>${S.sales.length}</b></div>
-        <div class="k"><span>Active Customers</span><b>${S.customers.length}</b></div>
-        <div class="k"><span>1st Services Done</span><b style="color:var(--ok)">${S.sales.filter(s => s.srv1Status === 'Completed').length}</b></div>
-        <div class="k"><span>2nd Services Done</span><b style="color:var(--ok)">${S.sales.filter(s => s.srv2Status === 'Completed').length}</b></div>
+        <div class="k"><span>ACs Sold in Period</span><b>${totalSold}</b><small>Recorded units</small></div>
+        <div class="k"><span>Active Customers</span><b>${S.customers.length}</b><small>Verified registry</small></div>
+        <div class="k"><span>Complimentary Services Done</span><b style="color:var(--ok)">${totalSrvDone}</b><small>${srv1Done} 1st + ${srv2Done} 2nd</small></div>
+        <div class="k"><span>Service Compliance</span><b style="color:var(--ac)">${complianceRate}%</b><small>${totalSrvDone} of ${totalSrvScheduled} visits</small></div>
     </div>
 
-    <div class="cw2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px">
+    <div class="dgr">
+        <div class="panel">
+            <div class="hd">
+                <h2>Monthly AC Sales Trend</h2>
+                <span class="mu">${totalSold} total units</span>
+            </div>
+            ${dchart(trendItems, { fmt: n => n + ' units', ax: v => String(v) })}
+        </div>
+
+        <div class="panel">
+            <div class="hd">
+                <h2>Brand Market Share</h2>
+                <span class="mu">${donutItems.length} brands</span>
+            </div>
+            ${donut(donutItems, n => n + ' units', 'Total ACs')}
+        </div>
+    </div>
+
+    <div class="cw2" style="margin-bottom:20px">
         <div class="panel pad">
-            <h2>Brand Distribution</h2>
-            <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
-                ${Object.entries(brandCounts).map(([b, cnt]) => {
-                    const pct = Math.round(cnt / S.sales.length * 100);
-                    return `<div>
-                        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-                            <b>${esc(b)}</b>
-                            <span>${cnt} unit${cnt === 1 ? '' : 's'} (${pct}%)</span>
-                        </div>
-                        <div style="height:8px;border-radius:4px;background:var(--bd);overflow:hidden">
-                            <div style="width:${pct}%;height:100%;background:var(--ac)"></div>
-                        </div>
-                    </div>`;
-                }).join('') || '<div class="empty">No sales data</div>'}
+            <h2>Complimentary Service Milestones Status</h2>
+            <p class="mu" style="margin-bottom:14px">2 free services per unit (1st after 3-5 months, 2nd before 11 months).</p>
+
+            <div style="margin-bottom:16px">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                    <b>1st Free Service (3-5 Months)</b>
+                    <span>${srv1Done} Done · ${srv1Due} Due / Pending</span>
+                </div>
+                <div style="height:10px;border-radius:5px;background:var(--bd);overflow:hidden">
+                    <div style="width:${totalSold > 0 ? Math.round(srv1Done / totalSold * 100) : 0}%;height:100%;background:var(--ok)"></div>
+                </div>
+                <small class="mu" style="display:block;margin-top:4px">${totalSold > 0 ? Math.round(srv1Done / totalSold * 100) : 0}% compliance</small>
+            </div>
+
+            <div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                    <b>2nd Free Service (Before 11 Months)</b>
+                    <span>${srv2Done} Done · ${srv2Due} Due / Pending</span>
+                </div>
+                <div style="height:10px;border-radius:5px;background:var(--bd);overflow:hidden">
+                    <div style="width:${totalSold > 0 ? Math.round(srv2Done / totalSold * 100) : 0}%;height:100%;background:var(--ok)"></div>
+                </div>
+                <small class="mu" style="display:block;margin-top:4px">${totalSold > 0 ? Math.round(srv2Done / totalSold * 100) : 0}% compliance</small>
             </div>
         </div>
 
         <div class="panel pad">
-            <h2>Complimentary Service Health</h2>
-            <dl class="kv" style="grid-template-columns:160px 1fr;margin-top:14px">
-                <dt>1st Service Pending</dt>
-                <dd><b>${S.sales.filter(s => s.srv1Status !== 'Completed').length}</b> units</dd>
-                <dt>1st Service Completed</dt>
-                <dd><b style="color:var(--ok)">${S.sales.filter(s => s.srv1Status === 'Completed').length}</b> units</dd>
-                <dt>2nd Service Pending</dt>
-                <dd><b>${S.sales.filter(s => s.srv2Status !== 'Completed').length}</b> units</dd>
-                <dt>2nd Service Completed</dt>
-                <dd><b style="color:var(--ok)">${S.sales.filter(s => s.srv2Status === 'Completed').length}</b> units</dd>
-            </dl>
+            <h2>Locality &amp; Neighborhood Distribution</h2>
+            <p class="mu" style="margin-bottom:12px">Installations by locality in Vadodara area.</p>
+            <div style="display:flex;flex-direction:column;gap:10px">
+                ${localityList.map(item => {
+                    const pct = totalSold > 0 ? Math.round(item.units / totalSold * 100) : 0;
+                    return `<div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                            <b>${esc(item.loc)}</b>
+                            <span>${item.units} unit${item.units === 1 ? '' : 's'} (${item.customers} cust)</span>
+                        </div>
+                        <div style="height:6px;border-radius:3px;background:var(--bd);overflow:hidden">
+                            <div style="width:${pct}%;height:100%;background:var(--ac)"></div>
+                        </div>
+                    </div>`;
+                }).join('') || '<div class="empty">No locality records</div>'}
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="hd">
+            <h2>Detailed Sales &amp; Service Audit Log</h2>
+            <span class="mu">${sales.length} sales records</span>
+        </div>
+        <div class="tw">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th>Sale ID</th>
+                        <th>Customer</th>
+                        <th>Locality</th>
+                        <th>AC Unit</th>
+                        <th>Serial Number</th>
+                        <th>Purchase Date</th>
+                        <th>Installation</th>
+                        <th>1st Service</th>
+                        <th>2nd Service</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sales.map(s => `
+                        <tr style="cursor:pointer" data-act="nav" data-p="sales/${s.id}">
+                            <td data-label="Sale ID"><b>${esc(s.id)}</b></td>
+                            <td data-label="Customer"><b>${esc(s.custName)}</b><small class="mu" style="display:block">${esc(s.custPhone)}</small></td>
+                            <td data-label="Locality">${esc(s.custLocality || '—')}</td>
+                            <td data-label="AC Unit">${esc(s.brand)} ${esc(s.model)}</td>
+                            <td data-label="Serial Number"><span class="tag-pill">${esc(s.sn)}</span></td>
+                            <td data-label="Purchase Date">${fd(s.date)}</td>
+                            <td data-label="Installation">${s.installDate ? fd(s.installDate) : '<span class="b wa">Pending</span>'}</td>
+                            <td data-label="1st Service" data-status="1"><div>${fd(s.srv1Date)}</div>${srvBadge(s.srv1Status, s.srv1Date)}</td>
+                            <td data-label="2nd Service" data-status="1"><div>${fd(s.srv2Date)}</div>${srvBadge(s.srv2Status, s.srv2Date)}</td>
+                        </tr>
+                    `).join('') || '<tr><td colspan="9" class="empty">No sales records in selected date range</td></tr>'}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>`;
@@ -2161,7 +2373,7 @@ function settings() {
                     <label>Store Complete Address
                         <textarea name="addr" rows="2">${esc(S.set.addr)}</textarea>
                     </label>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
                         <label>Phone / Helpline
                             <input name="phone" value="${esc(S.set.phone)}">
                         </label>
@@ -2227,7 +2439,7 @@ function userPermissionsPage(id) {
 
         <div class="panel">
             <div class="tw">
-                <table class="tb">
+                <table class="tbl rt">
                     <thead>
                         <tr>
                             <th>Module</th>
@@ -2320,7 +2532,7 @@ function listPage(k) {
 
     <div class="panel">
         <div class="tw">
-            <table class="tb">
+            <table class="tbl">
                 <thead>
                     <tr>
                         ${def.cols.map(c => `<th>${c[0]}</th>`).join('')}
@@ -2329,7 +2541,7 @@ function listPage(k) {
                 <tbody id="tb">
                     ${pageRows.map(r => `
                         <tr style="cursor:pointer" data-act="open-row" data-k="${k}" data-id="${r.id}">
-                            ${def.cols.map(c => `<td>${c[1](r)}</td>`).join('')}
+                            ${def.cols.map(c => `<td data-label="${esc(c[0])}"${['Status', 'Permissions', 'Available Stock'].includes(c[0]) ? ' data-status="1"' : ''}>${c[1](r)}</td>`).join('')}
                         </tr>
                     `).join('') || `<tr><td colspan="${def.cols.length}" class="empty">No records found matching filter</td></tr>`}
                 </tbody>
@@ -2502,6 +2714,18 @@ function act(a, e) {
             V.f = d.v;
             V.p = 0;
             return render(true);
+                case 'rep-range':
+            REP_RANGE = d.v;
+            return render(true);
+        case 'export': {
+            const u = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' }));
+            const l = document.createElement('a');
+            l.href = u;
+            l.download = 'mobile-point-data-backup.json';
+            l.click();
+            toast('Backup exported successfully');
+            return;
+        }
         case 'sales-chip':
             SF = d.v;
             return render(true);
@@ -3131,7 +3355,7 @@ document.addEventListener('input', e => {
             }
             tb.innerHTML = rows.slice(0, 25).map(r => `
                 <tr style="cursor:pointer" data-act="open-row" data-k="${V.page}" data-id="${r.id}">
-                    ${def.cols.map(c => `<td>${c[1](r)}</td>`).join('')}
+                    ${def.cols.map(c => `<td data-label="${esc(c[0])}"${['Status', 'Permissions', 'Available Stock'].includes(c[0]) ? ' data-status="1"' : ''}>${c[1](r)}</td>`).join('')}
                 </tr>
             `).join('') || `<tr><td colspan="${def.cols.length}" class="empty">No records found matching filter</td></tr>`;
         }
@@ -3214,3 +3438,14 @@ V.page = location.hash.slice(1) || 'overview';
 if (!NAV.some(n => n[0] === V.page.split('/')[0])) V.page = 'overview';
 V.k = ['overview', 'calendar', 'reports', 'settings', 'sales', 'notifications', 'activity'].includes(V.page.split('/')[0]) ? '' : V.page.split('/')[0];
 render();
+
+document.addEventListener('mouseover', e => {
+    const r = e.target.closest && e.target.closest('.dn3');
+    if (!r) return;
+    const t = e.target.closest('[data-dsi]');
+    dnSet(r, t ? +t.dataset.dsi : null);
+});
+document.addEventListener('mouseout', e => {
+    const r = e.target.closest && e.target.closest('.dn3');
+    if (r && !(e.relatedTarget && r.contains(e.relatedTarget))) dnSet(r, null);
+});
