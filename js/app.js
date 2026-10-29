@@ -1,11 +1,7 @@
 "use strict";
 
-let PAGE = 'overview';
-let SUB = null;
-
 const $ = (s, e = document) => e.querySelector(s);
-const $$ = (s, e = document) => Array.from(e.querySelectorAll(s));
-const $$e = (e, s) => Array.from(e.querySelectorAll(s));
+const $$e = (e, s) => [...(e || document).querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function mpLogo(s = 32) {
@@ -47,43 +43,44 @@ const IC = {
     bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M10 21h4',
     moon: 'M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z',
     more: 'M5 12h.01M12 12h.01M19 12h.01',
-    cart: 'M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0',
-    upl: 'M12 16V4M7 9l5-5 5 5M4 20h16',
-    pulse: 'M22 12h-4l-3 9L9 3l-3 9H2',
-    trash: 'M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2',
-    eye: 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+    box: 'M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8',
+    cart: 'M3 4h2l2.5 11h11L21 7H6M9 20h.01M18 20h.01',
+    pulse: 'M3 12h4l3 8 4-16 3 8h4',
     check: 'M20 6L9 17l-5-5',
     camera: 'M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
-    send: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
-    edit: 'M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'
+    send: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z'
 };
 
-const ic = n => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${IC[n] || IC.more}"/></svg>`;
-const D = n => { const x = new Date(); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10) };
-const fd = s => s ? new Date(s + 'T00:00:00Z').toLocaleDateString('en-IN', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' }) : '—';
-const fds = s => s ? new Date(s + 'T00:00:00Z').toLocaleDateString('en-IN', { timeZone: 'UTC', day: 'numeric', month: 'short' }) : '—';
+const ic = n => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${IC[n] || IC.home}"/></svg>`;
+const D = n => { const x = new Date(); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+const cdd = (d, n) => { const x = new Date(d + 'T00:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); };
+const dow = d => { const x = new Date(d + 'T00:00:00Z'); return (x.getUTCDay() + 6) % 7; };
+const fd = s => s ? new Date(s + 'T00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
+const fdt = s => s ? new Date(s + 'T00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—';
 const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN');
-const ini = n => String(n || '').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'MP';
+const ini = n => (n || '').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || 'MP';
 
 const BK = {
-    Completed: 'ok', Installed: 'ok', Delivered: 'ok', Active: 'ok',
-    Sent: 'ac', ReminderSent: 'ac', Booked: 'ac',
-    'Due soon': 'wa', Due: 'wa', Pending: 'wa', 'Pending Installation': 'wa', Scheduled: 'wa',
-    Overdue: 'er', Failed: 'er', Cancelled: 'er', Inactive: 'er'
+    Completed: 'ok', Installed: 'ok', Active: 'ok', Delivered: 'ok',
+    Sent: 'ac', Upcoming: 'ac', Booked: 'ac',
+    'Due soon': 'wa', '1st Service Due': 'wa', '2nd Service Due': 'wa', Pending: 'wa', 'Pending Install': 'wa',
+    Overdue: 'er', Failed: 'er', Inactive: 'er', Cancelled: 'er'
 };
 const B = s => `<span class="b ${BK[s] || ''}">${esc(s)}</span>`;
 
-const KEY = 'mpac-v3';
+const KEY = 'mpac-v6-data';
 
 const MODULE_DEFS = [
-    { id: 'customers', title: 'Customers', desc: 'Customer registry with addresses, landmarks, and WhatsApp contacts', icon: 'users', hasEdit: true, hasDelete: true },
-    { id: 'products', title: 'AC Products', desc: 'AC catalog with brand, model, serials, and technical specs', icon: 'wind', hasEdit: true, hasDelete: true },
-    { id: 'sales', title: 'Sales Management', desc: 'Record sales, installation tracking, photos, and sale records', icon: 'cart', hasEdit: true, hasDelete: true },
-    { id: 'invoices', title: 'Invoices', desc: 'Generate and print customer tax invoices and sales memos', icon: 'file', hasEdit: true, hasDelete: true },
-    { id: 'calendar', title: 'Service Calendar', desc: 'Track upcoming and past 1st and 2nd AC free service schedules', icon: 'cal', hasEdit: true, hasDelete: false },
-    { id: 'engagements', title: 'WhatsApp Automations', desc: 'Automated greeting, welcome, service reminders, and promotions', icon: 'zap', hasEdit: true, hasDelete: true },
-    { id: 'reports', title: 'Insights & Reports', desc: 'Brand sales share, service compliance, and area distribution', icon: 'chart', hasExport: true },
-    { id: 'admin', title: 'System Administration', desc: 'User permissions, staff accounts, and shop settings', icon: 'gear', hasManage: true }
+    { id: 'overview', title: 'Dashboard', desc: 'Performance KPIs, active services, and operational overview', icon: 'home', hasEdit: true },
+    { id: 'products', title: 'AC Products', desc: 'Minimal AC specifications catalog (brand, model, serials, specs)', icon: 'wind', hasEdit: true, hasDelete: true },
+    { id: 'customers', title: 'Customers', desc: 'Customer registry with WhatsApp numbers, complete address, and locality', icon: 'users', hasEdit: true, hasDelete: true },
+    { id: 'sales', title: 'Sales Management', desc: 'Record sales, multi-image upload, and automatic service calculation', icon: 'cart', hasEdit: true, hasDelete: true },
+    { id: 'invoices', title: 'Invoices', desc: 'Invoice records with store header, address, phone, and GSTIN', icon: 'file', hasExport: true },
+    { id: 'calendar', title: 'Service Calendar', desc: '1st and 2nd AC service milestones (upcoming, past, and present all)', icon: 'cal', hasManage: true },
+    { id: 'automations', title: 'WhatsApp Automations', desc: 'Welcome messages, purchase greetings, service reminders, broadcasts', icon: 'zap', hasManage: true },
+    { id: 'reports', title: 'Reports', desc: 'Sales volumes, brand breakdown, and service compliance analytics', icon: 'chart', hasExport: true },
+    { id: 'users', title: 'User Permissions', desc: 'Staff user accounts, role presets, and module-level access control', icon: 'team', hasManage: true },
+    { id: 'settings', title: 'Settings', desc: 'Shop details, branch branches, reminder intervals, and configuration', icon: 'gear', hasManage: true }
 ];
 
 const PRESETS = {
@@ -91,3872 +88,3131 @@ const PRESETS = {
         label: 'Full Administrator',
         desc: 'Unrestricted access to all modules and system controls',
         perms: {
-            customers: { enabled: true, view: true, edit: true, delete: true },
+            overview: { enabled: true, view: true, edit: true, delete: true },
             products: { enabled: true, view: true, edit: true, delete: true },
+            customers: { enabled: true, view: true, edit: true, delete: true },
             sales: { enabled: true, view: true, edit: true, delete: true },
             invoices: { enabled: true, view: true, edit: true, delete: true },
             calendar: { enabled: true, view: true, edit: true, delete: true },
-            engagements: { enabled: true, view: true, edit: true, delete: true },
+            automations: { enabled: true, view: true, edit: true, delete: true },
             reports: { enabled: true, view: true, export: true },
-            admin: { enabled: true, view: true, manage: true }
+            users: { enabled: true, view: true, manage: true },
+            settings: { enabled: true, view: true, manage: true }
         }
     },
     manager: {
         label: 'Sales & Service Manager',
-        desc: 'Operational management of sales, customers, AC catalog, and WhatsApp service reminders',
+        desc: 'Manages sales, customer records, calendar, and automations',
         perms: {
-            customers: { enabled: true, view: true, edit: true, delete: false },
+            overview: { enabled: true, view: true, edit: true, delete: false },
             products: { enabled: true, view: true, edit: true, delete: false },
+            customers: { enabled: true, view: true, edit: true, delete: false },
             sales: { enabled: true, view: true, edit: true, delete: false },
             invoices: { enabled: true, view: true, edit: true, delete: false },
             calendar: { enabled: true, view: true, edit: true, delete: false },
-            engagements: { enabled: true, view: true, edit: true, delete: false },
+            automations: { enabled: true, view: true, edit: true, delete: false },
             reports: { enabled: true, view: true, export: true },
-            admin: { enabled: false, view: false, manage: false }
+            users: { enabled: false, view: false, manage: false },
+            settings: { enabled: false, view: false, manage: false }
         }
     },
-    staff: {
-        label: 'Front Desk / Sales Rep',
-        desc: 'Record new AC sales, register customers, and check calendar schedules',
+    cashier: {
+        label: 'Billing & Front Desk Staff',
+        desc: 'Enters customer records, sales, invoices, and image uploads',
         perms: {
+            overview: { enabled: true, view: true, edit: false, delete: false },
+            products: { enabled: true, view: true, edit: true, delete: false },
             customers: { enabled: true, view: true, edit: true, delete: false },
-            products: { enabled: true, view: true, edit: false, delete: false },
             sales: { enabled: true, view: true, edit: true, delete: false },
-            invoices: { enabled: true, view: true, edit: false, delete: false },
+            invoices: { enabled: true, view: true, edit: true, delete: false },
             calendar: { enabled: true, view: true, edit: false, delete: false },
-            engagements: { enabled: true, view: true, edit: false, delete: false },
+            automations: { enabled: false, view: false, edit: false, delete: false },
             reports: { enabled: false, view: false, export: false },
-            admin: { enabled: false, view: false, manage: false }
+            users: { enabled: false, view: false, manage: false },
+            settings: { enabled: false, view: false, manage: false }
+        }
+    },
+    support: {
+        label: 'Customer Support / Engagement',
+        desc: 'Customer relations, service calendar tracking, and WhatsApp messages',
+        perms: {
+            overview: { enabled: true, view: true, edit: false, delete: false },
+            products: { enabled: true, view: true, edit: false, delete: false },
+            customers: { enabled: true, view: true, edit: true, delete: false },
+            sales: { enabled: true, view: true, edit: false, delete: false },
+            invoices: { enabled: true, view: true, edit: false, delete: false },
+            calendar: { enabled: true, view: true, edit: true, delete: false },
+            automations: { enabled: true, view: true, edit: true, delete: false },
+            reports: { enabled: false, view: false, export: false },
+            users: { enabled: false, view: false, manage: false },
+            settings: { enabled: false, view: false, manage: false }
         }
     }
 };
 
 const defaultUsers = [
-    {
-        id: 'U1',
-        name: 'Rajesh Amin',
-        email: 'rajesh@mobilepoint.in',
-        phone: '+91 98250 00000',
-        rolePreset: 'admin',
-        customized: false,
-        lastLogin: 'Today, 09:30 AM',
-        status: 'Active',
-        permissions: JSON.parse(JSON.stringify(PRESETS.admin.perms))
-    },
-    {
-        id: 'U2',
-        name: 'Hetal Modi',
-        email: 'hetal@mobilepoint.in',
-        phone: '+91 98250 44112',
-        rolePreset: 'manager',
-        customized: false,
-        lastLogin: 'Yesterday, 04:15 PM',
-        status: 'Active',
-        permissions: JSON.parse(JSON.stringify(PRESETS.manager.perms))
-    },
-    {
-        id: 'U3',
-        name: 'Suresh Rathod',
-        email: 'suresh@mobilepoint.in',
-        phone: '+91 98250 88234',
-        rolePreset: 'staff',
-        customized: false,
-        lastLogin: '28 Oct, 11:20 AM',
-        status: 'Active',
-        permissions: JSON.parse(JSON.stringify(PRESETS.staff.perms))
-    }
+    { id: 'U1', name: 'Rajesh Amin', email: 'rajesh@mobilepoint.in', phone: '+91 98250 11001', status: 'Active', lastLogin: 'Just now', preset: 'admin', permissions: JSON.parse(JSON.stringify(PRESETS.admin.perms)) },
+    { id: 'U2', name: 'Hetal Modi', email: 'hetal@mobilepoint.in', phone: '+91 98250 11002', status: 'Active', lastLogin: '2 hours ago', preset: 'manager', permissions: JSON.parse(JSON.stringify(PRESETS.manager.perms)) },
+    { id: 'U3', name: 'Suresh Rathod', email: 'suresh@mobilepoint.in', phone: '+91 98250 11003', status: 'Active', lastLogin: 'Yesterday', preset: 'cashier', permissions: JSON.parse(JSON.stringify(PRESETS.cashier.perms)) },
+    { id: 'U4', name: 'Pooja Vyas', email: 'pooja@mobilepoint.in', phone: '+91 98250 11004', status: 'Active', lastLogin: '3 days ago', preset: 'support', permissions: JSON.parse(JSON.stringify(PRESETS.support.perms)) }
 ];
 
-let currentUser = defaultUsers[0];
+function seed() {
+    const customers = [
+        { id: 'C101', name: 'Amit Sharma', phone: '+91 98250 12345', altPhone: '+91 98250 54321', address: 'B-402, Samruddhi Residency, Opp. Reliance Mall', landmark: 'Opp. Reliance Mall', locality: 'Alkapuri', pincode: '390007', active: true },
+        { id: 'C102', name: 'Priya Patel', phone: '+91 98250 23456', altPhone: '+91 98250 65432', address: 'Plot 18, Shanti Niketan Society, Near Water Tank', landmark: 'Near Water Tank', locality: 'Manjalpur', pincode: '390011', active: true },
+        { id: 'C103', name: 'Sunil Mehta', phone: '+91 98250 34567', altPhone: '+91 98250 76543', address: 'C-104, Gokul Heights, Behind Inox Cinema', landmark: 'Behind Inox Cinema', locality: 'Gorwa', pincode: '390016', active: true },
+        { id: 'C104', name: 'Anjali Desai', phone: '+91 98250 45678', altPhone: '', address: 'Row House 5, Green Meadows, Near Kalali Bridge', landmark: 'Near Kalali Bridge', locality: 'Kalali', pincode: '390012', active: true },
+        { id: 'C105', name: 'Vikram Joshi', phone: '+91 98250 56789', altPhone: '+91 98250 98765', address: 'A-21, Suryoday Bungalows, Beside Navrachana School', landmark: 'Beside Navrachana School', locality: 'Sama', pincode: '390008', active: true },
+        { id: 'C106', name: 'Bhavna Shah', phone: '+91 98250 67890', altPhone: '', address: 'Shop 8, Crystal Plaza, Opp. Circuit House', landmark: 'Opp. Circuit House', locality: 'Sayajigunj', pincode: '390005', active: true }
+    ];
+
+    const products = [
+        { id: 'P1001', brand: 'Daikin', model: 'FTKF35TV16U', name: 'Daikin FTKF35 1.0T Inverter', capacity: '1.0 Ton', star: '3 Star', invType: 'Inverter', condenser: '100% Copper', gas: 'R32', warranty: '1 Year Comprehensive + 10 Years Compressor', units: [{ sn: 'DK-71001', st: 'Sold' }, { sn: 'DK-71002', st: 'In stock' }, { sn: 'DK-71003', st: 'In stock' }] },
+        { id: 'P1002', brand: 'LG', model: 'PS-Q19YNZE', name: 'LG PS-Q19 1.5T Dual Inverter', capacity: '1.5 Ton', star: '5 Star', invType: 'Dual Inverter', condenser: '100% Copper Ocean Black', gas: 'R32', warranty: '1 Year Comprehensive + 10 Years Compressor', units: [{ sn: 'LG-72001', st: 'Sold' }, { sn: 'LG-72002', st: 'In stock' }] },
+        { id: 'P1003', brand: 'Voltas', model: '185V Vectra Elegant', name: 'Voltas 185V Vectra 1.5T', capacity: '1.5 Ton', star: '5 Star', invType: 'Inverter', condenser: '100% Copper', gas: 'R32', warranty: '1 Year Comprehensive + 10 Years Compressor', units: [{ sn: 'VO-73001', st: 'Sold' }, { sn: 'VO-73002', st: 'In stock' }] },
+        { id: 'P1004', brand: 'Hitachi', model: 'RSOG518HDEA', name: 'Hitachi Kashikoi 1.5T 5-Star', capacity: '1.5 Ton', star: '5 Star', invType: 'Inverter', condenser: '100% Copper', gas: 'R32', warranty: '1 Year Comprehensive + 10 Years Compressor', units: [{ sn: 'HI-74001', st: 'Sold' }, { sn: 'HI-74002', st: 'In stock' }] },
+        { id: 'P1005', brand: 'Blue Star', model: 'IC318RBTU', name: 'Blue Star IC318 1.5T Inverter', capacity: '1.5 Ton', star: '3 Star', invType: 'Inverter', condenser: '100% Copper', gas: 'R32', warranty: '1 Year Comprehensive + 10 Years Compressor', units: [{ sn: 'BS-75001', st: 'Sold' }, { sn: 'BS-75002', st: 'In stock' }] },
+        { id: 'P1006', brand: 'Lloyd', model: 'GLS18I5FWRBP', name: 'Lloyd 1.5T Heavy Duty Inverter', capacity: '1.5 Ton', star: '5 Star', invType: 'Inverter', condenser: '100% Copper', gas: 'R32', warranty: '1 Year Comprehensive + 10 Years Compressor', units: [{ sn: 'LL-76001', st: 'In stock' }, { sn: 'LL-76002', st: 'In stock' }] }
+    ];
+
+    const sales = [
+        {
+            id: 'SALE-2026-001',
+            invId: 'INV-5001',
+            cid: 'C101',
+            custName: 'Amit Sharma',
+            custPhone: '+91 98250 12345',
+            custAltPhone: '+91 98250 54321',
+            custAddress: 'B-402, Samruddhi Residency, Opp. Reliance Mall',
+            custLandmark: 'Opp. Reliance Mall',
+            custLocality: 'Alkapuri',
+            custPincode: '390007',
+            pid: 'P1001',
+            brand: 'Daikin',
+            model: 'FTKF35TV16U',
+            sn: 'DK-71001',
+            date: D(-110),
+            shopName: 'Mobile Point AC Care - Alkapuri Branch',
+            installDate: D(-109),
+            srv1Date: cdd(D(-110), 120),
+            srv1Status: 'Upcoming',
+            srv1DoneDate: '',
+            srv2Date: cdd(D(-110), 330),
+            srv2Status: 'Upcoming',
+            srv2DoneDate: '',
+            images: [],
+            notes: 'Customer requested installation on top floor terrace balcony.'
+        },
+        {
+            id: 'SALE-2026-002',
+            invId: 'INV-5002',
+            cid: 'C102',
+            custName: 'Priya Patel',
+            custPhone: '+91 98250 23456',
+            custAltPhone: '+91 98250 65432',
+            custAddress: 'Plot 18, Shanti Niketan Society, Near Water Tank',
+            custLandmark: 'Near Water Tank',
+            custLocality: 'Manjalpur',
+            custPincode: '390011',
+            pid: 'P1002',
+            brand: 'LG',
+            model: 'PS-Q19YNZE',
+            sn: 'LG-72001',
+            date: D(-85),
+            shopName: 'Mobile Point AC Care - Manjalpur Branch',
+            installDate: D(-84),
+            srv1Date: cdd(D(-85), 120),
+            srv1Status: 'Upcoming',
+            srv1DoneDate: '',
+            srv2Date: cdd(D(-85), 330),
+            srv2Status: 'Upcoming',
+            srv2DoneDate: '',
+            images: [],
+            notes: 'Extra copper piping arranged through LG authorized team.'
+        },
+        {
+            id: 'SALE-2026-003',
+            invId: 'INV-5003',
+            cid: 'C103',
+            custName: 'Sunil Mehta',
+            custPhone: '+91 98250 34567',
+            custAltPhone: '+91 98250 76543',
+            custAddress: 'C-104, Gokul Heights, Behind Inox Cinema',
+            custLandmark: 'Behind Inox Cinema',
+            custLocality: 'Gorwa',
+            custPincode: '390016',
+            pid: 'P1003',
+            brand: 'Voltas',
+            model: '185V Vectra Elegant',
+            sn: 'VO-73001',
+            date: D(-35),
+            shopName: 'Mobile Point AC Care - Alkapuri Branch',
+            installDate: D(-34),
+            srv1Date: cdd(D(-35), 120),
+            srv1Status: 'Upcoming',
+            srv1DoneDate: '',
+            srv2Date: cdd(D(-35), 330),
+            srv2Status: 'Upcoming',
+            srv2DoneDate: '',
+            images: [],
+            notes: 'Standard installation completed by Voltas service branch.'
+        },
+        {
+            id: 'SALE-2026-004',
+            invId: 'INV-5004',
+            cid: 'C104',
+            custName: 'Anjali Desai',
+            custPhone: '+91 98250 45678',
+            custAltPhone: '',
+            custAddress: 'Row House 5, Green Meadows, Near Kalali Bridge',
+            custLandmark: 'Near Kalali Bridge',
+            custLocality: 'Kalali',
+            custPincode: '390012',
+            pid: 'P1004',
+            brand: 'Hitachi',
+            model: 'RSOG518HDEA',
+            sn: 'HI-74001',
+            date: D(-10),
+            shopName: 'Mobile Point AC Care - Alkapuri Branch',
+            installDate: D(-9),
+            srv1Date: cdd(D(-10), 120),
+            srv1Status: 'Upcoming',
+            srv1DoneDate: '',
+            srv2Date: cdd(D(-10), 330),
+            srv2Status: 'Upcoming',
+            srv2DoneDate: '',
+            images: [],
+            notes: 'Warranty card and unit serial plate scanned.'
+        },
+        {
+            id: 'SALE-2026-005',
+            invId: 'INV-5005',
+            cid: 'C105',
+            custName: 'Vikram Joshi',
+            custPhone: '+91 98250 56789',
+            custAltPhone: '+91 98250 98765',
+            custAddress: 'A-21, Suryoday Bungalows, Beside Navrachana School',
+            custLandmark: 'Beside Navrachana School',
+            custLocality: 'Sama',
+            custPincode: '390008',
+            pid: 'P1005',
+            brand: 'Blue Star',
+            model: 'IC318RBTU',
+            sn: 'BS-75001',
+            date: D(-2),
+            shopName: 'Mobile Point AC Care - Sayajigunj Branch',
+            installDate: D(1),
+            srv1Date: cdd(D(-2), 120),
+            srv1Status: 'Upcoming',
+            srv1DoneDate: '',
+            srv2Date: cdd(D(-2), 330),
+            srv2Status: 'Upcoming',
+            srv2DoneDate: '',
+            images: [],
+            notes: 'Installation pending for tomorrow afternoon.'
+        }
+    ];
+
+    const invoices = sales.map(s => ({
+        id: s.invId,
+        saleId: s.id,
+        cid: s.cid,
+        date: s.date,
+        shopName: s.shopName,
+        brand: s.brand,
+        model: s.model,
+        sn: s.sn,
+        pay: 'UPI',
+        srv1Date: s.srv1Date,
+        srv2Date: s.srv2Date
+    }));
+
+    const automations = [
+        {
+            id: 'W1',
+            name: 'New Customer Welcome Message',
+            trig: 'New customer registered',
+            ch: 'WhatsApp',
+            lead: 0,
+            on: true,
+            sentCount: 38,
+            body: 'Hello {{name}}, welcome to {{store}}! Thank you for registering with us. We are your trusted third-party AC sales & authorized service support partner. We have saved your contact for warranty & assistance. Helpline: {{phone}}.'
+        },
+        {
+            id: 'W2',
+            name: 'AC Purchase Greeting & Warranty Confirmation',
+            trig: 'Purchased AC recorded',
+            ch: 'WhatsApp',
+            lead: 0,
+            on: true,
+            sentCount: 52,
+            body: 'Dear {{name}}, congratulations on purchasing your {{brand}} AC (Model: {{model}}, S/N: {{sn}}) from {{shop}}! Your AC includes 2 complimentary services in the 1st year (1st after 3-5 months, 2nd before 11 months). Installation date: {{installDate}}. For any queries, WhatsApp us on {{phone}}.'
+        },
+        {
+            id: 'W3',
+            name: '1st AC Service Reminder (3 to 5 Months)',
+            trig: '1st service due in 14 days',
+            ch: 'WhatsApp',
+            lead: 14,
+            on: true,
+            sentCount: 41,
+            body: 'Hi {{name}}, gentle reminder from {{store}}: your 1st complimentary AC service for {{brand}} AC (S/N: {{sn}}) is due on {{date}}. Company authorized technicians are dispatched for service. Please confirm your preferred date and time so we can schedule the OEM technician visit!'
+        },
+        {
+            id: 'W4',
+            name: '2nd AC Service Reminder (Before 11 Months)',
+            trig: '2nd service due in 14 days',
+            ch: 'WhatsApp',
+            lead: 14,
+            on: true,
+            sentCount: 29,
+            body: 'Dear {{name}}, this is {{store}} reminding you that your 2nd complimentary AC service for {{brand}} AC (S/N: {{sn}}) is due on {{date}}, before your 1-year warranty cycle completes. Reply to this message to schedule your OEM technician inspection!'
+        },
+        {
+            id: 'W5',
+            name: 'Seasonal Promotional Offers Broadcast',
+            trig: 'Promotional campaign broadcast',
+            ch: 'WhatsApp',
+            lead: 0,
+            on: true,
+            sentCount: 220,
+            body: '🌟 Special Season Offer from {{store}}! Upgrade to 5-Star Inverter ACs with heavy exchange bonus & free standard installation. Reply YES or call {{phone}} to claim your voucher!'
+        }
+    ];
+
+    const msgs = [
+        { id: 'M701', cid: 'C101', saleId: 'SALE-2026-001', ch: 'WhatsApp', tpl: 'AC Purchase Greeting & Warranty Confirmation', time: D(-110), status: 'Delivered', text: 'Dear Amit Sharma, congratulations on purchasing your Daikin AC from Mobile Point AC Care!' },
+        { id: 'M702', cid: 'C102', saleId: 'SALE-2026-002', ch: 'WhatsApp', tpl: 'AC Purchase Greeting & Warranty Confirmation', time: D(-85), status: 'Delivered', text: 'Dear Priya Patel, congratulations on purchasing your LG AC from Mobile Point AC Care!' },
+        { id: 'M703', cid: 'C101', saleId: 'SALE-2026-001', ch: 'WhatsApp', tpl: '1st AC Service Reminder (3 to 5 Months)', time: D(-3), status: 'Delivered', text: 'Hi Amit Sharma, reminder from Mobile Point AC Care: 1st complimentary service for Daikin AC is due soon.' },
+        { id: 'M704', cid: 'C105', saleId: 'SALE-2026-005', ch: 'WhatsApp', tpl: 'New Customer Welcome Message', time: D(-2), status: 'Delivered', text: 'Hello Vikram Joshi, welcome to Mobile Point AC Care!' }
+    ];
+
+    const feed = [
+        { id: 'EV1', t: 'Sale recorded: Daikin FTKF35 for Vikram Joshi', time: 'Just now', k: 'sales', p: 'sales/SALE-2026-005' },
+        { id: 'EV2', t: 'WhatsApp Welcome sent to Vikram Joshi', time: '2 hours ago', k: 'messages', p: 'automations' },
+        { id: 'EV3', t: '1st Service reminder scheduled for Amit Sharma', time: 'Yesterday', k: 'calendar', p: 'calendar' },
+        { id: 'EV4', t: 'Sale recorded: Hitachi Kashikoi for Anjali Desai', time: '8 days ago', k: 'sales', p: 'sales/SALE-2026-004' },
+        { id: 'EV5', t: 'LG AC installed for Priya Patel', time: '12 days ago', k: 'sales', p: 'sales/SALE-2026-002' }
+    ];
+
+    return {
+        customers,
+        products,
+        sales,
+        invoices,
+        automations,
+        msgs,
+        feed,
+        read: [],
+        users: JSON.parse(JSON.stringify(defaultUsers)),
+        set: {
+            theme: 'light',
+            store: 'Mobile Point AC Care',
+            branches: 'Alkapuri (Main Branch), Manjalpur Branch, Sayajigunj Branch',
+            addr: 'Shop 12-14, Alkapuri Arcade, RC Dutt Road, Alkapuri, Vadodara, Gujarat 390007',
+            phone: '+91 98250 00000',
+            email: 'care@mobilepoint.in',
+            gstin: '24ABCDE1234F1Z5',
+            srv1Days: 120,
+            srv2Days: 330,
+            leadDays: 14
+        }
+    };
+}
+
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { }
+if (!S || !S.sales || !S.customers || !S.products) {
+    S = seed();
+}
+if (!S.set) S.set = {};
+if (!S.set.store) S.set.store = 'Mobile Point AC Care';
+if (!S.set.addr) S.set.addr = 'Shop 12-14, Alkapuri Arcade, RC Dutt Road, Alkapuri, Vadodara, Gujarat 390007';
+if (!S.set.phone) S.set.phone = '+91 98250 00000';
+if (!S.set.gstin) S.set.gstin = '24ABCDE1234F1Z5';
+if (S.set.theme === 'system' || !S.set.theme) S.set.theme = 'light';
+if (!S.users || !S.users.length) S.users = JSON.parse(JSON.stringify(defaultUsers));
+if (!S.read) S.read = [];
+
+const AUTH_KEY = 'mp_auth_user';
+let currentUser = null;
+try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (raw) currentUser = JSON.parse(raw);
+    else if (localStorage.getItem('mp_logged_out') !== '1') {
+        currentUser = S.users[0] || defaultUsers[0];
+        localStorage.setItem(AUTH_KEY, JSON.stringify(currentUser));
+    }
+} catch (e) {
+    currentUser = S.users[0] || defaultUsers[0];
+}
+
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } };
+const SS = () => S.set;
+const cust = id => S.customers.find(c => c.id === id) || { name: 'Unknown Customer', phone: '', altPhone: '', address: '', landmark: '', locality: '', pincode: '' };
+const prod = id => S.products.find(p => p.id === id) || { brand: 'AC', model: 'Model', name: 'AC Model', capacity: '', star: '', invType: '', condenser: '', gas: '', warranty: '', units: [] };
+const sale = id => S.sales.find(s => s.id === id);
+
+function toast(m, t) {
+    const e = document.createElement('div');
+    e.className = 't ' + (t || '');
+    e.textContent = m;
+    $('#ts').append(e);
+    setTimeout(() => e.remove(), 3200);
+}
+
+function modal(h) {
+    $('#mdl').innerHTML = `<div class="ov" data-act="ovl"><div class="md" role="dialog" aria-modal="true">${h}</div></div>`;
+    const f = $('#mdl input,#mdl select,#mdl textarea,#mdl .md button');
+    f && f.focus();
+}
+
+function closeM() {
+    const o = $('#mdl .ov');
+    if (!o) return;
+    o.classList.add('out');
+    setTimeout(() => $('#mdl').innerHTML = '', 150);
+}
+
+const rr = () => { if (V.k !== '' && !/\/(new|edit)/.test(V.page)) render(true); };
+
+const NAV = [
+    ['overview', 'Dashboard', 'home', 'Overview'],
+    ['notifications', 'Notifications', 'bell', 'Overview'],
+    ['activity', 'Activity', 'pulse', 'Overview'],
+    ['products', 'AC Products', 'wind', 'Sales & Catalog'],
+    ['customers', 'Customers', 'users', 'Sales & Catalog'],
+    ['sales', 'Sales', 'cart', 'Sales & Catalog'],
+    ['invoices', 'Invoices', 'file', 'Sales & Catalog'],
+    ['calendar', 'Service Calendar', 'cal', 'Services & Care'],
+    ['automations', 'Engagements', 'zap', 'Services & Care'],
+    ['reports', 'Reports', 'chart', 'Admin'],
+    ['users', 'User Permissions', 'team', 'Admin'],
+    ['settings', 'Settings', 'gear', 'Admin']
+];
+
+const nmc = c => `<div class="nm"><span class="av">${esc(ini(c.name))}</span><span class="nmt">${esc(c.name)}</span></div>`;
+
+const V = { k: '', q: '', f: 'All', p: 0, page: 'overview' };
+let DIRTY = false;
+let SALE_IMAGES = [];
+
+function srvBadge(st, dt) {
+    if (st === 'Completed') return B('Completed');
+    if (st === 'Sent' || st === 'Reminder Sent') return B('Sent');
+    const diff = Math.round((new Date(dt + 'T00:00:00Z') - new Date(D(0) + 'T00:00:00Z')) / 864e5);
+    if (diff < 0) return B('Overdue');
+    if (diff <= 30) return B('Due soon');
+    return B('Upcoming');
+}
 
 function userPermSummary(u) {
     const p = u.permissions || {};
     const activeKeys = MODULE_DEFS.filter(m => p[m.id] && p[m.id].enabled).map(m => m.id);
     if (activeKeys.length === MODULE_DEFS.length) return '<span class="b ok">Full Access</span>';
     if (activeKeys.length === 0) return '<span class="b er">No Access</span>';
-    return `<span class="b ac">${activeKeys.length} of ${MODULE_DEFS.length} Modules</span>`;
+    return `<span class="b ac">${activeKeys.length}/${MODULE_DEFS.length} Modules</span>`;
 }
 
-function makeDemoDocSvg(title, subtitle, color = '#0284c7') {
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
-<rect width="300" height="200" rx="8" fill="#f8fafc"/>
-<rect x="15" y="15" width="270" height="170" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
-<rect x="25" y="25" width="40" height="40" rx="6" fill="${color}"/>
-<path d="M35 45h20M35 52h14" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
-<text x="75" y="42" font-family="sans-serif" font-size="14" font-weight="bold" fill="#0f172a">${title}</text>
-<text x="75" y="58" font-family="sans-serif" font-size="11" fill="#64748b">${subtitle}</text>
-<line x1="25" y1="75" x2="275" y2="75" stroke="#e2e8f0" stroke-width="1.5"/>
-<rect x="25" y="90" width="120" height="8" rx="4" fill="#e2e8f0"/>
-<rect x="25" y="105" width="180" height="8" rx="4" fill="#f1f5f9"/>
-<rect x="25" y="120" width="150" height="8" rx="4" fill="#f1f5f9"/>
-<rect x="25" y="145" width="70" height="22" rx="4" fill="#e0f2fe"/>
-<text x="35" y="160" font-family="sans-serif" font-size="10" font-weight="bold" fill="#0284c7">VERIFIED</text>
-</svg>`);
-}
-
-function seed() {
-    const customers = [
-        { id: 'C101', name: 'Aarav Patel', address: 'Flat 402, Shivalik Residency, Opp. Sun Pharma Campus', landmark: 'Near Sun Pharma Road', locality: 'Atladara', pincode: '390012', phone: '+91 98250 11201', altPhone: '+91 94280 11201', active: true, created: D(-160) },
-        { id: 'C102', name: 'Diya Shah', address: '12, Nilkanth Villa, BPC Road', landmark: 'Behind Inox Cinema', locality: 'Alkapuri', pincode: '390007', phone: '+91 98250 22302', altPhone: '+91 94280 22302', active: true, created: D(-135) },
-        { id: 'C103', name: 'Rohan Mehta', address: 'B-24, Shreeji Krupa Society, Tarsali Bypass', landmark: 'Opp. D-Mart', locality: 'Tarsali', pincode: '390009', phone: '+91 98250 33403', altPhone: '+91 94280 33403', active: true, created: D(-115) },
-        { id: 'C104', name: 'Ananya Joshi', address: 'Penthouse 901, Royal Heights, Vasna-Bhayli Road', landmark: 'Near Bright School', locality: 'Vasna', pincode: '390015', phone: '+91 98250 44504', altPhone: '+91 94280 44504', active: true, created: D(-320) },
-        { id: 'C105', name: 'Kabir Desai', address: 'Plot 45, Vaikunth Bunglows, Gotri Road', landmark: 'Opp. Yash Complex', locality: 'Gotri', pincode: '390021', phone: '+91 98250 55605', altPhone: '+91 94280 55605', active: true, created: D(-80) },
-        { id: 'C106', name: 'Meera Trivedi', address: '8, Shreenath Duplex, Waghodia Road', landmark: 'Near Parul Institute City Office', locality: 'Waghodia', pincode: '390019', phone: '+91 98250 66706', altPhone: '+91 94280 66706', active: true, created: D(-60) },
-        { id: 'C107', name: 'Vikram Solanki', address: 'Flat 203, Darshanam Antica, Sayajigunj', landmark: 'Near Railway Station', locality: 'Sayajigunj', pincode: '390005', phone: '+91 98250 77807', altPhone: '+91 94280 77807', active: true, created: D(-40) },
-        { id: 'C108', name: 'Isha Parmar', address: '16, Samarpan Society, Manjalpur Main Road', landmark: 'Opp. Shreyas School', locality: 'Manjalpur', pincode: '390011', phone: '+91 98250 88908', altPhone: '+91 94280 88908', active: true, created: D(-25) },
-        { id: 'C109', name: 'Nikhil Rana', address: 'A-102, Greenwoods, Fatehgunj', landmark: 'Near MSU Polytechnic', locality: 'Fatehgunj', pincode: '390002', phone: '+91 98250 99009', altPhone: '+91 94280 99009', active: true, created: D(-15) },
-        { id: 'C110', name: 'Sneha Kulkarni', address: 'Villa 5, Silver Oak, Sevasi Canal Road', landmark: 'Near Sindhrot Checkpost', locality: 'Sevasi', pincode: '391101', phone: '+91 98250 10110', altPhone: '+91 94280 10110', active: true, created: D(-5) }
-    ];
-
-    const products = [
-        {
-            id: 'P1001',
-            brand: 'Daikin',
-            model: 'FTKF35',
-            name: 'Daikin FTKF35',
-            capacity: '1.0 Ton',
-            star: '5 Star',
-            type: 'Split AC',
-            invType: 'Inverter',
-            condenser: '100% Copper',
-            refrig: 'R32',
-            warr: '1 Year Comprehensive + 10 Years Compressor',
-            desc: 'PM 2.5 filter, Triple Display, 3D Airflow, Dew Clean technology',
-            serials: ['DK-89211', 'DK-89212', 'DK-89213']
+const P = {
+    users: {
+        t: 'User Permissions',
+        s: 'Manage staff user accounts, operational roles, and module privileges.',
+        add: ['Add user', 'user-new'],
+        chips: ['All', 'Full Access', 'Partial Access', 'Active', 'Inactive'],
+        chip: (r, c) => {
+            if (c === 'Active' || c === 'Inactive') return r.status === c;
+            const cnt = MODULE_DEFS.filter(m => (r.user.permissions || {})[m.id]?.enabled).length;
+            if (c === 'Full Access') return cnt === MODULE_DEFS.length;
+            if (c === 'Partial Access') return cnt > 0 && cnt < MODULE_DEFS.length;
+            return true;
         },
-        {
-            id: 'P1002',
-            brand: 'LG',
-            model: 'PS-Q19',
-            name: 'LG PS-Q19',
-            capacity: '1.5 Ton',
-            star: '5 Star',
-            type: 'Split AC',
-            invType: 'Dual Inverter',
-            condenser: '100% Copper with Ocean Black Protection',
-            refrig: 'R32',
-            warr: '1 Year Comprehensive + 10 Years Compressor',
-            desc: 'AI Dual Inverter, 6-in-1 convertible cooling, HD Filter with Anti-Virus protection',
-            serials: ['LG-77401', 'LG-77402', 'LG-77403', 'LG-77404']
+        rows: () => (S.users || []).map(u => ({
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            phone: u.phone || '—',
+            status: u.status || 'Active',
+            lastLogin: u.lastLogin || 'Never',
+            user: u
+        })),
+        cols: [
+            ['User', r => `<div class="nm"><span class="av">${esc(ini(r.name))}</span><span><b>${esc(r.name)}</b><small class="mu" style="display:block;font-weight:400">${esc(r.email)}</small></span></div>`],
+            ['Permissions', r => userPermSummary(r.user)],
+            ['Mobile', r => esc(r.phone)],
+            ['Last login', r => `<span class="mu">${esc(r.lastLogin)}</span>`],
+            ['Status', r => B(r.status)]
+        ],
+        open: id => go('users/' + id)
+    },
+    customers: {
+        t: 'Customers',
+        s: 'Minimal customer registry with complete address, WhatsApp, and alternate numbers.',
+        add: ['Add customer', 'cust-new'],
+        chips: ['All', 'Active', 'Inactive'],
+        chip: (r, c) => (c === 'All' ? true : c === 'Active' ? r.active : !r.active),
+        rows: () => S.customers.map(c => {
+            const ss = S.sales.filter(s => s.cid === c.id);
+            return { ...c, salesCount: ss.length };
+        }),
+        cols: [
+            ['Customer', nmc],
+            ['WhatsApp Number', r => `<span style="font-weight:600">${esc(r.phone)}</span>`],
+            ['Alternate Number', r => esc(r.altPhone || '—')],
+            ['Locality & Landmark', r => `<b>${esc(r.locality || '—')}</b><small class="mu" style="display:block">${esc(r.landmark ? 'Near ' + r.landmark : '—')}</small>`],
+            ['Complete Address & PIN', r => `<small>${esc(r.address + (r.pincode ? ' - ' + r.pincode : ''))}</small>`],
+            ['AC Units', r => `${r.salesCount} unit${r.salesCount === 1 ? '' : 's'}`],
+            ['Status', r => B(r.active ? 'Active' : 'Inactive')]
+        ],
+        open: id => go('customers/' + id)
+    },
+    products: {
+        t: 'AC Products',
+        s: 'Minimal AC specifications catalog (brand, model, serials, specs). Strictly no price.',
+        add: ['Add AC Model', 'prod-new'],
+        chips: ['All', 'Daikin', 'LG', 'Voltas', 'Hitachi', 'Blue Star', 'Lloyd'],
+        chip: (r, c) => (c === 'All' ? true : r.brand.toLowerCase() === c.toLowerCase()),
+        rows: () => S.products.map(p => {
+            const inStock = (p.units || []).filter(u => u.st !== 'Sold').length;
+            const sold = (p.units || []).filter(u => u.st === 'Sold').length;
+            return { ...p, inStock, sold };
+        }),
+        cols: [
+            ['AC Brand & Model', r => `<div class="nm"><span class="av" style="background:var(--acs);color:var(--ac)">${esc(r.brand.slice(0, 2))}</span><span><b>${esc(r.brand)} ${esc(r.model)}</b><small class="mu" style="display:block">${esc(r.name)}</small></span></div>`],
+            ['Capacity', r => `<span class="b">${esc(r.capacity || '1.5 Ton')}</span>`],
+            ['Star Rating', r => `<b>${esc(r.star || '5 Star')}</b>`],
+            ['Inverter Type', r => esc(r.invType || 'Inverter')],
+            ['Condenser & Gas', r => `${esc(r.condenser || 'Copper')} · ${esc(r.gas || 'R32')}`],
+            ['Available Stock', r => `<b style="color:var(--ok)">${r.inStock}</b> in stock <small class="mu">(${r.sold} sold)</small>`]
+        ],
+        open: id => go('products/' + id)
+    },
+    invoices: {
+        t: 'Invoices',
+        s: 'Official store tax invoices and 2-service complimentary warranty certificates.',
+        chips: ['All', 'This Month', 'Last Month'],
+        chip: (r, c) => {
+            if (c === 'This Month') return r.date.startsWith(D(0).slice(0, 7));
+            if (c === 'Last Month') {
+                const prevMonth = cdd(D(0).slice(0, 7) + '-01', -1).slice(0, 7);
+                return r.date.startsWith(prevMonth);
+            }
+            return true;
         },
-        {
-            id: 'P1003',
-            brand: 'Voltas',
-            model: '185V Vectra',
-            name: 'Voltas 185V Vectra',
-            capacity: '1.5 Ton',
-            star: '3 Star',
-            type: 'Split AC',
-            invType: 'Inverter',
-            condenser: '100% Copper',
-            refrig: 'R32',
-            warr: '1 Year Comprehensive + 10 Years Compressor',
-            desc: 'Adjustable cooling with 4 modes, Anti-dust filter, Turbo cooling at 52°C',
-            serials: ['VT-63101', 'VT-63102']
-        },
-        {
-            id: 'P1004',
-            brand: 'Hitachi',
-            model: 'Kashikoi 5400FX',
-            name: 'Hitachi Kashikoi 5400FX',
-            capacity: '1.5 Ton',
-            star: '5 Star',
-            type: 'Split AC',
-            invType: 'Inverter',
-            condenser: '100% Inner Grooved Copper',
-            refrig: 'R410A',
-            warr: '1 Year Comprehensive + 10 Years Compressor',
-            desc: 'expandable inverter technology, FrostWash auto-cleaning, ambience light',
-            serials: ['HT-52011', 'HT-52012']
-        },
-        {
-            id: 'P1005',
-            brand: 'Blue Star',
-            model: 'IC318',
-            name: 'Blue Star IC318',
-            capacity: '1.5 Ton',
-            star: '3 Star',
-            type: 'Split AC',
-            invType: 'Inverter',
-            condenser: '100% Copper',
-            refrig: 'R32',
-            warr: '1 Year Comprehensive + 10 Years Compressor',
-            desc: '5-in-1 convertible, Turbo Cool, Acoustic jacket compressor',
-            serials: ['BS-41801', 'BS-41802', 'BS-41803']
-        },
-        {
-            id: 'P1006',
-            brand: 'Lloyd',
-            model: 'GLS18I5',
-            name: 'Lloyd GLS18I5',
-            capacity: '1.5 Ton',
-            star: '5 Star',
-            type: 'Split AC',
-            invType: 'Inverter',
-            condenser: '100% Copper Golden Fins',
-            refrig: 'R32',
-            warr: '1 Year Comprehensive + 10 Years Compressor',
-            desc: 'Rapid cooling in 45 seconds, 5-in-1 convertible, Anti-viral filter',
-            serials: ['LL-30911', 'LL-30912']
-        },
-        {
-            id: 'P1007',
-            brand: 'Panasonic',
-            model: 'CS-EU18',
-            name: 'Panasonic CS-EU18',
-            capacity: '1.5 Ton',
-            star: '3 Star',
-            type: 'Split AC',
-            invType: 'Twin Inverter',
-            condenser: '100% Copper Shield Blu',
-            refrig: 'R32',
-            warr: '1 Year Comprehensive + 10 Years Compressor',
-            desc: 'Miraie IoT enabled, PM 0.1 Air Purification, 7-in-1 convertible',
-            serials: ['PN-22101', 'PN-22102']
-        },
-        {
-            id: 'P1008',
-            brand: 'Carrier',
-            model: 'Empack 12K',
-            name: 'Carrier Empack 12K',
-            capacity: '1.0 Ton',
-            star: '3 Star',
-            type: 'Split AC',
-            invType: 'Inverter',
-            condenser: '100% Copper Hydrophilic Blue Fins',
-            refrig: 'R32',
-            warr: '1 Year Comprehensive + 10 Years Compressor',
-            desc: 'Insta Cool mode, PM 2.5 Micron filter, Dual Filtration system',
-            serials: ['CR-11001', 'CR-11002']
-        }
-    ];
-
-    const sales = [
-        {
-            id: 'SALE-1001',
-            cid: 'C101',
-            cname: 'Aarav Patel',
-            caddress: 'Flat 402, Shivalik Residency, Opp. Sun Pharma Campus',
-            clandmark: 'Near Sun Pharma Road',
-            clocality: 'Atladara',
-            cpincode: '390012',
-            cphone: '+91 98250 11201',
-            caltPhone: '+91 94280 11201',
-            pid: 'P1001',
-            brand: 'Daikin',
-            model: 'FTKF35',
-            capacity: '1.0 Ton',
-            star: '5 Star',
-            sn: 'DK-89211',
-            purDate: D(-160),
-            shop: 'Mobile Point AC Care',
-            instDate: D(-159),
-            status: 'Installed',
-            by: 'Rajesh Amin',
-            notes: 'Installed on 4th floor balcony. Outdoor bracket supplied.',
-            images: [
-                makeDemoDocSvg('Tax Invoice #1001', 'Sale of Daikin FTKF35 AC', '#0284c7'),
-                makeDemoDocSvg('Warranty Card', 'Daikin 10-Yr Compressor Warranty', '#10b981'),
-                makeDemoDocSvg('Installation Photo', 'Balcony Outdoor Mount Verified', '#f59e0b')
-            ],
-            s1: { date: D(-40), status: 'Completed', sent: D(-45), completedDate: D(-38) },
-            s2: { date: D(170), status: 'Scheduled', sent: '', completedDate: '' }
-        },
-        {
-            id: 'SALE-1002',
-            cid: 'C102',
-            cname: 'Diya Shah',
-            caddress: '12, Nilkanth Villa, BPC Road',
-            clandmark: 'Behind Inox Cinema',
-            clocality: 'Alkapuri',
-            cpincode: '390007',
-            cphone: '+91 98250 22302',
-            caltPhone: '+91 94280 22302',
-            pid: 'P1002',
-            brand: 'LG',
-            model: 'PS-Q19',
-            capacity: '1.5 Ton',
-            star: '5 Star',
-            sn: 'LG-77401',
-            purDate: D(-135),
-            shop: 'Mobile Point AC Care',
-            instDate: D(-134),
-            status: 'Installed',
-            by: 'Hetal Modi',
-            notes: 'Master bedroom installation.',
-            images: [
-                makeDemoDocSvg('Invoice #1002', 'LG Dual Inverter 1.5T', '#0284c7'),
-                makeDemoDocSvg('Installation Photo', 'Outdoor Unit Terrace Mounting', '#10b981')
-            ],
-            s1: { date: D(-15), status: 'Due', sent: D(-18), completedDate: '' },
-            s2: { date: D(195), status: 'Scheduled', sent: '', completedDate: '' }
-        },
-        {
-            id: 'SALE-1003',
-            cid: 'C103',
-            cname: 'Rohan Mehta',
-            caddress: 'B-24, Shreeji Krupa Society, Tarsali Bypass',
-            clandmark: 'Opp. D-Mart',
-            clocality: 'Tarsali',
-            cpincode: '390009',
-            cphone: '+91 98250 33403',
-            caltPhone: '+91 94280 33403',
-            pid: 'P1003',
-            brand: 'Voltas',
-            model: '185V Vectra',
-            capacity: '1.5 Ton',
-            star: '3 Star',
-            sn: 'VT-63101',
-            purDate: D(-115),
-            shop: 'Mobile Point AC Care',
-            instDate: D(-114),
-            status: 'Installed',
-            by: 'Suresh Rathod',
-            notes: 'Ground floor living hall.',
-            images: [
-                makeDemoDocSvg('Invoice #1003', 'Voltas Vectra AC', '#0284c7'),
-                makeDemoDocSvg('Warranty Certificate', 'Voltas Official Warranty', '#10b981')
-            ],
-            s1: { date: D(5), status: 'Due', sent: '', completedDate: '' },
-            s2: { date: D(215), status: 'Scheduled', sent: '', completedDate: '' }
-        },
-        {
-            id: 'SALE-1004',
-            cid: 'C104',
-            cname: 'Ananya Joshi',
-            caddress: 'Penthouse 901, Royal Heights, Vasna-Bhayli Road',
-            clandmark: 'Near Bright School',
-            clocality: 'Vasna',
-            cpincode: '390015',
-            cphone: '+91 98250 44504',
-            caltPhone: '+91 94280 44504',
-            pid: 'P1004',
-            brand: 'Hitachi',
-            model: 'Kashikoi 5400FX',
-            capacity: '1.5 Ton',
-            star: '5 Star',
-            sn: 'HT-52011',
-            purDate: D(-320),
-            shop: 'Mobile Point AC Care',
-            instDate: D(-319),
-            status: 'Installed',
-            by: 'Rajesh Amin',
-            notes: 'Top floor suite installation.',
-            images: [
-                makeDemoDocSvg('Invoice #1004', 'Hitachi Kashikoi 5-Star', '#0284c7')
-            ],
-            s1: { date: D(-200), status: 'Completed', sent: D(-205), completedDate: D(-198) },
-            s2: { date: D(10), status: 'Due', sent: D(-2), completedDate: '' }
-        },
-        {
-            id: 'SALE-1005',
-            cid: 'C105',
-            cname: 'Kabir Desai',
-            caddress: 'Plot 45, Vaikunth Bunglows, Gotri Road',
-            clandmark: 'Opp. Yash Complex',
-            clocality: 'Gotri',
-            cpincode: '390021',
-            cphone: '+91 98250 55605',
-            caltPhone: '+91 94280 55605',
-            pid: 'P1005',
-            brand: 'Blue Star',
-            model: 'IC318',
-            capacity: '1.5 Ton',
-            star: '3 Star',
-            sn: 'BS-41801',
-            purDate: D(-80),
-            shop: 'Mobile Point AC Care',
-            instDate: D(-79),
-            status: 'Installed',
-            by: 'Hetal Modi',
-            notes: 'Study room installation.',
-            images: [
-                makeDemoDocSvg('Invoice #1005', 'Blue Star Inverter AC', '#0284c7'),
-                makeDemoDocSvg('Installation Signoff', 'Customer Signature', '#10b981')
-            ],
-            s1: { date: D(40), status: 'Scheduled', sent: '', completedDate: '' },
-            s2: { date: D(250), status: 'Scheduled', sent: '', completedDate: '' }
-        },
-        {
-            id: 'SALE-1006',
-            cid: 'C106',
-            cname: 'Meera Trivedi',
-            caddress: '8, Shreenath Duplex, Waghodia Road',
-            clandmark: 'Near Parul Institute City Office',
-            clocality: 'Waghodia',
-            cpincode: '390019',
-            cphone: '+91 98250 66706',
-            caltPhone: '+91 94280 66706',
-            pid: 'P1006',
-            brand: 'Lloyd',
-            model: 'GLS18I5',
-            capacity: '1.5 Ton',
-            star: '5 Star',
-            sn: 'LL-30911',
-            purDate: D(-60),
-            shop: 'Mobile Point AC Care',
-            instDate: D(-59),
-            status: 'Installed',
-            by: 'Suresh Rathod',
-            notes: 'Dining area installation.',
-            images: [
-                makeDemoDocSvg('Invoice #1006', 'Lloyd 5-Star Split AC', '#0284c7')
-            ],
-            s1: { date: D(60), status: 'Scheduled', sent: '', completedDate: '' },
-            s2: { date: D(270), status: 'Scheduled', sent: '', completedDate: '' }
-        },
-        {
-            id: 'SALE-1007',
-            cid: 'C107',
-            cname: 'Vikram Solanki',
-            caddress: 'Flat 203, Darshanam Antica, Sayajigunj',
-            clandmark: 'Near Railway Station',
-            clocality: 'Sayajigunj',
-            cpincode: '390005',
-            cphone: '+91 98250 77807',
-            caltPhone: '+91 94280 77807',
-            pid: 'P1007',
-            brand: 'Panasonic',
-            model: 'CS-EU18',
-            capacity: '1.5 Ton',
-            star: '3 Star',
-            sn: 'PN-22101',
-            purDate: D(-40),
-            shop: 'Mobile Point AC Care',
-            instDate: D(-39),
-            status: 'Installed',
-            by: 'Rajesh Amin',
-            notes: 'Kids bedroom installation.',
-            images: [
-                makeDemoDocSvg('Invoice #1007', 'Panasonic IoT Smart AC', '#0284c7')
-            ],
-            s1: { date: D(80), status: 'Scheduled', sent: '', completedDate: '' },
-            s2: { date: D(290), status: 'Scheduled', sent: '', completedDate: '' }
-        },
-        {
-            id: 'SALE-1008',
-            cid: 'C108',
-            cname: 'Isha Parmar',
-            caddress: '16, Samarpan Society, Manjalpur Main Road',
-            clandmark: 'Opp. Shreyas School',
-            clocality: 'Manjalpur',
-            cpincode: '390011',
-            cphone: '+91 98250 88908',
-            caltPhone: '+91 94280 88908',
-            pid: 'P1008',
-            brand: 'Carrier',
-            model: 'Empack 12K',
-            capacity: '1.0 Ton',
-            star: '3 Star',
-            sn: 'CR-11001',
-            purDate: D(-25),
-            shop: 'Mobile Point AC Care',
-            instDate: D(-24),
-            status: 'Installed',
-            by: 'Hetal Modi',
-            notes: 'Guest room.',
-            images: [
-                makeDemoDocSvg('Invoice #1008', 'Carrier Inverter 1.0T', '#0284c7')
-            ],
-            s1: { date: D(95), status: 'Scheduled', sent: '', completedDate: '' },
-            s2: { date: D(305), status: 'Scheduled', sent: '', completedDate: '' }
-        },
-        {
-            id: 'SALE-1009',
-            cid: 'C109',
-            cname: 'Nikhil Rana',
-            caddress: 'A-102, Greenwoods, Fatehgunj',
-            clandmark: 'Near MSU Polytechnic',
-            clocality: 'Fatehgunj',
-            cpincode: '390002',
-            cphone: '+91 98250 99009',
-            caltPhone: '+91 94280 99009',
-            pid: 'P1002',
-            brand: 'LG',
-            model: 'PS-Q19',
-            capacity: '1.5 Ton',
-            star: '5 Star',
-            sn: 'LG-77402',
-            purDate: D(-15),
-            shop: 'Mobile Point AC Care',
-            instDate: D(-14),
-            status: 'Installed',
-            by: 'Suresh Rathod',
-            notes: 'Installed with copper piping extension.',
-            images: [
-                makeDemoDocSvg('Invoice #1009', 'LG Dual Inverter 1.5T', '#0284c7')
-            ],
-            s1: { date: D(105), status: 'Scheduled', sent: '', completedDate: '' },
-            s2: { date: D(315), status: 'Scheduled', sent: '', completedDate: '' }
-        },
-        {
-            id: 'SALE-1010',
-            cid: 'C110',
-            cname: 'Sneha Kulkarni',
-            caddress: 'Villa 5, Silver Oak, Sevasi Canal Road',
-            clandmark: 'Near Sindhrot Checkpost',
-            clocality: 'Sevasi',
-            cpincode: '391101',
-            cphone: '+91 98250 10110',
-            caltPhone: '+91 94280 10110',
-            pid: 'P1001',
-            brand: 'Daikin',
-            model: 'FTKF35',
-            capacity: '1.0 Ton',
-            star: '5 Star',
-            sn: 'DK-89212',
-            purDate: D(-3),
-            shop: 'Mobile Point AC Care',
-            instDate: D(1),
-            status: 'Pending Installation',
-            by: 'Rajesh Amin',
-            notes: 'Scheduled for technician installation tomorrow afternoon.',
-            images: [
-                makeDemoDocSvg('Invoice #1010', 'Daikin FTKF35 AC Sale', '#0284c7')
-            ],
-            s1: { date: D(117), status: 'Scheduled', sent: '', completedDate: '' },
-            s2: { date: D(327), status: 'Scheduled', sent: '', completedDate: '' }
-        }
-    ];
-
-    const flows = [
-        {
-            id: 'F1',
-            key: 'welcome',
-            name: 'New Customer Registered - Welcome',
-            desc: 'Sends a warm welcome message and introduces shop support channels when a new customer profile is created.',
-            trig: 'New customer created',
-            ch: 'WhatsApp',
-            active: true,
-            sentCount: 10,
-            templateId: 'TP1'
-        },
-        {
-            id: 'F2',
-            key: 'purchase',
-            name: 'Purchased AC - Greeting & Confirmation',
-            desc: 'Sends purchase acknowledgment with AC brand, model, serial number, and scheduled installation details.',
-            trig: 'New AC sale recorded',
-            ch: 'WhatsApp',
-            active: true,
-            sentCount: 10,
-            templateId: 'TP2'
-        },
-        {
-            id: 'F3',
-            key: 'service1',
-            name: '1st Service Reminder (3 to 5 Months)',
-            desc: 'Triggers automated reminder when 1st complimentary AC servicing is due within 3 to 5 months of purchase.',
-            trig: '120 days post purchase / install',
-            ch: 'WhatsApp',
-            active: true,
-            sentCount: 3,
-            templateId: 'TP3'
-        },
-        {
-            id: 'F4',
-            key: 'service2',
-            name: '2nd Service Reminder (Before 11 Months)',
-            desc: 'Triggers critical reminder before 11 months of purchase to ensure warranty maintenance before the 1-year mark.',
-            trig: '330 days post purchase / install',
-            ch: 'WhatsApp',
-            active: true,
-            sentCount: 1,
-            templateId: 'TP4'
-        },
-        {
-            id: 'F5',
-            key: 'promo',
-            name: 'Promotional & Seasonal Offers',
-            desc: 'Broadcast pre-summer inspections, AMC discounts, and festival exchange offers to customers on WhatsApp.',
-            trig: 'Manual / Scheduled Broadcast',
-            ch: 'WhatsApp',
-            active: true,
-            sentCount: 24,
-            templateId: 'TP5'
-        }
-    ];
-
-    const templates = [
-        {
-            id: 'TP1',
-            name: 'New Customer Welcome',
-            key: 'welcome',
-            cat: 'Onboarding',
-            body: 'Hello {{name}}! Welcome to {{shop}}. We are delighted to have you with us. Save this number for all your AC warranty, maintenance, and support queries.',
-            active: true
-        },
-        {
-            id: 'TP2',
-            name: 'Purchased AC Greeting',
-            key: 'purchase',
-            cat: 'Sales',
-            body: 'Dear {{name}}, thank you for purchasing your {{brand}} {{model}} AC (S/N: {{sn}}) from {{shop}}! Your installation is scheduled for {{instDate}}. You are entitled to 2 complimentary free services in the first year.',
-            active: true
-        },
-        {
-            id: 'TP3',
-            name: '1st AC Service Reminder',
-            key: 'service1',
-            cat: 'Service',
-            body: 'Hi {{name}}! Your 1st complimentary free AC service for your {{brand}} AC (S/N: {{sn}}) is now due! Please reply to this message to coordinate a convenient time for the company technician visit.',
-            active: true
-        },
-        {
-            id: 'TP4',
-            name: '2nd AC Service Reminder',
-            key: 'service2',
-            cat: 'Service',
-            body: 'Reminder: Dear {{name}}, your 2nd complimentary AC service for your {{brand}} AC (S/N: {{sn}}) is due before your 1-year warranty milestone. Claim your free servicing today!',
-            active: true
-        },
-        {
-            id: 'TP5',
-            name: 'Promotional Summer Offer',
-            key: 'promo',
-            cat: 'Promotion',
-            body: 'Summer Special Offer from {{shop}}! Get an exclusive 15% discount on AMC extensions and genuine AC accessories. Reply YES to book your pre-summer cooling tune-up!',
-            active: true
-        }
-    ];
-
-    const msgs = [
-        { id: 'M7001', cid: 'C101', cname: 'Aarav Patel', phone: '+91 98250 11201', ch: 'WhatsApp', tpl: '1st AC Service Reminder', status: 'Delivered', time: D(-45), err: '' },
-        { id: 'M7002', cid: 'C102', cname: 'Diya Shah', phone: '+91 98250 22302', ch: 'WhatsApp', tpl: '1st AC Service Reminder', status: 'Delivered', time: D(-18), err: '' },
-        { id: 'M7003', cid: 'C104', cname: 'Ananya Joshi', phone: '+91 98250 44504', ch: 'WhatsApp', tpl: '2nd AC Service Reminder', status: 'Delivered', time: D(-2), err: '' },
-        { id: 'M7004', cid: 'C110', cname: 'Sneha Kulkarni', phone: '+91 98250 10110', ch: 'WhatsApp', tpl: 'Purchased AC Greeting', status: 'Delivered', time: D(-3), err: '' },
-        { id: 'M7005', cid: 'C110', cname: 'Sneha Kulkarni', phone: '+91 98250 10110', ch: 'WhatsApp', tpl: 'New Customer Welcome', status: 'Delivered', time: D(-5), err: '' },
-        { id: 'M7006', cid: 'C109', cname: 'Nikhil Rana', phone: '+91 98250 99009', ch: 'WhatsApp', tpl: 'Purchased AC Greeting', status: 'Delivered', time: D(-15), err: '' },
-        { id: 'M7007', cid: 'C108', cname: 'Isha Parmar', phone: '+91 98250 88908', ch: 'WhatsApp', tpl: 'Promotional Summer Offer', status: 'Delivered', time: D(-20), err: '' },
-        { id: 'M7008', cid: 'C107', cname: 'Vikram Solanki', phone: '+91 98250 77807', ch: 'WhatsApp', tpl: 'Purchased AC Greeting', status: 'Delivered', time: D(-40), err: '' },
-        { id: 'M7009', cid: 'C106', cname: 'Meera Trivedi', phone: '+91 98250 66706', ch: 'WhatsApp', tpl: 'Purchased AC Greeting', status: 'Delivered', time: D(-60), err: '' },
-        { id: 'M7010', cid: 'C105', cname: 'Kabir Desai', phone: '+91 98250 55605', ch: 'WhatsApp', tpl: 'Promotional Summer Offer', status: 'Delivered', time: D(-70), err: '' }
-    ];
-
-    const notifs = [
-        { id: 'N1', title: '1st Service Due', desc: 'Diya Shah (LG PS-Q19 1.5T) service window is active.', time: D(-1), unread: true, link: 'sales/SALE-1002' },
-        { id: 'N2', title: '2nd Service Due', desc: 'Ananya Joshi (Hitachi Kashikoi) 2nd service due before 11 months.', time: D(-2), unread: true, link: 'sales/SALE-1004' },
-        { id: 'N3', title: 'Installation Scheduled', desc: 'Sneha Kulkarni (Daikin FTKF35) pending installation tomorrow.', time: D(0), unread: true, link: 'sales/SALE-1010' },
-        { id: 'N4', title: 'Upcoming Service', desc: 'Rohan Mehta (Voltas Vectra) 1st service due in 5 days.', time: D(0), unread: false, link: 'sales/SALE-1003' }
-    ];
-
-    const activity = [
-        { id: 'A1', icon: 'cart', title: 'New Sale SALE-1010 Logged', desc: 'Daikin FTKF35 sold to Sneha Kulkarni.', time: D(-3) + ' 16:40', link: 'sales/SALE-1010' },
-        { id: 'A2', icon: 'zap', title: 'WhatsApp Purchase Greeting Sent', desc: 'Greeting message dispatched to Sneha Kulkarni.', time: D(-3) + ' 16:42', link: 'engagements' },
-        { id: 'A3', icon: 'zap', title: '2nd Service Reminder Sent', desc: 'Reminder dispatched to Ananya Joshi (+91 98250 44504).', time: D(-2) + ' 10:15', link: 'engagements' },
-        { id: 'A4', icon: 'wrench', title: 'Service Completed', desc: '1st free service completed for Aarav Patel (Daikin FTKF35).', time: D(-38) + ' 15:30', link: 'sales/SALE-1001' }
-    ];
-
-    const set = {
-        store: 'Mobile Point AC Care',
-        gstin: '24ABCDE1234F1Z5',
-        addr: 'Alkapuri, Vadodara, Gujarat 390007',
-        phone: '+91 98250 00000',
-        email: 'support@mobilepoint.in',
-        theme: 'light',
-        accent: '#0284c7',
-        dens: 'comfortable',
-        view: 'list',
-        s1Days: 120,
-        s2Days: 330,
-        terms: 'All AC units carry official manufacturer warranty. Installation and technical services are provided directly by respective OEM brands.'
-    };
-
-    return {
-        customers,
-        products,
-        sales,
-        flows,
-        templates,
-        msgs,
-        notifs,
-        activity,
-        users: JSON.parse(JSON.stringify(defaultUsers)),
-        set
-    };
-}
-
-let S;
-try {
-    const raw = localStorage.getItem(KEY);
-    S = raw ? JSON.parse(raw) : null;
-} catch (e) {
-    S = null;
-}
-
-if (!S || !Array.isArray(S.sales) || !Array.isArray(S.customers)) {
-    S = seed();
-    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
-}
-
-if (!S.set) S.set = {};
-if (!S.set.store) S.set.store = 'Mobile Point AC Care';
-if (!S.set.shopName) S.set.shopName = S.set.store;
-if (!S.set.gstin) S.set.gstin = '24ABCDE1234F1Z5';
-if (!S.set.addr) S.set.addr = 'Alkapuri, Vadodara, Gujarat 390007';
-if (!S.set.address) S.set.address = S.set.addr;
-if (!S.set.phone) S.set.phone = '+91 98250 00000';
-if (!S.set.waPhone) S.set.waPhone = S.set.phone;
-if (!S.set.email) S.set.email = 'support@mobilepoint.in';
-if (!S.set.s1Days) S.set.s1Days = 120;
-if (!S.set.s2Days) S.set.s2Days = 330;
-if (!S.set.theme || S.set.theme === 'system') S.set.theme = 'light';
-S.settings = S.set;
-S.store = S.set.store;
-S.shopName = S.set.shopName;
-S.s1Days = S.set.s1Days;
-S.s2Days = S.set.s2Days;
-S.theme = S.set.theme;
-S.accent = S.set.accent;
-S.dens = S.set.dens;
-S.view = S.set.view || 'list';
-
-if (!S.automations) S.automations = S.flows;
-if (!S.flows) S.flows = S.automations;
-if (!S.waLogs) S.waLogs = S.msgs;
-if (!S.msgs) S.msgs = S.waLogs;
-if (!S.notifications) S.notifications = S.notifs;
-if (!S.notifs) S.notifs = S.notifications;
-
-(S.customers || []).forEach(c => {
-    if (!c.waPhone) c.waPhone = c.phone;
-    if (!c.phone) c.phone = c.waPhone;
-});
-
-(S.sales || []).forEach(s => {
-    if (!s.customerWaPhone && s.phone) s.customerWaPhone = s.phone;
-    if (!s.purchaseDate && s.pdate) s.purchaseDate = s.pdate;
-    if (!s.installationDate && s.idate) s.installationDate = s.idate;
-});
-
-const SS = () => {
-    if (!S.settings) S.settings = S.set;
-    if (!S.set) S.set = S.settings;
-    S.store = S.set.store;
-    S.shopName = S.set.shopName;
-    S.s1Days = S.set.s1Days;
-    S.s2Days = S.set.s2Days;
-    S.theme = S.set.theme;
-    S.accent = S.set.accent;
-    S.dens = S.set.dens;
-    S.view = S.set.view || 'list';
-    return S;
-};
-const save = () => {
-    try {
-        localStorage.setItem(KEY, JSON.stringify(S));
-    } catch (e) {
-        toast('Storage limit reached. Clear some photos or export backup.', 'er');
+        rows: () => S.invoices.map(i => {
+            const s = S.sales.find(x => x.id === i.saleId) || {};
+            const c = cust(i.cid);
+            return { ...i, custName: c.name, custPhone: c.phone, modelStr: `${i.brand} ${i.model}`, srv1: s.srv1Date, srv2: s.srv2Date };
+        }),
+        cols: [
+            ['Invoice #', r => `<b>${esc(r.id)}</b><small class="mu" style="display:block">${fd(r.date)}</small>`],
+            ['Customer', r => `<b>${esc(r.custName)}</b><small class="mu" style="display:block">${esc(r.custPhone)}</small>`],
+            ['AC Unit & Serial', r => `${esc(r.modelStr)}<small class="mu" style="display:block">S/N: ${esc(r.sn)}</small>`],
+            ['Shop Branch', r => esc(r.shopName || S.set.store)],
+            ['1st Service Due', r => fd(r.srv1)],
+            ['2nd Service Due', r => fd(r.srv2)],
+            ['Status', () => B('Delivered')]
+        ],
+        open: id => go('invoices/' + id)
+    },
+    automations: {
+        t: 'WhatsApp Automations',
+        s: 'Pre-configured WhatsApp workflow use cases with automatic triggers and instant delivery simulation.',
+        chips: ['All', 'Active', 'Paused'],
+        chip: (r, c) => (c === 'All' ? true : c === 'Active' ? r.on : !r.on),
+        rows: () => S.automations.map(a => ({ ...a, status: a.on ? 'Active' : 'Paused' })),
+        cols: [
+            ['Workflow Use Case', r => `<div style="max-width:320px"><b>${esc(r.name)}</b><small class="mu" style="display:block;white-space:normal;margin-top:2px">${esc(r.body)}</small></div>`],
+            ['Trigger Condition', r => `<span class="tag-pill">${esc(r.trig)}</span>`],
+            ['Channel', () => '<span style="font-weight:600;color:#10b981;display:flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>WhatsApp</span>'],
+            ['Lead Time', r => r.lead ? `${r.lead} days prior` : 'Instant on event'],
+            ['Sent Count', r => `<b>${r.sentCount || 0}</b> delivered`],
+            ['Active', r => `<button class="sw" role="switch" aria-checked="${r.on}" aria-label="Toggle ${esc(r.name)}" data-act="auto-toggle" data-id="${r.id}"></button>`]
+        ],
+        open: id => autoEditM(id)
     }
 };
 
-const cust = id => S.customers.find(x => x.id === id) || { id, name: 'Unknown Customer', phone: '-', locality: '-', address: '' };
-const prod = id => S.products.find(x => x.id === id) || { id, brand: 'AC', model: 'Unit', name: 'AC Unit', capacity: '1.5T', star: '3-Star', serials: [] };
-const sale = id => S.sales.find(x => x.id === id);
+P.products.open = id => go('products/' + id);
+P.customers.open = id => go('customers/' + id);
+P.invoices.open = id => go('invoices/' + id);
+P.users.open = id => go('users/' + id);
 
-const V = {
-    page: 'overview',
-    q: '',
-    f: 'All',
-    authView: 'login'
-};
-
-const NAV = [
-    ['overview', 'Dashboard', 'home'],
-    ['notifications', 'Notifications', 'bell'],
-    ['activity', 'Activity Log', 'list'],
-    ['products', 'AC Products', 'wind'],
-    ['customers', 'Customers', 'users'],
-    ['sales', 'Sales', 'cart'],
-    ['invoices', 'Invoices', 'file'],
-    ['calendar', 'Service Calendar', 'cal'],
-    ['engagements', 'Engagements', 'zap'],
-    ['reports', 'Reports', 'chart'],
-    ['users', 'User Permissions', 'team'],
-    ['settings', 'Settings', 'gear']
-];
-
-function applySet() {
-    const s = SS();
-    document.documentElement.setAttribute('data-theme', s.theme || 'light');
-    if (s.accent) document.documentElement.style.setProperty('--ac', s.accent);
-    document.body.classList.toggle('compact', s.dens === 'compact');
-}
-applySet();
-
-function toast(m, t = 'ok') {
-    const el = $('#ts');
-    if (!el) return;
-    el.innerHTML = `<div class="toast ${t}">${ic(t === 'er' ? 'more' : 'check')}<span>${esc(m)}</span></div>`;
-    el.classList.add('on');
-    clearTimeout(toast._tm);
-    toast._tm = setTimeout(() => el.classList.remove('on'), 3400);
-}
-
-function modal(h) {
-    const m = $('#mdl');
-    if (!m) return;
-    let body = '';
-    if (typeof h === 'string') {
-        body = h;
-    } else {
-        body = `
-            <div class="md-head" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border-light)">
-                <h3 style="margin:0">${esc(h.title || '')}</h3>
-                <button class="ib" data-act="close" aria-label="Close" style="transform:rotate(45deg);font-size:20px;line-height:1;width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;border:none;background:transparent;color:var(--text-2)">+</button>
-            </div>
-            <div class="md-body" style="padding:20px;max-height:calc(85vh - 130px);overflow-y:auto">
-                ${h.content || ''}
-            </div>
-            ${h.actions ? `<div class="md-foot" style="display:flex;justify-content:flex-end;gap:10px;padding:16px 20px;border-top:1px solid var(--border-light);background:var(--bg-app);border-radius:0 0 var(--r-lg) var(--r-lg)">${h.actions}</div>` : ''}
-        `;
+function subPage(p) {
+    if (p === 'notifications') return notifPage();
+    if (p === 'activity') return actPage();
+    const a = p.split('/');
+    if (a[0] === 'users' && a[1]) return userPermissionsPage(a[1]);
+    if (a[0] === 'customers') {
+        if (a[1] === 'new') return custFormPage();
+        if (a[1] === 'edit') return custFormPage(a[2]);
+        if (a[1]) return custPage(a[1]);
     }
-    m.innerHTML = `<div class="mbd" data-act="close"></div><div class="md" style="max-width:${(h && h.maxWidth) ? h.maxWidth : '640px'}">${body}</div>`;
-    m.classList.add('on');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeM() {
-    const m = $('#mdl');
-    if (!m) return;
-    m.classList.remove('on');
-    m.innerHTML = '';
-    document.body.style.overflow = '';
-}
-
-function bellBadge() {
-    const un = (S.notifs || []).filter(n => n.unread).length;
-    return un > 0 ? `<span class="badge">${un}</span>` : '';
-}
-
-function logActivity(icon, title, desc, link = '') {
-    if (!S.activity) S.activity = [];
-    S.activity.unshift({
-        id: 'A' + (Date.now()),
-        icon,
-        title,
-        desc,
-        time: fd(D(0)) + ' ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
-        link
-    });
-    if (S.activity.length > 50) S.activity.pop();
-    save();
-}
-
-function notify(title, desc, link = '') {
-    if (!S.notifs) S.notifs = [];
-    S.notifs.unshift({
-        id: 'N' + (Date.now()),
-        title,
-        desc,
-        time: D(0),
-        unread: true,
-        link
-    });
-    if (S.notifs.length > 30) S.notifs.pop();
-    save();
-    const bl = $('#bl');
-    if (bl) bl.innerHTML = ic('bell') + bellBadge();
-}
-
-function sendWhatsAppWA(phone, text, customerId = '', saleId = '') {
-    const clean = String(phone || '').replace(/\D/g, '');
-    const url = `https://wa.me/${clean}?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
-    if (!S.msgs) S.msgs = [];
-    const c = cust(customerId);
-    S.msgs.unshift({
-        id: 'M' + Date.now().toString().slice(-6),
-        cid: customerId,
-        cname: c ? c.name : 'Customer',
-        phone: phone,
-        ch: 'WhatsApp',
-        tpl: text.slice(0, 32) + '...',
-        status: 'Sent',
-        time: D(0),
-        err: ''
-    });
-    logActivity('zap', 'WhatsApp Message Dispatched', `Message opened in WhatsApp for ${c.name} (${phone})`, saleId ? `sales/${saleId}` : 'engagements');
-    save();
-    toast('WhatsApp Web opened. Message logged.');
-}
-
-function calcServices(purDate) {
-    const d0 = new Date(purDate + 'T00:00:00Z');
-    const s1Days = +SS().s1Days || 120;
-    const s2Days = +SS().s2Days || 330;
-    const d1 = new Date(d0); d1.setUTCDate(d1.getUTCDate() + s1Days);
-    const d2 = new Date(d0); d2.setUTCDate(d2.getUTCDate() + s2Days);
-    return {
-        s1Date: d1.toISOString().slice(0, 10),
-        s2Date: d2.toISOString().slice(0, 10)
-    };
-}
-
-function renderMessageTemplate(tplKey, vars = {}) {
-    const tpl = (S.templates || []).find(t => t.key === tplKey) || { body: '' };
-    let text = tpl.body;
-    const allVars = {
-        shop: SS().store || 'Mobile Point AC Care',
-        phone: SS().phone || '+91 98250 00000',
-        ...vars
-    };
-    for (const [k, v] of Object.entries(allVars)) {
-        text = text.replace(new RegExp(`\\{\\{\\s*${k}\\s*\\}\\}`, 'g'), v || '');
+    if (a[0] === 'products') {
+        if (a[1] === 'new') return prodFormPage();
+        if (a[1] === 'edit') return prodFormPage(a[2]);
+        if (a[1]) return prodPage(a[1]);
     }
-    return text;
+    if (a[0] === 'sales') {
+        if (a[1] === 'new') return saleFormPage();
+        if (a[1] === 'edit') return saleFormPage(a[2]);
+        if (a[1]) return saleDetailPage(a[1]);
+    }
+    if (a[0] === 'invoices' && a[1]) return invPage(a[1]);
+    return null;
 }
 
 
 function overview() {
-    const s1Due = S.sales.filter(s => s.s1 && (s.s1.status === 'Due' || (s.s1.date <= D(7) && s.s1.status !== 'Completed')));
-    const s2Due = S.sales.filter(s => s.s2 && (s.s2.status === 'Due' || (s.s2.date <= D(7) && s.s2.status !== 'Completed')));
-    const totalDue = s1Due.length + s2Due.length;
-    const recentSales = [...S.sales].sort((a, b) => a.purDate < b.purDate ? 1 : -1).slice(0, 6);
+    const totalSales = S.sales.length;
+    const totalCust = S.customers.length;
+    const pendingInstall = S.sales.filter(s => !s.installDate || s.installDate >= D(0)).length;
+    const srv1Due = S.sales.filter(s => {
+        if (s.srv1Status === 'Completed') return false;
+        const diff = Math.round((new Date(s.srv1Date + 'T00:00:00Z') - new Date(D(0) + 'T00:00:00Z')) / 864e5);
+        return diff <= 30;
+    }).length;
+    const srv2Due = S.sales.filter(s => {
+        if (s.srv2Status === 'Completed') return false;
+        const diff = Math.round((new Date(s.srv2Date + 'T00:00:00Z') - new Date(D(0) + 'T00:00:00Z')) / 864e5);
+        return diff <= 30;
+    }).length;
 
     const upcomingServices = [];
-    S.sales.forEach(sl => {
-        if (sl.s1 && sl.s1.status !== 'Completed') {
-            upcomingServices.push({ sale: sl, type: '1st Free Service (3-5 Mo)', info: sl.s1, key: 's1' });
+    S.sales.forEach(s => {
+        const c = cust(s.cid);
+        if (s.srv1Status !== 'Completed') {
+            upcomingServices.push({ sale: s, cust: c, type: '1st Free Service (3-5 Mo)', date: s.srv1Date, status: s.srv1Status });
         }
-        if (sl.s2 && sl.s2.status !== 'Completed') {
-            upcomingServices.push({ sale: sl, type: '2nd Free Service (11 Mo)', info: sl.s2, key: 's2' });
+        if (s.srv2Status !== 'Completed') {
+            upcomingServices.push({ sale: s, cust: c, type: '2nd Free Service (<11 Mo)', date: s.srv2Date, status: s.srv2Status });
         }
     });
-    upcomingServices.sort((a, b) => a.info.date > b.info.date ? 1 : -1);
+    upcomingServices.sort((a, b) => a.date > b.date ? 1 : -1);
 
-    const kpis = [
-        ['Total Customers', S.customers.length, 'users', 'customers', 'All'],
-        ['AC Units Sold', S.sales.length, 'cart', 'sales', 'All'],
-        ['1st Services Due', s1Due.length, 'wrench', 'calendar', 'All'],
-        ['2nd Services Due', s2Due.length, 'cal', 'calendar', 'All'],
-        ['Active Automations', (S.flows || []).filter(f => f.active).length, 'zap', 'engagements', 'All'],
-        ['WhatsApp Logs', (S.msgs || []).length, 'msg', 'engagements', 'All']
-    ];
+    return `<div class="pg">
+    <div class="ph">
+        <div>
+            <h1>Dashboard</h1>
+            <p>${esc(S.set.store)} · Third-Party AC Sales & Automated Service Care System</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn" data-act="nav" data-p="calendar">${ic('cal')} Service Calendar</button>
+            <button class="btn pri" data-act="nav" data-p="sales/new">${ic('plus')} Record AC Sale</button>
+        </div>
+    </div>
 
-    return `<div class="pg"><div class="ph"><div><h1>Dashboard</h1><p>Welcome to ${esc(SS().store || 'Mobile Point AC Care')}. Third-party AC retail sales, customer records, and warranty service schedule automation.</p></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="go" data-p="customers/new">${ic('users')}Add Customer</button><button class="btn pri" data-act="go" data-p="sales/new">${ic('plus')}Record Sale</button></div></div>
-<div class="kp">${kpis.map((k, i) => `<button class="k${i === 2 || i === 3 ? ' hl' : ''}" data-act="go" data-p="${k[3]}">${ic(k[2])}<b>${k[1]}</b><span>${k[0]}</span></button>`).join('')}</div>
-<div class="gr"><div>
-<div class="panel"><div class="hd"><h2>Upcoming & Due AC Services (${upcomingServices.length})</h2><button class="btn sm" data-act="go" data-p="calendar">Open Calendar</button></div>
-${upcomingServices.slice(0, 5).map(item => {
-    const sl = item.sale;
-    const isOverdue = item.info.date < D(0);
-    const isDue = item.info.date <= D(7);
-    const stBadge = isOverdue ? 'Overdue' : isDue ? 'Due' : 'Scheduled';
-    return `<div class="li" style="cursor:pointer" data-act="go" data-p="sales/${sl.id}">
-<span class="av">${ini(sl.cname)}</span>
-<div style="flex:1"><b>Customer: ${esc(sl.cname)}</b><small>${esc(item.type)} · ${esc(sl.brand)} ${esc(sl.model)} (${esc(sl.sn)}) · ${esc(sl.clocality)}</small></div>
-<div style="text-align:right"><span class="mu" style="font-size:12px">${fd(item.info.date)}</span><div>${B(stBadge)}</div></div>
-<button class="btn sm" style="margin-left:8px" data-act="quick-wa-serv" data-sid="${sl.id}" data-skey="${item.key}" title="Send WhatsApp Service Reminder">${ic('send')} Remind</button>
-</div>`;
-}).join('') || '<div class="empty">No services currently due</div>'}
-</div>
-<div class="panel" style="margin-top:16px"><div class="hd"><h2>Recent Sales</h2><button class="btn sm" data-act="go" data-p="sales">View All Sales</button></div>
-${recentSales.map(sl => `<div class="li" style="cursor:pointer" data-act="go" data-p="sales/${sl.id}">
-<div><b>${esc(sl.id)} · ${esc(sl.cname)}</b><small>${esc(sl.brand)} ${esc(sl.model)} · S/N: ${esc(sl.sn)} · ${fd(sl.purDate)}</small></div>
-<div style="text-align:right">${B(sl.status)}<small style="display:block;color:var(--mu);margin-top:2px">${esc(sl.clocality)}</small></div>
-</div>`).join('') || '<div class="empty">No sales recorded yet</div>'}
-</div>
-</div>
-<div>
-<div class="panel"><div class="hd"><h2>WhatsApp Automations (4 Use Cases)</h2><button class="btn sm" data-act="go" data-p="engagements">Manage</button></div>
-<div class="pad" style="display:grid;gap:12px">
-${(S.flows || []).map(fl => `<div class="wa-card">
-<div style="display:flex;justify-content:space-between;align-items:center">
-<b>${esc(fl.name)}</b>
-<span class="b ${fl.active ? 'ok' : 'er'}">${fl.active ? 'Active' : 'Paused'}</span>
-</div>
-<small class="mu">${esc(fl.desc)}</small>
-<div class="wa-bubble">${esc(renderMessageTemplate(fl.key, { name: 'Diya Shah', brand: 'LG', model: 'PS-Q19', sn: 'LG-77401', instDate: fd(D(1)) }))}</div>
-<div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-top:2px">
-<span class="mu">${fl.sentCount || 0} messages dispatched</span>
-<button class="btn sm" data-act="test-flow" data-fkey="${fl.key}">Test Template</button>
-</div>
-</div>`).join('')}
-</div>
-</div>
-</div>
-</div></div>`;
-}
+    <div class="kp k4" style="margin-bottom:20px">
+        <div class="k"><span>Total AC Sales</span><b>${totalSales}</b><small>Recorded in system</small></div>
+        <div class="k"><span>Pending Installations</span><b>${pendingInstall}</b><small>Units being dispatched</small></div>
+        <div class="k"><span>1st Service Due Soon</span><b style="color:var(--wa)">${srv1Due}</b><small>3 to 5 months window</small></div>
+        <div class="k"><span>2nd Service Due Soon</span><b style="color:var(--wa)">${srv2Due}</b><small>Before 11 months window</small></div>
+    </div>
 
-function customersPage() {
-    let list = S.customers || [];
-    if (V.q) {
-        const q = V.q.toLowerCase();
-        list = list.filter(c => (c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q) || (c.altPhone || '').includes(q) || (c.locality || '').toLowerCase().includes(q) || (c.landmark || '').toLowerCase().includes(q) || (c.pincode || '').includes(q));
-    }
-    if (V.f === 'Active') list = list.filter(c => c.active !== false);
-    if (V.f === 'Inactive') list = list.filter(c => c.active === false);
-    if (V.f === 'Service Due') {
-        const dueCids = new Set(S.sales.filter(s => (s.s1 && s.s1.status === 'Due') || (s.s2 && s.s2.status === 'Due')).map(s => s.cid));
-        list = list.filter(c => dueCids.has(c.id));
-    }
+    <div class="cw2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:20px">
+        <div class="panel">
+            <div class="hd" style="display:flex;justify-content:space-between;align-items:center">
+                <h2>Upcoming AC Services (Free Warranty Milestones)</h2>
+                <button class="btn sm" data-act="nav" data-p="calendar">Open Calendar</button>
+            </div>
+            ${upcomingServices.slice(0, 6).map(u => `
+                <div class="li" style="padding:12px 16px;cursor:pointer" data-act="nav" data-p="sales/${u.sale.id}">
+                    <div>
+                        <b><span class="mu" style="font-weight:500">Customer: </span>${esc(u.cust.name)}</b>
+                        <small style="display:block">${esc(u.sale.brand)} ${esc(u.sale.model)} · S/N: ${esc(u.sale.sn)}</small>
+                        <small class="mu">${esc(u.type)} · Due: <b>${fd(u.date)}</b></small>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+                        ${srvBadge(u.status, u.date)}
+                        <button class="btn sm" style="font-size:11px;padding:3px 8px" data-act="wa-remind" data-id="${u.sale.id}" data-type="${u.type.startsWith('1st') ? '1' : '2'}">WhatsApp Reminder</button>
+                    </div>
+                </div>
+            `).join('') || '<div class="empty">No services due at this moment</div>'}
+        </div>
 
-    const chips = ['All', 'Service Due', 'Active', 'Inactive'];
+        <div style="display:flex;flex-direction:column;gap:20px">
+            <div class="panel">
+                <div class="hd" style="display:flex;justify-content:space-between;align-items:center">
+                    <h2>Recent AC Sales</h2>
+                    <button class="btn sm" data-act="nav" data-p="sales">View All Sales</button>
+                </div>
+                ${S.sales.slice(0, 5).map(s => `
+                    <div class="li" style="padding:12px 16px;cursor:pointer" data-act="nav" data-p="sales/${s.id}">
+                        <div>
+                            <b>${esc(s.custName)}</b>
+                            <small style="display:block">${esc(s.brand)} ${esc(s.model)} · ${fd(s.date)}</small>
+                            <small class="mu">${esc(s.custLocality || s.shopName)}</small>
+                        </div>
+                        <div style="text-align:right">
+                            <span class="b ok">Recorded</span>
+                            <small class="mu" style="display:block;margin-top:4px">${(s.images || []).length} photos</small>
+                        </div>
+                    </div>
+                `).join('') || '<div class="empty">No sales recorded yet</div>'}
+            </div>
 
-    return `<div class="pg"><div class="ph"><div><h1>Customer Registry</h1><p>Customer contact details, area pincodes, landmarks, and connected AC sales.</p></div>
-<button class="btn pri" data-act="go" data-p="customers/new">${ic('plus')}Add Customer</button></div>
-<div class="bar"><div class="sb">${ic('search')}<input id="cust-q" placeholder="Search name, WhatsApp, locality, landmark, pincode..." value="${esc(V.q)}" aria-label="Search customers"></div>
-<div class="chips">${chips.map(c => `<button class="chip${V.f === c ? ' on' : ''}" data-act="chip" data-v="${c}">${c}</button>`).join('')}</div></div>
-<div class="panel"><div class="tb-wrap"><table class="tb"><thead><tr>
-<th>Customer</th><th>WhatsApp / Alternate</th><th>Complete Address & Locality</th><th>Pincode</th><th>AC Units</th><th>Status</th><th style="text-align:right">Actions</th>
-</tr></thead><tbody>
-${list.map(c => {
-    const custSales = S.sales.filter(s => s.cid === c.id);
-    const hasDue = custSales.some(s => (s.s1 && s.s1.status === 'Due') || (s.s2 && s.s2.status === 'Due'));
-    const cleanPh = String(c.phone || '').replace(/\D/g, '');
-    return `<tr>
-<td><div class="nm" style="cursor:pointer" data-act="cust-view" data-id="${c.id}"><span class="av">${ini(c.name)}</span><div><b>${esc(c.name)}</b><small style="color:var(--mu);display:block">${c.id}</small></div></div></td>
-<td><a href="https://wa.me/${cleanPh}" target="_blank" class="lnk" title="Chat on WhatsApp" style="color:var(--ok);font-weight:600">${ic('msg')} ${esc(c.phone)}</a>${c.altPhone ? `<small style="display:block;color:var(--mu)">Alt: ${esc(c.altPhone)}</small>` : ''}</td>
-<td><div>${esc(c.address)}</div>${c.landmark ? `<small style="color:var(--mu)">Near ${esc(c.landmark)} · <b>${esc(c.locality)}</b></small>` : `<small style="color:var(--mu)"><b>${esc(c.locality)}</b></small>`}</td>
-<td><b>${esc(c.pincode)}</b></td>
-<td><button class="btn sm" data-act="cust-view" data-id="${c.id}">${custSales.length} AC${custSales.length === 1 ? '' : 's'}</button>${hasDue ? ' <span class="b wa">Service Due</span>' : ''}</td>
-<td>${B(c.active !== false ? 'Active' : 'Inactive')}</td>
-<td style="text-align:right"><div style="display:inline-flex;gap:4px">
-<button class="btn sm" data-act="cust-view" data-id="${c.id}" title="View Details">${ic('eye')}</button>
-<button class="btn sm" data-act="go" data-p="customers/edit/${c.id}" title="Edit Customer">${ic('edit')}</button>
-<button class="btn sm pri" data-act="sale-for-cust" data-id="${c.id}" title="Record New Sale">${ic('cart')}</button>
-</div></td>
-</tr>`;
-}).join('') || '<tr><td colspan="7"><div class="empty">No customers found matching filters</div></td></tr>'}
-</tbody></table></div></div></div>`;
-}
-
-function custModal(id) {
-    const c = cust(id);
-    const cSales = S.sales.filter(s => s.cid === id);
-    const cleanPh = String(c.phone || '').replace(/\D/g, '');
-    modal(`<h1>${esc(c.name)}</h1><p>${B(c.active !== false ? 'Active Customer' : 'Inactive')} <span class="mu">ID: ${c.id}</span></p>
-<dl class="kv">
-<dt>WhatsApp</dt><dd><a href="https://wa.me/${cleanPh}" target="_blank" class="lnk" style="color:var(--ok);font-weight:600">${ic('msg')} ${esc(c.phone)}</a></dd>
-<dt>Alternate</dt><dd>${esc(c.altPhone || 'None')}</dd>
-<dt>Address</dt><dd>${esc(c.address)}</dd>
-<dt>Landmark</dt><dd>${esc(c.landmark || '—')}</dd>
-<dt>Locality</dt><dd><b>${esc(c.locality)}</b></dd>
-<dt>Pincode</dt><dd>${esc(c.pincode)}</dd>
-<dt>Registered</dt><dd>${fd(c.created)}</dd>
-</dl>
-<h2>Purchased AC Units (${cSales.length})</h2>
-${cSales.map(sl => `<div class="li" style="padding-left:0;cursor:pointer" data-act="go" data-p="sales/${sl.id}">
-<div><b>${esc(sl.brand)} ${esc(sl.model)}</b><small>S/N: ${esc(sl.sn)} · Installed: ${fd(sl.instDate)}</small></div>
-<div style="text-align:right">
-<div>${B(sl.s1.status === 'Completed' ? '1st Done' : sl.s1.status)} ${B(sl.s2.status === 'Completed' ? '2nd Done' : sl.s2.status)}</div>
-<small style="color:var(--mu)">Sale: ${sl.id}</small>
-</div>
-</div>`).join('') || '<p class="mu">No AC sales recorded for this customer yet.</p>'}
-<div class="acts">
-<button class="btn" data-act="close">Close</button>
-<button class="btn" data-act="go" data-p="customers/edit/${id}">Edit Profile</button>
-<button class="btn pri" data-act="sale-for-cust" data-id="${id}">+ New AC Sale</button>
-</div>`);
-}
-
-function customerFormPage(id) {
-    const e = id ? cust(id) : null;
-    const v = k => e ? esc(e[k] ?? '') : '';
-
-    return `<div class="pg"><nav class="bc mu"><button class="lnk" data-act="go" data-p="customers">Customers</button> / ${e ? 'Edit ' + esc(e.name) : 'New Customer'}</nav>
-<div class="ph"><div><h1>${e ? 'Edit Customer' : 'Add New Customer'}</h1><p>Customer contact details, area pincode, locality, and WhatsApp number.</p></div></div>
-<form id="cust-form" novalidate onsubmit="return false">
-<div class="fgrid">
-<div class="panel pad"><h2>Personal & Contact Information</h2><div class="fg">
-<label>Customer Full Name *<input name="name" required value="${v('name')}" placeholder="e.g. Rajesh Shah"></label>
-<label>WhatsApp Number (Primary) *<input name="phone" type="tel" required value="${v('phone')}" placeholder="e.g. +91 98250 12345"></label>
-<label>Alternate Mobile Number<input name="altPhone" type="tel" value="${v('altPhone')}" placeholder="e.g. +91 94280 67890"></label>
-<label class="row"><input type="checkbox" name="active" ${!e || e.active !== false ? 'checked' : ''}>Active Customer Profile</label>
-</div></div>
-<div class="panel pad"><h2>Complete Address Details</h2><div class="fg">
-<label>Complete Address *<textarea name="address" rows="2" required placeholder="Flat / House no, Building name, Street">${v('address')}</textarea></label>
-<label>Landmark<input name="landmark" value="${v('landmark')}" placeholder="e.g. Near Sun Pharma Road / Behind Inox"></label>
-<label>Locality / Area *<input name="locality" required value="${v('locality')}" placeholder="e.g. Alkapuri, Atladara, Manjalpur"></label>
-<label>Area Pincode *<input name="pincode" required maxlength="6" value="${v('pincode')}" placeholder="e.g. 390007"></label>
-</div></div>
-</div>
-<div class="sticky"><button class="btn" data-act="go" data-p="customers">Cancel</button><button class="btn pri" data-act="cust-save" data-id="${id || ''}">${e ? 'Save Changes' : 'Create Customer'}</button></div>
-</form></div>`;
-}
-
-function custSave(id) {
-    const f = $('#cust-form');
-    if (!f) return;
-    $$e(f, '.er').forEach(x => x.remove());
-    const d = {};
-    const fEls = f.elements ? [...f.elements] : Array.from(f.querySelectorAll('input, select, textarea'));
-    fEls.forEach(x => { if (x.name) d[x.name] = x.type === 'checkbox' ? x.checked : (x.value || '').trim(); });
-
-    let ok = 1;
-    const E = (n, m) => {
-        ok = 0;
-        const el = f.querySelector(`[name="${n}"]`);
-        if (el) {
-            const err = document.createElement('span');
-            err.className = 'er';
-            err.textContent = m;
-            el.parentElement.appendChild(err);
-        }
-    };
-
-    if (!d.name) E('name', 'Enter customer full name');
-    if (!d.phone) E('phone', 'Enter WhatsApp number');
-    if (!d.address) E('address', 'Enter complete address');
-    if (!d.locality) E('locality', 'Enter locality or area');
-    if (!d.pincode) E('pincode', 'Enter area pincode');
-
-    if (!ok) return;
-
-    if (id) {
-        const c = cust(id);
-        Object.assign(c, d);
-        logActivity('users', 'Customer Profile Updated', `Updated details for ${c.name}`, 'customers');
-        toast('Customer details updated');
-    } else {
-        const newId = 'C' + (Math.max(100, ...S.customers.map(c => +c.id.replace(/\D/g, '') || 0)) + 1);
-        const newCust = {
-            id: newId,
-            ...d,
-            created: D(0)
-        };
-        S.customers.unshift(newCust);
-        logActivity('users', 'New Customer Registered', `Added ${newCust.name} (${newCust.locality})`, 'customers');
-        notify('New Customer Added', `${newCust.name} added to customer directory.`);
-        toast('New customer created successfully');
-    }
-    save();
-    go('customers');
-}
-
-
-function productsPage() {
-    let list = S.products || [];
-    if (V.q) {
-        const q = V.q.toLowerCase();
-        list = list.filter(p => (p.brand || '').toLowerCase().includes(q) || (p.model || '').toLowerCase().includes(q) || (p.name || '').toLowerCase().includes(q) || (p.serials || []).some(s => s.toLowerCase().includes(q)));
-    }
-    if (V.f && V.f !== 'All') {
-        list = list.filter(p => p.brand === V.f);
-    }
-
-    const brands = ['All', 'Daikin', 'LG', 'Voltas', 'Hitachi', 'Blue Star', 'Lloyd', 'Panasonic', 'Carrier'];
-    const isGrid = SS().view === 'grid';
-
-    return `<div class="pg"><div class="ph"><div><h1>AC Products Catalog</h1><p>Minimal AC model specifications and serial number inventory. Focusing strictly on Air Conditioners.</p></div>
-<button class="btn pri" data-act="go" data-p="products/new">${ic('plus')}Add AC Model</button></div>
-<div class="bar"><div class="sb">${ic('search')}<input id="prod-q" placeholder="Search brand, model number, serial number..." value="${esc(V.q)}" aria-label="Search AC products"></div>
-<div class="chips">${brands.map(b => `<button class="chip${(V.f || 'All') === b ? ' on' : ''}" data-act="chip" data-v="${b}">${b}</button>`).join('')}</div>
-<div class="chips"><button class="chip${!isGrid ? ' on' : ''}" data-act="pview" data-v="list">List</button><button class="chip${isGrid ? ' on' : ''}" data-act="pview" data-v="grid">Grid</button></div>
-</div>
-${isGrid ? `<div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:16px">
-${list.map(p => {
-    const soldSerials = S.sales.filter(s => s.pid === p.id).map(s => s.sn);
-    const inStockSerials = (p.serials || []).filter(s => !soldSerials.includes(s));
-    return `<div class="panel pad" style="display:flex;flex-direction:column;justify-content:space-between">
-<div>
-<div style="display:flex;justify-content:space-between;align-items:flex-start">
-<span class="b ok">${esc(p.brand)}</span>
-<span class="b ac">${esc(p.star || '5 Star')}</span>
-</div>
-<h2 style="margin:8px 0 4px">${esc(p.name || (p.brand + ' ' + p.model))}</h2>
-<p class="mu" style="font-size:12px;margin:0 0 10px">${esc(p.capacity || '1.5 Ton')} · ${esc(p.invType || 'Inverter')} · ${esc(p.type || 'Split AC')}</p>
-<dl class="kv" style="grid-template-columns:85px 1fr;font-size:12px">
-<dt>Model No</dt><dd><b>${esc(p.model)}</b></dd>
-<dt>Condenser</dt><dd>${esc(p.condenser || '100% Copper')}</dd>
-<dt>Refrigerant</dt><dd>${esc(p.refrig || 'R32')}</dd>
-<dt>In Stock</dt><dd><span class="b ${inStockSerials.length ? 'ok' : 'wa'}">${inStockSerials.length} Unit${inStockSerials.length === 1 ? '' : 's'}</span></dd>
-<dt>Sold Units</dt><dd>${soldSerials.length} Units</dd>
-</dl>
-</div>
-<div class="acts" style="margin-top:14px;padding-top:10px;border-top:1px solid var(--bd);justify-content:space-between">
-<button class="btn sm" data-act="go" data-p="products/${p.id}">View Details</button>
-<div style="display:flex;gap:4px">
-<button class="btn sm" data-act="go" data-p="products/edit/${p.id}">${ic('edit')}</button>
-<button class="btn sm pri" data-act="sale-with-prod" data-pid="${p.id}">+ Sale</button>
-</div>
-</div>
-</div>`;
-}).join('') || '<div class="empty" style="grid-column:1/-1">No AC models match your query</div>'}
-</div>` : `<div class="panel"><div class="tb-wrap"><table class="tb"><thead><tr>
-<th>Brand & Model</th><th>Tonnage / Star</th><th>Technology</th><th>Condenser & Gas</th><th>Serials Tracked</th><th>Units Sold</th><th style="text-align:right">Actions</th>
-</tr></thead><tbody>
-${list.map(p => {
-    const soldSerials = S.sales.filter(s => s.pid === p.id).map(s => s.sn);
-    const inStockSerials = (p.serials || []).filter(s => !soldSerials.includes(s));
-    return `<tr>
-<td><div class="nm" style="cursor:pointer" data-act="go" data-p="products/${p.id}"><span class="av">${p.brand.slice(0, 2).toUpperCase()}</span><div><b>${esc(p.name || (p.brand + ' ' + p.model))}</b><small style="color:var(--mu);display:block">Model: ${esc(p.model)}</small></div></div></td>
-<td><b>${esc(p.capacity || '1.5 Ton')}</b><small style="display:block;color:var(--mu)">${esc(p.star || '3 Star')}</small></td>
-<td>${esc(p.invType || 'Inverter')}<small style="display:block;color:var(--mu)">${esc(p.type || 'Split AC')}</small></td>
-<td>${esc(p.condenser || '100% Copper')}<small style="display:block;color:var(--mu)">${esc(p.refrig || 'R32')}</small></td>
-<td><span class="b ${inStockSerials.length ? 'ok' : 'wa'}">${inStockSerials.length} in stock</span>${p.serials && p.serials.length ? `<small style="display:block;color:var(--mu)">${p.serials.slice(0, 2).join(', ')}${p.serials.length > 2 ? '...' : ''}</small>` : ''}</td>
-<td><b>${soldSerials.length}</b></td>
-<td style="text-align:right"><div style="display:inline-flex;gap:4px">
-<button class="btn sm" data-act="go" data-p="products/${p.id}" title="View Details">${ic('eye')}</button>
-<button class="btn sm" data-act="go" data-p="products/edit/${p.id}" title="Edit AC">${ic('edit')}</button>
-<button class="btn sm pri" data-act="sale-with-prod" data-pid="${p.id}" title="Record Sale with this AC">${ic('cart')}</button>
-</div></td>
-</tr>`;
-}).join('') || '<tr><td colspan="7"><div class="empty">No AC models match your query</div></td></tr>'}
-</tbody></table></div></div>`}
+            <div class="panel pad">
+                <h2>Quick Actions</h2>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px">
+                    <button class="btn" style="justify-content:center;padding:12px" data-act="nav" data-p="sales/new">${ic('plus')} Record Sale</button>
+                    <button class="btn" style="justify-content:center;padding:12px" data-act="nav" data-p="customers/new">${ic('users')} New Customer</button>
+                    <button class="btn" style="justify-content:center;padding:12px" data-act="nav" data-p="products/new">${ic('wind')} Add AC Model</button>
+                    <button class="btn" style="justify-content:center;padding:12px" data-act="nav" data-p="automations">${ic('zap')} Broadcast Offer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>`;
 }
 
-function productDetailPage(id) {
-    const p = prod(id);
-    const soldSales = S.sales.filter(s => s.pid === id);
-    const soldSerials = soldSales.map(s => s.sn);
-    const inStockSerials = (p.serials || []).filter(s => !soldSerials.includes(s));
+let SQ = '';
+let SF = 'All';
 
-    return `<div class="pg"><nav class="bc mu"><button class="lnk" data-act="go" data-p="products">AC Products</button> / ${esc(p.brand)} ${esc(p.model)}</nav>
-<div class="ph"><div><h1>${esc(p.brand)} ${esc(p.model)}</h1><p>${esc(p.capacity)} · ${esc(p.star)} · ${esc(p.invType)} ${esc(p.type)}</p></div>
-<div style="display:flex;gap:8px"><button class="btn" data-act="go" data-p="products/edit/${id}">Edit Model</button><button class="btn pri" data-act="sale-with-prod" data-pid="${id}">+ Record Sale</button></div></div>
-<div class="cw2">
-<div class="panel pad"><h2>AC Specifications</h2>
-<dl class="kv" style="grid-template-columns:110px 1fr">
-<dt>Brand</dt><dd><b>${esc(p.brand)}</b></dd>
-<dt>Model Number</dt><dd><b>${esc(p.model)}</b></dd>
-<dt>Capacity</dt><dd>${esc(p.capacity || '1.5 Ton')}</dd>
-<dt>Energy Rating</dt><dd>${esc(p.star || '5 Star')}</dd>
-<dt>Inverter Type</dt><dd>${esc(p.invType || 'Inverter')}</dd>
-<dt>AC Format</dt><dd>${esc(p.type || 'Split AC')}</dd>
-<dt>Condenser Coil</dt><dd>${esc(p.condenser || '100% Copper')}</dd>
-<dt>Refrigerant</dt><dd>${esc(p.refrig || 'R32')}</dd>
-<dt>Warranty</dt><dd>${esc(p.warr || '1 Year Comprehensive + 10 Years Compressor')}</dd>
-</dl>
-${p.desc ? `<div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--bd)"><small class="mu">Special Features:</small><p style="margin:4px 0 0;font-size:13px">${esc(p.desc)}</p></div>` : ''}
-</div>
-<div style="display:grid;gap:16px">
-<div class="panel pad"><h2>Unit Serial Numbers Tracking</h2>
-<p class="mu" style="font-size:12px;margin:2px 0 10px">Serial numbers registered in catalog stock.</p>
-<div>
-<b>In-Stock Units (${inStockSerials.length}):</b>
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px">
-${inStockSerials.map(s => `<span class="tag-pill" style="border-color:var(--ok);background:var(--sf)"><b>${esc(s)}</b></span>`).join('') || '<span class="mu">No units currently in stock</span>'}
-</div>
-<b>Sold Units (${soldSerials.length}):</b>
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">
-${soldSerials.map(s => `<span class="tag-pill" style="opacity:0.7"><s>${esc(s)}</s></span>`).join('') || '<span class="mu">No units sold yet</span>'}
-</div>
-</div>
-</div>
-<div class="panel"><div class="hd"><h2>Sales History for this AC (${soldSales.length})</h2></div>
-${soldSales.map(sl => `<div class="li" style="cursor:pointer" data-act="go" data-p="sales/${sl.id}">
-<div><b>${esc(sl.id)} · ${esc(sl.cname)}</b><small>S/N: ${esc(sl.sn)} · Sold: ${fd(sl.purDate)} · Locality: ${esc(sl.clocality)}</small></div>
-<div style="text-align:right">${B(sl.status)}<small style="display:block;color:var(--mu);margin-top:2px">Installed: ${fd(sl.instDate)}</small></div>
-</div>`).join('') || '<div class="empty">No sales recorded for this model yet</div>'}
-</div>
-</div>
-</div></div>`;
-}
-
-function productFormPage(id) {
-    const e = id ? prod(id) : null;
-    const v = k => e ? esc(e[k] ?? '') : '';
-    const brands = ['Daikin', 'LG', 'Voltas', 'Hitachi', 'Blue Star', 'Lloyd', 'Panasonic', 'Carrier', 'Godrej', 'Mitsubishi'];
-
-    return `<div class="pg"><nav class="bc mu"><button class="lnk" data-act="go" data-p="products">AC Products</button> / ${e ? 'Edit ' + esc(e.brand + ' ' + e.model) : 'New AC Model'}</nav>
-<div class="ph"><div><h1>${e ? 'Edit AC Model' : 'Add New AC Model'}</h1><p>Minimal AC model specifications. Focuses strictly on cooling units without pricing.</p></div></div>
-<form id="prod-form" novalidate onsubmit="return false">
-<div class="fgrid">
-<div class="panel pad"><h2>Model & Brand Identifiers</h2><div class="fg">
-<label>Brand Name *
-<select name="brand">
-${brands.map(b => `<option ${e && e.brand === b ? 'selected' : ''}>${b}</option>`).join('')}
-</select>
-</label>
-<label>Product Model Number *<input name="model" required value="${v('model')}" placeholder="e.g. FTKF35, PS-Q19, 185V Vectra"></label>
-<label>Capacity / Tonnage
-<select name="capacity">
-${['1.0 Ton', '1.5 Ton', '2.0 Ton', '0.8 Ton', '2.5 Ton'].map(c => `<option ${e && e.capacity === c ? 'selected' : ''}>${c}</option>`).join('')}
-</select>
-</label>
-<label>Energy Star Rating
-<select name="star">
-${['5 Star', '3 Star', '4 Star', '2 Star', '1 Star'].map(s => `<option ${e && e.star === s ? 'selected' : ''}>${s}</option>`).join('')}
-</select>
-</label>
-<label>Inverter Technology
-<select name="invType">
-${['Inverter', 'Dual Inverter', 'Triple Inverter', 'Fixed Speed / Non-Inverter'].map(t => `<option ${e && e.invType === t ? 'selected' : ''}>${t}</option>`).join('')}
-</select>
-</label>
-</div></div>
-<div class="panel pad"><h2>Technical Details & Serial Tracking</h2><div class="fg">
-<label>AC Format
-<select name="type">
-${['Split AC', 'Window AC', 'Inverter Split AC'].map(t => `<option ${e && e.type === t ? 'selected' : ''}>${t}</option>`).join('')}
-</select>
-</label>
-<label>Condenser Coil Type<input name="condenser" value="${v('condenser') || '100% Copper'}" placeholder="e.g. 100% Copper with Golden Fins"></label>
-<label>Refrigerant Gas<input name="refrig" value="${v('refrig') || 'R32'}" placeholder="e.g. R32 or R410A"></label>
-<label>Warranty Terms<input name="warr" value="${v('warr') || '1 Year Comprehensive + 10 Years Compressor'}" placeholder="e.g. 1 Year Comprehensive + 10 Years Compressor"></label>
-<label>Serial Numbers in Inventory (Comma-separated)<input name="serials" value="${e && e.serials ? e.serials.join(', ') : ''}" placeholder="e.g. DK-89211, DK-89212"></label>
-<label>Key Features / Notes<textarea name="desc" rows="2" placeholder="e.g. PM 2.5 filter, Triple Display, Dew Clean">${v('desc')}</textarea></label>
-</div></div>
-</div>
-<div class="sticky"><button class="btn" data-act="go" data-p="products">Cancel</button><button class="btn pri" data-act="prod-save" data-id="${id || ''}">${e ? 'Save Changes' : 'Create AC Model'}</button></div>
-</form></div>`;
-}
-
-function prodSave(id) {
-    const f = $('#prod-form');
-    if (!f) return;
-    $$e(f, '.er').forEach(x => x.remove());
-    const d = {};
-    const fEls = f.elements ? [...f.elements] : Array.from(f.querySelectorAll('input, select, textarea'));
-    fEls.forEach(x => { if (x.name) d[x.name] = (x.value || '').trim(); });
-
-    let ok = 1;
-    const E = (n, m) => {
-        ok = 0;
-        const el = f.querySelector(`[name="${n}"]`);
-        if (el) {
-            const err = document.createElement('span');
-            err.className = 'er';
-            err.textContent = m;
-            el.parentElement.appendChild(err);
-        }
-    };
-
-    if (!d.brand) E('brand', 'Select or enter brand name');
-    if (!d.model) E('model', 'Enter model number');
-
-    if (!ok) return;
-
-    const parsedSerials = (d.serials || '').split(',').map(s => s.trim()).filter(Boolean);
-
-    if (id) {
-        const p = prod(id);
-        Object.assign(p, {
-            brand: d.brand,
-            model: d.model,
-            name: `${d.brand} ${d.model}`,
-            capacity: d.capacity,
-            star: d.star,
-            invType: d.invType,
-            type: d.type,
-            condenser: d.condenser,
-            refrig: d.refrig,
-            warr: d.warr,
-            desc: d.desc,
-            serials: parsedSerials
+function salesPage() {
+    let list = S.sales;
+    if (SF === 'Installed') list = list.filter(s => s.installDate && s.installDate <= D(0));
+    else if (SF === 'Pending Install') list = list.filter(s => !s.installDate || s.installDate > D(0));
+    else if (SF === '1st Service Due') {
+        list = list.filter(s => {
+            if (s.srv1Status === 'Completed') return false;
+            const diff = Math.round((new Date(s.srv1Date + 'T00:00:00Z') - new Date(D(0) + 'T00:00:00Z')) / 864e5);
+            return diff <= 30;
         });
-        logActivity('wind', 'AC Product Updated', `Updated specs for ${p.brand} ${p.model}`, 'products');
-        toast('AC Product updated');
-        save();
-        go('products/' + id);
-    } else {
-        const newId = 'P' + (Math.max(1000, ...S.products.map(p => +p.id.replace(/\D/g, '') || 0)) + 1);
-        const newProd = {
-            id: newId,
-            brand: d.brand,
-            model: d.model,
-            name: `${d.brand} ${d.model}`,
-            capacity: d.capacity,
-            star: d.star,
-            invType: d.invType,
-            type: d.type,
-            condenser: d.condenser,
-            refrig: d.refrig,
-            warr: d.warr,
-            desc: d.desc,
-            serials: parsedSerials
-        };
-        S.products.push(newProd);
-        logActivity('wind', 'New AC Model Added', `Added ${newProd.brand} ${newProd.model} to catalog`, 'products');
-        toast('New AC model added to catalog');
-        save();
-        go('products/' + newId);
+    } else if (SF === '2nd Service Due') {
+        list = list.filter(s => {
+            if (s.srv2Status === 'Completed') return false;
+            const diff = Math.round((new Date(s.srv2Date + 'T00:00:00Z') - new Date(D(0) + 'T00:00:00Z')) / 864e5);
+            return diff <= 30;
+        });
     }
+
+    if (SQ.trim()) {
+        const q = SQ.toLowerCase().trim();
+        list = list.filter(s =>
+            s.id.toLowerCase().includes(q) ||
+            s.custName.toLowerCase().includes(q) ||
+            s.custPhone.includes(q) ||
+            s.brand.toLowerCase().includes(q) ||
+            s.model.toLowerCase().includes(q) ||
+            s.sn.toLowerCase().includes(q) ||
+            (s.custLocality || '').toLowerCase().includes(q)
+        );
+    }
+
+    return `<div class="pg">
+    <div class="ph">
+        <div>
+            <h1>Sales Management</h1>
+            <p>Record, view, and manage customer AC sales, documents, and 1st & 2nd service schedules.</p>
+        </div>
+        <button class="btn pri" data-act="nav" data-p="sales/new">${ic('plus')} Record New Sale</button>
+    </div>
+
+    <div class="kp k4" style="margin-bottom:16px">
+        <div class="k"><span>Total Sales</span><b>${S.sales.length}</b></div>
+        <div class="k"><span>Installed Units</span><b>${S.sales.filter(s => s.installDate && s.installDate <= D(0)).length}</b></div>
+        <div class="k"><span>1st Service Due</span><b style="color:var(--wa)">${S.sales.filter(s => s.srv1Status !== 'Completed').length}</b></div>
+        <div class="k"><span>2nd Service Due</span><b style="color:var(--wa)">${S.sales.filter(s => s.srv2Status !== 'Completed').length}</b></div>
+    </div>
+
+    <div class="bar">
+        <div class="sb">${ic('search')}<input id="sq" placeholder="Search sales by customer, phone, model, serial #..." value="${esc(SQ)}" aria-label="Search sales"></div>
+        <div class="chips">
+            ${['All', 'Installed', 'Pending Install', '1st Service Due', '2nd Service Due'].map(c => `
+                <button class="chip${SF === c ? ' on' : ''}" data-act="sales-chip" data-v="${c}">${c}</button>
+            `).join('')}
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="tw">
+            <table class="tb">
+                <thead>
+                    <tr>
+                        <th>Sale # / Date</th>
+                        <th>Customer</th>
+                        <th>AC Unit & Serial #</th>
+                        <th>Shop Name</th>
+                        <th>Installation</th>
+                        <th>1st Service Due (3-5 Mo)</th>
+                        <th>2nd Service Due (&lt;11 Mo)</th>
+                        <th>Docs</th>
+                        <th style="text-align:right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${list.map(s => `
+                        <tr style="cursor:pointer" data-act="nav" data-p="sales/${s.id}">
+                            <td>
+                                <b>${esc(s.id)}</b>
+                                <small class="mu" style="display:block">${fd(s.date)}</small>
+                            </td>
+                            <td>
+                                <b>${esc(s.custName)}</b>
+                                <small class="mu" style="display:block">${esc(s.custPhone)} · ${esc(s.custLocality || '')}</small>
+                            </td>
+                            <td>
+                                <b>${esc(s.brand)} ${esc(s.model)}</b>
+                                <small class="mu" style="display:block">S/N: ${esc(s.sn)}</small>
+                            </td>
+                            <td><small>${esc(s.shopName || S.set.store)}</small></td>
+                            <td>
+                                ${s.installDate ? `<b>${fd(s.installDate)}</b>` : '<span class="b wa">Pending</span>'}
+                            </td>
+                            <td>
+                                <div><b>${fd(s.srv1Date)}</b></div>
+                                ${srvBadge(s.srv1Status, s.srv1Date)}
+                            </td>
+                            <td>
+                                <div><b>${fd(s.srv2Date)}</b></div>
+                                ${srvBadge(s.srv2Status, s.srv2Date)}
+                            </td>
+                            <td>
+                                ${(s.images || []).length > 0 ? `<span class="tag-pill">${s.images.length} photos</span>` : '<span class="mu">None</span>'}
+                            </td>
+                            <td style="text-align:right" onclick="event.stopPropagation()">
+                                <div style="display:flex;justify-content:flex-end;gap:4px">
+                                    <button class="btn sm" data-act="nav" data-p="sales/${s.id}">View</button>
+                                    <button class="btn sm" data-act="nav" data-p="sales/edit/${s.id}">Edit</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `).join('') || '<tr><td colspan="9" class="empty">No sales records found matching filter</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>`;
 }
 
 
-let SALE_IMAGES = [];
 let SALE_CUST_MODE = 'existing';
 let SALE_PROD_MODE = 'existing';
 
-function salesPage() {
-    let list = S.sales || [];
-    if (V.q) {
-        const q = V.q.toLowerCase();
-        list = list.filter(s => (s.id || '').toLowerCase().includes(q) || (s.cname || '').toLowerCase().includes(q) || (s.cphone || '').includes(q) || (s.caltPhone || '').includes(q) || (s.clocality || '').toLowerCase().includes(q) || (s.brand || '').toLowerCase().includes(q) || (s.model || '').toLowerCase().includes(q) || (s.sn || '').toLowerCase().includes(q) || (s.shop || '').toLowerCase().includes(q));
-    }
+function saleFormPage(id) {
+    const s = id ? S.sales.find(x => x.id === id) : null;
+    if (id && !s) return nf('sales', 'Sale Record');
+    DIRTY = false;
 
-    if (V.f === 'Installed') list = list.filter(s => s.status === 'Installed');
-    if (V.f === 'Pending Install') list = list.filter(s => s.status === 'Pending Installation');
-    if (V.f === '1st Service Due') list = list.filter(s => s.s1 && s.s1.status === 'Due');
-    if (V.f === '2nd Service Due') list = list.filter(s => s.s2 && s.s2.status === 'Due');
-
-    const chips = ['All', 'Installed', 'Pending Install', '1st Service Due', '2nd Service Due'];
-
-    return `<div class="pg"><div class="ph"><div><h1>Sales Management</h1><p>Record, view and manage AC sales, installations, warranty documents, and automated servicing milestones.</p></div>
-<button class="btn pri" data-act="go" data-p="sales/new">${ic('plus')}Record New Sale</button></div>
-<div class="bar"><div class="sb">${ic('search')}<input id="sales-q" placeholder="Search sale ID, customer, phone, brand, model, serial..." value="${esc(V.q)}" aria-label="Search sales"></div>
-<div class="chips">${chips.map(c => `<button class="chip${V.f === c ? ' on' : ''}" data-act="chip" data-v="${c}">${c}</button>`).join('')}</div></div>
-<div class="panel"><div class="tb-wrap"><table class="tb"><thead><tr>
-<th>Sale ID & Date</th><th>Customer</th><th>Locality</th><th>AC Unit & Serial</th><th>Installation</th><th>1st Service</th><th>2nd Service</th><th style="text-align:right">Actions</th>
-</tr></thead><tbody>
-${list.map(sl => {
-    const cleanPh = String(sl.cphone || '').replace(/\D/g, '');
-    return `<tr>
-<td><div style="cursor:pointer" data-act="go" data-p="sales/${sl.id}"><b>${esc(sl.id)}</b><small style="display:block;color:var(--mu)">${fd(sl.purDate)}</small></div></td>
-<td><div><a href="https://wa.me/${cleanPh}" target="_blank" class="lnk" style="color:var(--ok);font-weight:600">${ic('msg')} ${esc(sl.cname)}</a><small style="display:block;color:var(--mu)">${esc(sl.cphone)}</small></div></td>
-<td><b>${esc(sl.clocality)}</b><small style="display:block;color:var(--mu)">${esc(sl.cpincode)}</small></td>
-<td><div><b>${esc(sl.brand)} ${esc(sl.model)}</b><small style="display:block;color:var(--mu)">S/N: <code>${esc(sl.sn)}</code></small></div></td>
-<td>${B(sl.status)}<small style="display:block;color:var(--mu)">${fd(sl.instDate)}</small></td>
-<td>${B(sl.s1.status === 'Completed' ? 'Completed' : sl.s1.status)}<small style="display:block;color:var(--mu)">${fds(sl.s1.date)}</small></td>
-<td>${B(sl.s2.status === 'Completed' ? 'Completed' : sl.s2.status)}<small style="display:block;color:var(--mu)">${fds(sl.s2.date)}</small></td>
-<td style="text-align:right"><div style="display:inline-flex;gap:4px">
-<button class="btn sm" data-act="go" data-p="sales/${sl.id}" title="View Sale Details">${ic('eye')}</button>
-<button class="btn sm" data-act="go" data-p="invoices/${sl.id}" title="View & Print Invoice">${ic('file')}</button>
-<button class="btn sm" data-act="go" data-p="sales/edit/${sl.id}" title="Edit Sale">${ic('edit')}</button>
-<button class="btn sm pri" data-act="quick-wa-serv" data-sid="${sl.id}" data-skey="s1" title="Trigger Service Reminder">${ic('send')}</button>
-</div></td>
-</tr>`;
-}).join('') || '<tr><td colspan="8"><div class="empty">No sales records match your filters</div></td></tr>'}
-</tbody></table></div></div></div>`;
-}
-
-function saleFormPage(editId) {
-    const e = editId ? sale(editId) : null;
-    if (e) {
-        SALE_IMAGES = e.images ? [...e.images] : [];
+    if (s) {
+        SALE_IMAGES = [...(s.images || [])];
         SALE_CUST_MODE = 'existing';
         SALE_PROD_MODE = 'existing';
-    } else if (SALE_IMAGES.length === 0) {
+    } else {
         SALE_IMAGES = [];
     }
 
-    const defaultShop = SS().store || 'Mobile Point AC Care';
-    const selectedCid = e ? e.cid : (S.customers[0] ? S.customers[0].id : '');
-    const selectedPid = e ? e.pid : (S.products[0] ? S.products[0].id : '');
-    const curCust = cust(selectedCid);
-    const curProd = prod(selectedPid);
+    const c = s ? cust(s.cid) : (S.customers[0] || {});
+    const p = s ? (S.products.find(x => x.id === s.pid) || S.products[0]) : (S.products[0] || {});
 
-    return `<div class="pg"><nav class="bc mu"><button class="lnk" data-act="go" data-p="sales">Sales</button> / ${e ? 'Edit ' + esc(e.id) : 'Record New Sale'}</nav>
-<div class="ph"><div><h1>${e ? 'Edit Sale ' + esc(e.id) : 'Record New AC Sale'}</h1><p>Record customer, AC details, serial numbers, multiple image documents, and schedule warranty services.</p></div></div>
-<form id="sale-form" novalidate onsubmit="return false">
-<div class="fgrid">
+    const purchaseDate = s ? s.date : D(0);
+    const installDate = s ? (s.installDate || '') : D(1);
+    const shopName = s ? s.shopName : (S.set.store || 'Mobile Point AC Care - Alkapuri Branch');
+    const srv1 = s ? s.srv1Date : cdd(purchaseDate, 120);
+    const srv2 = s ? s.srv2Date : cdd(purchaseDate, 330);
 
-<div class="panel pad">
-<h2>1. Customer Information</h2>
-<div class="cust-toggle-row">
-<button type="button" class="cust-toggle-btn${SALE_CUST_MODE === 'existing' ? ' active' : ''}" data-act="sale-cust-mode" data-v="existing">Select Existing Customer</button>
-<button type="button" class="cust-toggle-btn${SALE_CUST_MODE === 'new' ? ' active' : ''}" data-act="sale-cust-mode" data-v="new">+ Create New Customer Inline</button>
-</div>
+    return `<div class="pg">
+    <nav class="bc mu">
+        <button class="lnk" data-act="nav" data-p="sales">Sales</button> / ${s ? esc(s.id) + ' / Edit' : 'Record New Sale'}
+    </nav>
+    <div class="ph">
+        <div>
+            <h1>${s ? 'Edit AC Sale' : 'Record New AC Sale'}</h1>
+            <p>Customer details, AC model & serial, installation, documentation, and service scheduling.</p>
+        </div>
+    </div>
 
-<div id="sale-cust-existing-box" style="display:${SALE_CUST_MODE === 'existing' ? 'block' : 'none'}">
-<div class="fg">
-<label>Choose Existing Customer
-<select name="selected_cid" id="sale-cust-select">
-${S.customers.map(c => `<option value="${c.id}" ${c.id === selectedCid ? 'selected' : ''}>${esc(c.name)} · ${esc(c.phone)} (${esc(c.locality)})</option>`).join('')}
-</select>
-</label>
-<div id="sale-cust-preview" class="pad" style="background:var(--bg);border-radius:8px;border:1px solid var(--bd);margin-top:6px">
-<b>${esc(curCust.name)}</b>
-<div style="font-size:12px;color:var(--mu);margin-top:4px">WhatsApp: <b>${esc(curCust.phone)}</b>${curCust.altPhone ? ` · Alt: ${esc(curCust.altPhone)}` : ''}</div>
-<div style="font-size:12px;color:var(--mu);margin-top:2px">${esc(curCust.address)} · Near ${esc(curCust.landmark || '—')}</div>
-<div style="font-size:12px;color:var(--mu);margin-top:2px">Locality: <b>${esc(curCust.locality)}</b> · Pincode: <b>${esc(curCust.pincode)}</b></div>
-</div>
-</div>
-</div>
+    <form id="sale-form" novalidate onsubmit="return false">
+        <input type="hidden" name="sale_id" value="${s ? esc(s.id) : ''}">
+        <div class="fgrid">
 
-<div id="sale-cust-new-box" style="display:${SALE_CUST_MODE === 'new' ? 'block' : 'none'}">
-<div class="fg">
-<label>Customer Full Name *<input name="new_cname" placeholder="e.g. Diya Shah"></label>
-<label>Customer WhatsApp Number *<input name="new_cphone" type="tel" placeholder="e.g. +91 98250 22302"></label>
-<label>Alternate Mobile Number<input name="new_caltPhone" type="tel" placeholder="e.g. +91 94280 22302"></label>
-<label>Complete Address *<textarea name="new_caddress" rows="2" placeholder="House/Flat No, Building, Road"></textarea></label>
-<label>Landmark<input name="new_clandmark" placeholder="e.g. Behind Inox Cinema"></label>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-<label>Area / Locality *<input name="new_clocality" placeholder="e.g. Alkapuri"></label>
-<label>Area Pincode *<input name="new_cpincode" maxlength="6" placeholder="e.g. 390007"></label>
-</div>
-</div>
-</div>
-</div>
+            <div class="panel pad">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+                    <h2>Customer Details *</h2>
+                    <div class="seg-b">
+                        <button type="button" class="${SALE_CUST_MODE === 'existing' ? 'on' : ''}" data-act="sale-cmode" data-v="existing">Select Existing</button>
+                        <button type="button" class="${SALE_CUST_MODE === 'new' ? 'on' : ''}" data-act="sale-cmode" data-v="new">+ New Customer</button>
+                    </div>
+                </div>
 
-<div class="panel pad">
-<h2>2. AC Product Details</h2>
-<div class="cust-toggle-row">
-<button type="button" class="cust-toggle-btn${SALE_PROD_MODE === 'existing' ? ' active' : ''}" data-act="sale-prod-mode" data-v="existing">Select Existing AC Model</button>
-<button type="button" class="cust-toggle-btn${SALE_PROD_MODE === 'new' ? ' active' : ''}" data-act="sale-prod-mode" data-v="new">+ Enter New AC Model</button>
-</div>
+                <div id="sale-cust-existing-box" style="display:${SALE_CUST_MODE === 'existing' ? 'block' : 'none'};margin-bottom:12px">
+                    <label>Choose Existing Customer
+                        <select name="existing_cid" id="sale-cust-select">
+                            ${S.customers.map(cx => `
+                                <option value="${cx.id}" ${(s ? s.cid === cx.id : cx.id === c.id) ? 'selected' : ''}>
+                                    ${esc(cx.name)} · ${esc(cx.phone)} (${esc(cx.locality || cx.address)})` +
+                                `</option>
+                            `).join('')}
+                        </select>
+                    </label>
+                </div>
 
-<div id="sale-prod-existing-box" style="display:${SALE_PROD_MODE === 'existing' ? 'block' : 'none'}">
-<div class="fg">
-<label>Choose AC Model from Catalog
-<select name="selected_pid" id="sale-prod-select">
-${S.products.map(p => `<option value="${p.id}" ${p.id === selectedPid ? 'selected' : ''}>${esc(p.brand)} ${esc(p.model)} · ${esc(p.capacity)} (${esc(p.star)})</option>`).join('')}
-</select>
-</label>
-<div id="sale-prod-preview" class="pad" style="background:var(--bg);border-radius:8px;border:1px solid var(--bd);margin-top:6px">
-<b>${esc(curProd.brand)} ${esc(curProd.model)}</b>
-<div style="font-size:12px;color:var(--mu);margin-top:4px">${esc(curProd.capacity)} · ${esc(curProd.star)} · ${esc(curProd.invType)} · ${esc(curProd.condenser)}</div>
-</div>
-</div>
-</div>
+                <div class="fg">
+                    <label>Customer Name *
+                        <input name="cust_name" id="sc_name" value="${esc(s ? s.custName : c.name || '')}" placeholder="Full Name" required>
+                    </label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <label>WhatsApp Number *
+                            <input name="cust_phone" id="sc_phone" value="${esc(s ? s.custPhone : c.phone || '')}" placeholder="+91 98250 XXXXX" required>
+                        </label>
+                        <label>Alternate Number
+                            <input name="cust_alt_phone" id="sc_alt" value="${esc(s ? (s.custAltPhone || '') : c.altPhone || '')}" placeholder="Optional second number">
+                        </label>
+                    </div>
+                    <label>Complete Address (including Flat/House/Street) *
+                        <textarea name="cust_address" id="sc_addr" rows="2" placeholder="Full residential or commercial address" required>${esc(s ? s.custAddress : c.address || '')}</textarea>
+                    </label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+                        <label>Locality / Area *
+                            <input name="cust_locality" id="sc_loc" value="${esc(s ? (s.custLocality || '') : c.locality || '')}" placeholder="e.g. Alkapuri" required>
+                        </label>
+                        <label>Landmark
+                            <input name="cust_landmark" id="sc_land" value="${esc(s ? (s.custLandmark || '') : c.landmark || '')}" placeholder="e.g. Opp. Reliance Mall">
+                        </label>
+                        <label>Area PIN Code *
+                            <input name="cust_pincode" id="sc_pin" value="${esc(s ? (s.custPincode || '') : c.pincode || '')}" placeholder="e.g. 390007" required>
+                        </label>
+                    </div>
+                </div>
+            </div>
 
-<div id="sale-prod-new-box" style="display:${SALE_PROD_MODE === 'new' ? 'block' : 'none'}">
-<div class="fg">
-<label>Brand Name *
-<select name="new_pbrand">
-${['Daikin', 'LG', 'Voltas', 'Hitachi', 'Blue Star', 'Lloyd', 'Panasonic', 'Carrier', 'Godrej', 'Mitsubishi'].map(b => `<option>${b}</option>`).join('')}
-</select>
-</label>
-<label>Product Model Number *<input name="new_pmodel" placeholder="e.g. FTKF50, 183V Vectra, PS-Q24"></label>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-<label>Capacity / Tonnage
-<select name="new_pcapacity">
-${['1.0 Ton', '1.5 Ton', '2.0 Ton', '0.8 Ton', '2.5 Ton'].map(c => `<option ${c === '1.5 Ton' ? 'selected' : ''}>${c}</option>`).join('')}
-</select>
-</label>
-<label>Star Rating
-<select name="new_pstar">
-${['5 Star', '3 Star', '4 Star', '2 Star', '1 Star'].map(s => `<option ${s === '5 Star' ? 'selected' : ''}>${s}</option>`).join('')}
-</select>
-</label>
-</div>
-<label class="ps" style="color:var(--ac);font-weight:500">Notice: If this model is not in your product list, it will be automatically added to your catalog with this sale.</label>
-</div>
-</div>
+            <div class="panel pad">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+                    <h2>AC Product Details *</h2>
+                    <div class="seg-b">
+                        <button type="button" class="${SALE_PROD_MODE === 'existing' ? 'on' : ''}" data-act="sale-pmode" data-v="existing">From Catalog</button>
+                        <button type="button" class="${SALE_PROD_MODE === 'new' ? 'on' : ''}" data-act="sale-pmode" data-v="new">+ Enter New Model</button>
+                    </div>
+                </div>
 
-<div class="fg" style="margin-top:12px">
-<label>Product Serial Number *<input name="sn" required value="${e ? esc(e.sn) : ''}" placeholder="e.g. DK-89211 or LG-77405"></label>
-</div>
-</div>
+                <div id="sale-prod-existing-box" style="display:${SALE_PROD_MODE === 'existing' ? 'block' : 'none'};margin-bottom:12px">
+                    <label>Select AC from Catalog
+                        <select name="existing_pid" id="sale-prod-select">
+                            ${S.products.map(px => `
+                                <option value="${px.id}" data-brand="${esc(px.brand)}" data-model="${esc(px.model)}" ${(s ? s.pid === px.id : px.id === p.id) ? 'selected' : ''}>
+                                    ${esc(px.brand)} ${esc(px.model)} · ${esc(px.capacity)} ${esc(px.star)} (${esc(px.invType)})` +
+                                `</option>
+                            `).join('')}
+                        </select>
+                    </label>
+                </div>
 
-<div class="panel pad">
-<h2>3. Sale & Installation Information</h2>
-<div class="fg">
-<label>Date of Purchase *<input name="purDate" type="date" required value="${e ? e.purDate : D(0)}"></label>
-<label>Your Shop Name *<input name="shop" required value="${e ? esc(e.shop) : esc(defaultShop)}"></label>
-<label>Installation Date *<input name="instDate" type="date" required value="${e ? e.instDate : D(1)}"></label>
-<label>Installation Status
-<select name="status">
-<option ${!e || e.status === 'Installed' ? 'selected' : ''}>Installed</option>
-<option ${e && e.status === 'Pending Installation' ? 'selected' : ''}>Pending Installation</option>
-</select>
-</label>
-<label>Notes / Remarks<textarea name="notes" rows="2" placeholder="Balcony mount, extra copper pipe, etc.">${e ? esc(e.notes || '') : ''}</textarea></label>
-</div>
-</div>
+                <div class="fg">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <label>Brand Name *
+                            <input name="prod_brand" id="sp_brand" value="${esc(s ? s.brand : p.brand || 'Daikin')}" placeholder="e.g. Daikin, LG, Voltas" required>
+                        </label>
+                        <label>Product Model Number *
+                            <input name="prod_model" id="sp_model" value="${esc(s ? s.model : p.model || '')}" placeholder="e.g. FTKF35TV16U" required>
+                        </label>
+                    </div>
+                    <label>Product Serial Number *
+                        <input name="prod_sn" id="sp_sn" value="${esc(s ? s.sn : '')}" placeholder="e.g. DK-71001 or scan serial plate" required>
+                    </label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <label>Capacity / Tonnage
+                            <input name="prod_cap" id="sp_cap" value="${esc(p.capacity || '1.5 Ton')}" placeholder="e.g. 1.5 Ton">
+                        </label>
+                        <label>Star Rating
+                            <select name="prod_star" id="sp_star">
+                                <option ${p.star === '5 Star' ? 'selected' : ''}>5 Star</option>
+                                <option ${p.star === '3 Star' ? 'selected' : ''}>3 Star</option>
+                                <option ${p.star === '4 Star' ? 'selected' : ''}>4 Star</option>
+                                <option ${p.star === '2 Star' ? 'selected' : ''}>2 Star</option>
+                            </select>
+                        </label>
+                    </div>
+                    <small class="mu">If a new model number is entered, it will be automatically added to the AC product catalog.</small>
+                </div>
+            </div>
 
-<div class="panel pad">
-<h2>4. Image & Document Uploads (Multi-Upload)</h2>
-<p class="ps">Upload customer invoice photos, warranty cards, installation photos, or AC unit nameplates.</p>
-<div style="margin-top:10px">
-<label class="img-upload-zone" for="sale-multi-files">
-${ic('camera')}
-<span style="font-weight:600;font-size:13px">Click or drag images here to upload</span>
-<span class="mu" style="font-size:11.5px">Supports multiple images (Invoices, Warranty cards, Installation pictures)</span>
-<input type="file" id="sale-multi-files" multiple accept="image/*" style="display:none">
-</label>
-<div class="multi-img-grid" id="sale-images-preview">
-${renderSaleImagesThumbnails()}
-</div>
-</div>
-</div>
+            <div class="panel pad">
+                <h2>Purchase & Shop Information</h2>
+                <div class="fg">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <label>Date of Purchase *
+                            <input name="sale_date" id="sale-date-input" type="date" value="${purchaseDate}" required>
+                        </label>
+                        <label>Installation Date
+                            <input name="install_date" type="date" value="${installDate}">
+                        </label>
+                    </div>
+                    <label>Your Shop Name *
+                        <input name="shop_name" value="${esc(shopName)}" placeholder="e.g. Mobile Point AC Care - Alkapuri Branch" required>
+                    </label>
+                    <label>Internal Notes / Remarks
+                        <textarea name="sale_notes" rows="2" placeholder="e.g. Terrace installation, customer phone number verified">${esc(s ? s.notes : '')}</textarea>
+                    </label>
+                </div>
+            </div>
 
-</div>
-<div class="sticky">
-<button class="btn" data-act="go" data-p="sales">Cancel</button>
-<button class="btn pri" data-act="sale-save" data-id="${editId || ''}">${e ? 'Save Sale Changes' : 'Complete Sale & Schedule Services'}</button>
-</div>
-</form></div>`;
+            <div class="panel pad">
+                <h2>Multiple Image Uploads</h2>
+                <p class="mu" style="margin-bottom:10px">Upload invoice bills, warranty cards, installation photos, and serial number plates.</p>
+
+                <div class="upz" id="sale-upz" style="margin-bottom:12px">
+                    ${ic('camera')}
+                    <b>Click or drag &amp; drop images here</b>
+                    <small>Multiple images supported (JPG, PNG, WebP)</small>
+                    <input type="file" id="sale-file-input" multiple accept="image/*" style="display:none">
+                </div>
+
+                <div id="sale-img-preview-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px">
+                    ${renderImageThumbnails()}
+                </div>
+            </div>
+
+            <div class="panel pad" style="grid-column:1/-1;background:color-mix(in srgb,var(--acs) 25%,var(--sf))">
+                <h2>Automated Free Service Milestones (2 per Year)</h2>
+                <p class="mu">Calculated automatically based on the purchase date. Reminders will trigger via WhatsApp.</p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:12px">
+                    <div class="panel pad" style="background:var(--sf)">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <b>1st Free Service Milestone</b>
+                            <span class="b wa">3 to 5 Months</span>
+                        </div>
+                        <p style="margin:8px 0 4px">Scheduled Due Date: <b id="srv1-preview-date">${fd(srv1)}</b></p>
+                        <small class="mu">Target: 120 days post purchase. WhatsApp reminder triggers 14 days prior.</small>
+                    </div>
+
+                    <div class="panel pad" style="background:var(--sf)">
+                        <div style="display:flex;justify-content:space-between;align-items:center">
+                            <b>2nd Free Service Milestone</b>
+                            <span class="b wa">Before 11 Months</span>
+                        </div>
+                        <p style="margin:8px 0 4px">Scheduled Due Date: <b id="srv2-preview-date">${fd(srv2)}</b></p>
+                        <small class="mu">Target: 330 days post purchase. WhatsApp reminder triggers 14 days prior.</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="sticky" style="margin-top:20px">
+            <button type="button" class="btn" data-act="nav" data-p="sales">Cancel</button>
+            <button type="button" class="btn pri" data-act="sale-save">${s ? 'Save Changes' : 'Record Sale & Schedule Services'}</button>
+        </div>
+    </form>
+</div>`;
 }
 
-function renderSaleImagesThumbnails() {
-    if (!SALE_IMAGES || !SALE_IMAGES.length) {
-        return '<p class="mu" style="grid-column:1/-1;text-align:center;padding:12px;font-size:12px">No images uploaded yet</p>';
+function renderImageThumbnails() {
+    if (!SALE_IMAGES || SALE_IMAGES.length === 0) {
+        return '<p class="mu" style="grid-column:1/-1;padding:8px 0;font-size:13px">No images uploaded yet</p>';
     }
-    return SALE_IMAGES.map((src, idx) => `<div class="img-thumb-wrap">
-<img src="${src}" alt="Document ${idx + 1}" style="cursor:pointer" data-act="lightbox" data-src="${src}">
-<button type="button" class="img-thumb-del" data-act="del-sale-img" data-idx="${idx}" title="Remove image">×</button>
-</div>`).join('');
+    return SALE_IMAGES.map((src, idx) => `
+        <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--bd);background:var(--bg)">
+            <img src="${src}" alt="Upload ${idx + 1}" style="width:100%;height:100%;object-fit:cover;display:block;cursor:pointer" data-act="img-lightbox" data-idx="${idx}">
+            <button type="button" style="position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,0.65);color:#fff;border:0;display:flex;align-items:center;justify-content:center;font-size:13px;line-height:1;cursor:pointer" data-act="img-del" data-idx="${idx}" title="Delete image">×</button>
+        </div>
+    `).join('');
 }
 
-function saleSave(id) {
-    const f = $('#sale-form');
-    if (!f) return;
-    $$e(f, '.er').forEach(x => x.remove());
-
-    const d = {};
-    const fEls = f.elements ? [...f.elements] : Array.from(f.querySelectorAll('input, select, textarea'));
-    fEls.forEach(x => { if (x.name) d[x.name] = (x.value || '').trim(); });
-
-    let ok = 1;
-    const E = (n, m) => {
-        ok = 0;
-        const el = f.querySelector(`[name="${n}"]`);
-        if (el) {
-            const err = document.createElement('span');
-            err.className = 'er';
-            err.textContent = m;
-            el.parentElement.appendChild(err);
-        }
-    };
-
-    let targetCust = null;
-    if (SALE_CUST_MODE === 'existing') {
-        targetCust = cust(d.selected_cid);
-        if (!targetCust || !targetCust.name) E('selected_cid', 'Select a valid customer');
-    } else {
-        if (!d.new_cname) E('new_cname', 'Enter customer name');
-        if (!d.new_cphone) E('new_cphone', 'Enter WhatsApp number');
-        if (!d.new_caddress) E('new_caddress', 'Enter complete address');
-        if (!d.new_clocality) E('new_clocality', 'Enter locality / area');
-        if (!d.new_cpincode) E('new_cpincode', 'Enter area pincode');
-
-        if (ok) {
-            const newCid = 'C' + (Math.max(100, ...S.customers.map(c => +c.id.replace(/\D/g, '') || 0)) + 1);
-            targetCust = {
-                id: newCid,
-                name: d.new_cname,
-                phone: d.new_cphone,
-                altPhone: d.new_caltPhone || '',
-                address: d.new_caddress,
-                landmark: d.new_clandmark || '',
-                locality: d.new_clocality,
-                pincode: d.new_cpincode,
-                active: true,
-                created: D(0)
-            };
-            S.customers.unshift(targetCust);
-            logActivity('users', 'New Customer Created (From Sale)', `Registered ${targetCust.name}`, 'customers');
-        }
-    }
-
-    let targetProd = null;
-    if (SALE_PROD_MODE === 'existing') {
-        targetProd = prod(d.selected_pid);
-        if (!targetProd || !targetProd.model) E('selected_pid', 'Select an AC model');
-    } else {
-        if (!d.new_pbrand) E('new_pbrand', 'Select brand name');
-        if (!d.new_pmodel) E('new_pmodel', 'Enter model number');
-
-        if (ok) {
-            const existingMatch = S.products.find(p => p.brand.toLowerCase() === d.new_pbrand.toLowerCase() && p.model.toLowerCase() === d.new_pmodel.toLowerCase());
-            if (existingMatch) {
-                targetProd = existingMatch;
-            } else {
-                const newPid = 'P' + (Math.max(1000, ...S.products.map(p => +p.id.replace(/\D/g, '') || 0)) + 1);
-                targetProd = {
-                    id: newPid,
-                    brand: d.new_pbrand,
-                    model: d.new_pmodel,
-                    name: `${d.new_pbrand} ${d.new_pmodel}`,
-                    capacity: d.new_pcapacity || '1.5 Ton',
-                    star: d.new_pstar || '5 Star',
-                    invType: 'Inverter',
-                    type: 'Split AC',
-                    condenser: '100% Copper',
-                    refrig: 'R32',
-                    warr: '1 Year Comprehensive + 10 Years Compressor',
-                    desc: 'Auto-created from sales registration',
-                    serials: d.sn ? [d.sn] : []
-                };
-                S.products.push(targetProd);
-                logActivity('wind', 'New AC Catalog Model Auto-Created', `Added ${targetProd.name}`, 'products');
-            }
-        }
-    }
-
-    if (!d.sn) E('sn', 'Enter product serial number');
-    if (!d.purDate) E('purDate', 'Enter purchase date');
-    if (!d.shop) E('shop', 'Enter shop name');
-    if (!d.instDate) E('instDate', 'Enter installation date');
-
-    if (!ok) return;
-
-    if (targetProd && d.sn && !targetProd.serials.includes(d.sn)) {
-        targetProd.serials.push(d.sn);
-    }
-
-    const { s1Date, s2Date } = calcServices(d.purDate);
-
-    if (id) {
-        const sl = sale(id);
-        Object.assign(sl, {
-            cid: targetCust.id,
-            cname: targetCust.name,
-            caddress: targetCust.address,
-            clandmark: targetCust.landmark,
-            clocality: targetCust.locality,
-            cpincode: targetCust.pincode,
-            cphone: targetCust.phone,
-            caltPhone: targetCust.altPhone,
-            pid: targetProd.id,
-            brand: targetProd.brand,
-            model: targetProd.model,
-            capacity: targetProd.capacity,
-            star: targetProd.star,
-            sn: d.sn,
-            purDate: d.purDate,
-            shop: d.shop,
-            instDate: d.instDate,
-            status: d.status || 'Installed',
-            notes: d.notes || '',
-            images: [...SALE_IMAGES]
-        });
-        logActivity('cart', 'Sale Record Updated', `Updated sale ${sl.id} for ${sl.cname}`, 'sales/' + sl.id);
-        toast('Sale record updated');
-        save();
-        go('sales/' + id);
-    } else {
-        const newSaleId = 'SALE-' + (Math.max(1000, ...S.sales.map(s => +s.id.replace(/\D/g, '') || 0)) + 1);
-        const newSale = {
-            id: newSaleId,
-            cid: targetCust.id,
-            cname: targetCust.name,
-            caddress: targetCust.address,
-            clandmark: targetCust.landmark,
-            clocality: targetCust.locality,
-            cpincode: targetCust.pincode,
-            cphone: targetCust.phone,
-            caltPhone: targetCust.altPhone,
-            pid: targetProd.id,
-            brand: targetProd.brand,
-            model: targetProd.model,
-            capacity: targetProd.capacity,
-            star: targetProd.star,
-            sn: d.sn,
-            purDate: d.purDate,
-            shop: d.shop,
-            instDate: d.instDate,
-            status: d.status || 'Installed',
-            by: currentUser ? currentUser.name : 'Sales Desk',
-            notes: d.notes || '',
-            images: SALE_IMAGES.length ? [...SALE_IMAGES] : [makeDemoDocSvg(`Tax Invoice ${newSaleId}`, `${targetProd.brand} ${targetProd.model}`)],
-            s1: { date: s1Date, status: 'Scheduled', sent: '', completedDate: '' },
-            s2: { date: s2Date, status: 'Scheduled', sent: '', completedDate: '' }
-        };
-        S.sales.unshift(newSale);
-        logActivity('cart', 'New AC Sale Recorded', `Sale ${newSale.id} created for ${newSale.cname} (${newSale.brand} ${newSale.model})`, 'sales/' + newSale.id);
-        notify('New Sale Recorded', `${newSale.id}: ${newSale.cname} purchased ${newSale.brand} ${newSale.model}.`);
-        toast('Sale recorded successfully. Services scheduled.');
-        save();
-        go('sales/' + newSaleId);
-    }
-    SALE_IMAGES = [];
-}
 
 function saleDetailPage(id) {
-    const sl = sale(id);
-    if (!sl) {
-        return `<div class="pg"><div class="empty"><h1>Sale Record Not Found</h1><button class="btn pri" data-act="go" data-p="sales">Back to Sales</button></div></div>`;
-    }
+    const s = sale(id);
+    if (!s) return nf('sales', 'Sale Record');
+    const c = cust(s.cid);
+    const p = S.products.find(x => x.id === s.pid) || { brand: s.brand, model: s.model, capacity: '1.5 Ton', star: '5 Star' };
+    const cleanPhone = (s.custPhone || c.phone || '').replace(/\D/g, '');
 
-    const cleanPh = String(sl.cphone || '').replace(/\D/g, '');
-    const s1Due = sl.s1 && sl.s1.status !== 'Completed' && sl.s1.date <= D(7);
-    const s2Due = sl.s2 && sl.s2.status !== 'Completed' && sl.s2.date <= D(7);
+    return `<div class="pg">
+    <nav class="bc mu">
+        <button class="lnk" data-act="nav" data-p="sales">Sales</button> / ${esc(s.id)}
+    </nav>
 
-    return `<div class="pg"><nav class="bc mu"><button class="lnk" data-act="go" data-p="sales">Sales</button> / ${esc(sl.id)}</nav>
-<div class="ph"><div><h1>${esc(sl.id)} · ${esc(sl.brand)} ${esc(sl.model)}</h1><p>Sold to <b>${esc(sl.cname)}</b> on ${fd(sl.purDate)} · Shop: ${esc(sl.shop)}</p></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap">
-<button class="btn" data-act="go" data-p="invoices/${sl.id}">${ic('file')}Print Invoice</button>
-<button class="btn" data-act="go" data-p="sales/edit/${sl.id}">${ic('edit')}Edit Sale</button>
-<button class="btn dg" data-act="sale-delete" data-id="${sl.id}">${ic('trash')}</button>
-</div></div>
+    <div class="ph">
+        <div>
+            <h1>Sale ${esc(s.id)}</h1>
+            <p>Sold on ${fd(s.date)} · Shop: ${esc(s.shopName || S.set.store)}</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a class="btn" href="https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello ' + s.custName + ', message from ' + S.set.store)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp Customer</a>
+            <button class="btn" data-act="nav" data-p="invoices/${s.invId}">${ic('file')} View Invoice</button>
+            <button class="btn pri" data-act="nav" data-p="sales/edit/${s.id}">Edit Sale</button>
+        </div>
+    </div>
 
-<div class="cw2">
-<div style="display:grid;gap:16px">
-<div class="panel pad"><h2>Customer Record</h2>
-<dl class="kv" style="grid-template-columns:110px 1fr;margin-top:8px">
-<dt>Customer</dt><dd><b>${esc(sl.cname)}</b></dd>
-<dt>WhatsApp</dt><dd><a href="https://wa.me/${cleanPh}" target="_blank" class="lnk" style="color:var(--ok);font-weight:600">${ic('msg')} ${esc(sl.cphone)}</a></dd>
-<dt>Alternate</dt><dd>${esc(sl.caltPhone || 'None')}</dd>
-<dt>Address</dt><dd>${esc(sl.caddress)}</dd>
-<dt>Landmark</dt><dd>${esc(sl.clandmark || '—')}</dd>
-<dt>Locality</dt><dd><b>${esc(sl.clocality)}</b></dd>
-<dt>Pincode</dt><dd>${esc(sl.cpincode)}</dd>
-</dl>
-<div style="margin-top:12px;display:flex;gap:8px">
-<a href="https://wa.me/${cleanPh}" target="_blank" class="btn sm" style="background:#25D366;color:#fff;border-color:#25D366">${ic('msg')} WhatsApp Customer</a>
-<button class="btn sm" data-act="cust-view" data-id="${sl.cid}">Customer History</button>
-</div>
-</div>
+    <div class="cw2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px">
 
-<div class="panel pad"><h2>AC Specifications</h2>
-<dl class="kv" style="grid-template-columns:110px 1fr;margin-top:8px">
-<dt>Brand Name</dt><dd><b>${esc(sl.brand)}</b></dd>
-<dt>Model Number</dt><dd><b>${esc(sl.model)}</b></dd>
-<dt>Serial Number</dt><dd><code style="font-weight:700;font-size:13px">${esc(sl.sn)}</code></dd>
-<dt>Tonnage</dt><dd>${esc(sl.capacity || '1.5 Ton')}</dd>
-<dt>Star Rating</dt><dd>${esc(sl.star || '5 Star')}</dd>
-<dt>Purchase Date</dt><dd>${fd(sl.purDate)}</dd>
-<dt>Shop Name</dt><dd>${esc(sl.shop)}</dd>
-<dt>Installation Date</dt><dd>${fd(sl.instDate)} (${B(sl.status)})</dd>
-</dl>
-${sl.notes ? `<div style="margin-top:10px;font-size:12px;color:var(--mu)"><b>Notes:</b> ${esc(sl.notes)}</div>` : ''}
-</div>
-</div>
+        <div style="display:flex;flex-direction:column;gap:20px">
+            <div class="panel pad">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                    <h2>Customer Information</h2>
+                    <button class="btn sm" data-act="nav" data-p="customers/${s.cid}">Profile</button>
+                </div>
+                <dl class="kv" style="grid-template-columns:120px 1fr">
+                    <dt>Customer Name</dt>
+                    <dd><b>${esc(s.custName)}</b></dd>
+                    <dt>WhatsApp No.</dt>
+                    <dd><b>${esc(s.custPhone)}</b></dd>
+                    <dt>Alternate No.</dt>
+                    <dd>${esc(s.custAltPhone || '—')}</dd>
+                    <dt>Locality</dt>
+                    <dd>${esc(s.custLocality || '—')}</dd>
+                    <dt>Landmark</dt>
+                    <dd>${esc(s.custLandmark || '—')}</dd>
+                    <dt>Complete Address</dt>
+                    <dd>${esc(s.custAddress)}</dd>
+                    <dt>PIN Code</dt>
+                    <dd>${esc(s.custPincode || '—')}</dd>
+                </dl>
+            </div>
 
-<div style="display:grid;gap:16px">
-<div class="panel pad">
-<h2>AC Service Schedule & WhatsApp Automation</h2>
-<p class="ps">Manufacturer warranty requires 2 free services in the first year. Reminders are triggered to customer's WhatsApp.</p>
-<div class="serv-timeline">
+            <div class="panel pad">
+                <h2>AC Product Details (Zero Price Record)</h2>
+                <dl class="kv" style="grid-template-columns:120px 1fr">
+                    <dt>Brand Name</dt>
+                    <dd><b>${esc(s.brand)}</b></dd>
+                    <dt>Model Number</dt>
+                    <dd><b>${esc(s.model)}</b></dd>
+                    <dt>Serial Number</dt>
+                    <dd><span class="tag-pill" style="font-weight:700">${esc(s.sn)}</span></dd>
+                    <dt>Capacity</dt>
+                    <dd>${esc(p.capacity || '1.5 Ton')}</dd>
+                    <dt>Star Rating</dt>
+                    <dd>${esc(p.star || '5 Star')}</dd>
+                    <dt>Installation Date</dt>
+                    <dd>${s.installDate ? fd(s.installDate) : '<span class="b wa">Pending</span>'}</dd>
+                    <dt>Shop Name</dt>
+                    <dd>${esc(s.shopName || S.set.store)}</dd>
+                </dl>
+            </div>
 
-<div class="serv-card ${sl.s1.status === 'Completed' ? 'completed' : s1Due ? 'due' : 'sent'}">
-<div>
-<b>1st Free AC Service (After 3-5 Months)</b>
-<div style="font-size:12px;color:var(--mu);margin-top:2px">Due Date: <b>${fd(sl.s1.date)}</b> · Status: ${B(sl.s1.status)}</div>
-${sl.s1.sent ? `<small class="mu" style="display:block">Reminder sent on ${fd(sl.s1.sent)}</small>` : ''}
-${sl.s1.completedDate ? `<small class="mu" style="display:block;color:var(--ok)">Completed on ${fd(sl.s1.completedDate)}</small>` : ''}
-</div>
-<div style="display:flex;gap:6px">
-${sl.s1.status !== 'Completed' ? `<button class="btn sm" data-act="mark-serv-done" data-sid="${sl.id}" data-skey="s1">${ic('check')} Mark Done</button>` : ''}
-<button class="btn sm pri" data-act="quick-wa-serv" data-sid="${sl.id}" data-skey="s1">${ic('send')} WhatsApp Reminder</button>
-</div>
-</div>
+            ${s.notes ? `<div class="panel pad"><h2>Internal Notes</h2><p class="mu">${esc(s.notes)}</p></div>` : ''}
+        </div>
 
-<div class="serv-card ${sl.s2.status === 'Completed' ? 'completed' : s2Due ? 'due' : 'sent'}">
-<div>
-<b>2nd Free AC Service (Before 11 Months)</b>
-<div style="font-size:12px;color:var(--mu);margin-top:2px">Due Date: <b>${fd(sl.s2.date)}</b> · Status: ${B(sl.s2.status)}</div>
-${sl.s2.sent ? `<small class="mu" style="display:block">Reminder sent on ${fd(sl.s2.sent)}</small>` : ''}
-${sl.s2.completedDate ? `<small class="mu" style="display:block;color:var(--ok)">Completed on ${fd(sl.s2.completedDate)}</small>` : ''}
-</div>
-<div style="display:flex;gap:6px">
-${sl.s2.status !== 'Completed' ? `<button class="btn sm" data-act="mark-serv-done" data-sid="${sl.id}" data-skey="s2">${ic('check')} Mark Done</button>` : ''}
-<button class="btn sm pri" data-act="quick-wa-serv" data-sid="${sl.id}" data-skey="s2">${ic('send')} WhatsApp Reminder</button>
-</div>
-</div>
+        <div style="display:flex;flex-direction:column;gap:20px">
+            <div class="panel pad">
+                <h2>2 Free AC Services Schedule</h2>
+                <p class="mu" style="margin-bottom:14px">Company OEM technicians are dispatched for service visits.</p>
 
-</div>
-</div>
+                <div class="panel pad" style="margin-bottom:12px;background:color-mix(in srgb,var(--acs) 15%,var(--sf))">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <b>1st Free Service (3 to 5 Months)</b>
+                        ${srvBadge(s.srv1Status, s.srv1Date)}
+                    </div>
+                    <p style="margin:8px 0 4px">Due Date: <b>${fdt(s.srv1Date)}</b></p>
+                    <p class="mu" style="font-size:12px">${s.srv1DoneDate ? 'Completed on ' + fd(s.srv1DoneDate) : 'Recommended between 90 to 150 days of purchase'}</p>
+                    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                        <button class="btn sm" data-act="wa-remind" data-id="${s.id}" data-type="1">${ic('zap')} Send WhatsApp Reminder</button>
+                        <button class="btn sm" data-act="mark-srv" data-id="${s.id}" data-type="1">${s.srv1Status === 'Completed' ? 'Mark Incomplete' : 'Mark Completed'}</button>
+                    </div>
+                </div>
 
-<div class="panel pad">
-<h2>Uploaded Photos & Document Receipts (${(sl.images || []).length})</h2>
-<p class="ps">Click any document to view full-resolution lightbox.</p>
-<div class="sale-gallery">
-${(sl.images || []).map((img, i) => `<div class="sale-gallery-item" data-act="lightbox" data-src="${img}">
-<img src="${img}" alt="Sale Photo ${i + 1}">
-</div>`).join('') || '<div class="empty" style="grid-column:1/-1">No photos or documents attached</div>'}
-</div>
-</div>
+                <div class="panel pad" style="background:color-mix(in srgb,var(--acs) 15%,var(--sf))">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <b>2nd Free Service (Before 11 Months)</b>
+                        ${srvBadge(s.srv2Status, s.srv2Date)}
+                    </div>
+                    <p style="margin:8px 0 4px">Due Date: <b>${fdt(s.srv2Date)}</b></p>
+                    <p class="mu" style="font-size:12px">${s.srv2DoneDate ? 'Completed on ' + fd(s.srv2DoneDate) : 'Must be performed before 330 days of purchase'}</p>
+                    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                        <button class="btn sm" data-act="wa-remind" data-id="${s.id}" data-type="2">${ic('zap')} Send WhatsApp Reminder</button>
+                        <button class="btn sm" data-act="mark-srv" data-id="${s.id}" data-type="2">${s.srv2Status === 'Completed' ? 'Mark Incomplete' : 'Mark Completed'}</button>
+                    </div>
+                </div>
+            </div>
 
-</div>
-</div></div>`;
+            <div class="panel pad">
+                <h2>Uploaded Documents &amp; Photos</h2>
+                <p class="mu" style="margin-bottom:10px">Invoices, warranty cards, installation photos, and serial number plates.</p>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px">
+                    ${(s.images && s.images.length > 0) ? s.images.map((img, idx) => `
+                        <div style="position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--bd);background:var(--bg);cursor:pointer" data-act="img-lightbox-view" data-src="${encodeURIComponent(img)}">
+                            <img src="${img}" alt="Doc ${idx + 1}" style="width:100%;height:100%;object-fit:cover;display:block">
+                        </div>
+                    `).join('') : '<p class="mu" style="grid-column:1/-1">No documents uploaded for this sale.</p>'}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>`;
 }
 
-function lightboxModal(src) {
-    modal(`<div class="img-lightbox-modal">
-<img src="${src}" alt="Full Size Preview">
-<div style="margin-top:14px">
-<button class="btn pri" data-act="close">Close Preview</button>
-</div>
-</div>`);
+function prodPage(id) {
+    const p = S.products.find(x => x.id === id);
+    if (!p) return nf('products', 'AC Product');
+    const ss = S.sales.filter(s => s.pid === id || (s.brand === p.brand && s.model === p.model));
+    const inStock = (p.units || []).filter(u => u.st !== 'Sold');
+    const soldUnits = (p.units || []).filter(u => u.st === 'Sold');
+
+    return `<div class="pg">
+    <nav class="bc mu">
+        <button class="lnk" data-act="nav" data-p="products">AC Products</button> / ${esc(p.brand)} ${esc(p.model)}
+    </nav>
+    <div class="ph">
+        <div>
+            <h1>${esc(p.brand)} ${esc(p.model)}</h1>
+            <p>${esc(p.name)} · ${esc(p.capacity)} · ${esc(p.star)} · Minimal AC Specs (No Price)</p>
+        </div>
+        <div style="display:flex;gap:8px">
+            <button class="btn" data-act="nav" data-p="sales/new">${ic('plus')} Record Sale of this AC</button>
+            <button class="btn pri" data-act="nav" data-p="products/edit/${id}">Edit Model</button>
+        </div>
+    </div>
+
+    <div class="cw2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px">
+        <div class="panel pad">
+            <h2>AC Specifications (Minimal)</h2>
+            <dl class="kv" style="grid-template-columns:140px 1fr;margin-top:12px">
+                <dt>Brand Name</dt>
+                <dd><b>${esc(p.brand)}</b></dd>
+                <dt>Model Number</dt>
+                <dd><b>${esc(p.model)}</b></dd>
+                <dt>Capacity / Tonnage</dt>
+                <dd>${esc(p.capacity || '1.5 Ton')}</dd>
+                <dt>Energy Star Rating</dt>
+                <dd><b>${esc(p.star || '5 Star')}</b></dd>
+                <dt>Inverter Type</dt>
+                <dd>${esc(p.invType || 'Inverter')}</dd>
+                <dt>Condenser Coil</dt>
+                <dd>${esc(p.condenser || '100% Copper')}</dd>
+                <dt>Refrigerant Gas</dt>
+                <dd>${esc(p.gas || 'R32')}</dd>
+                <dt>Manufacturer Warranty</dt>
+                <dd>${esc(p.warranty || '1 Year Comp + 10 Years Compressor')}</dd>
+            </dl>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+            <div class="panel pad">
+                <h2>Product Serial Numbers</h2>
+                <div style="margin-top:10px">
+                    <b>In-Stock Units (${inStock.length}):</b>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px">
+                        ${inStock.map(u => `<span class="tag-pill" style="font-weight:600">${esc(u.sn)}</span>`).join('') || '<span class="mu">No units currently in stock</span>'}
+                    </div>
+
+                    <b>Sold Units (${soldUnits.length}):</b>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+                        ${soldUnits.map(u => `<span class="tag-pill mu">${esc(u.sn)} (Sold)</span>`).join('') || '<span class="mu">No units sold yet</span>'}
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="hd">
+                    <h2>Recorded Sales of this AC (${ss.length})</h2>
+                </div>
+                ${ss.map(s => `
+                    <div class="li" style="cursor:pointer" data-act="nav" data-p="sales/${s.id}">
+                        <div>
+                            <b>${esc(s.custName)}</b>
+                            <small class="mu">${fd(s.date)} · S/N: ${esc(s.sn)}</small>
+                        </div>
+                        <span class="b ok">Sold</span>
+                    </div>
+                `).join('') || '<div class="empty">No sales recorded yet for this model</div>'}
+            </div>
+        </div>
+    </div>
+</div>`;
+}
+
+function prodFormPage(id) {
+    const e = id ? S.products.find(x => x.id === id) : null;
+    if (id && !e) return nf('products', 'AC Product');
+    DIRTY = false;
+
+    return `<div class="pg">
+    <nav class="bc mu">
+        <button class="lnk" data-act="nav" data-p="products">AC Products</button> / ${e ? esc(e.brand) + ' ' + esc(e.model) + ' / Edit' : 'Add AC Model'}
+    </nav>
+    <div class="ph">
+        <div>
+            <h1>${e ? 'Edit AC Model' : 'Add Minimal AC Model'}</h1>
+            <p>Brand, model number, specifications and serial numbers. Strictly no pricing fields.</p>
+        </div>
+    </div>
+
+    <form id="prod-form" novalidate onsubmit="return false">
+        <input type="hidden" name="prod_id" value="${e ? esc(e.id) : ''}">
+        <div class="fgrid">
+            <div class="panel pad">
+                <h2>AC Identification *</h2>
+                <div class="fg">
+                    <label>Brand Name *
+                        <input name="brand" value="${esc(e ? e.brand : '')}" placeholder="e.g. Daikin, LG, Voltas, Hitachi" required>
+                    </label>
+                    <label>Product Model Number *
+                        <input name="model" value="${esc(e ? e.model : '')}" placeholder="e.g. FTKF35TV16U" required>
+                    </label>
+                    <label>Display / Commercial Name
+                        <input name="name" value="${esc(e ? e.name : '')}" placeholder="e.g. Daikin FTKF35 1.0T Inverter">
+                    </label>
+                </div>
+            </div>
+
+            <div class="panel pad">
+                <h2>Technical Specifications</h2>
+                <div class="fg">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <label>Capacity / Tonnage
+                            <select name="capacity">
+                                ${['1.0 Ton', '1.5 Ton', '2.0 Ton', '0.8 Ton', '2.5 Ton'].map(c => `<option ${(e && e.capacity === c) ? 'selected' : ''}>${c}</option>`).join('')}
+                            </select>
+                        </label>
+                        <label>Star Rating
+                            <select name="star">
+                                ${['5 Star', '3 Star', '4 Star', '2 Star', '1 Star'].map(c => `<option ${(e && e.star === c) ? 'selected' : ''}>${c}</option>`).join('')}
+                            </select>
+                        </label>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <label>Inverter Type
+                            <select name="invType">
+                                ${['Inverter', 'Dual Inverter', 'Fixed Speed', 'Triple Inverter'].map(c => `<option ${(e && e.invType === c) ? 'selected' : ''}>${c}</option>`).join('')}
+                            </select>
+                        </label>
+                        <label>Condenser Coil
+                            <input name="condenser" value="${esc(e ? e.condenser : '100% Copper')}" placeholder="e.g. 100% Copper">
+                        </label>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <label>Refrigerant Gas
+                            <input name="gas" value="${esc(e ? e.gas : 'R32')}" placeholder="e.g. R32, R410A">
+                        </label>
+                        <label>Warranty Terms
+                            <input name="warranty" value="${esc(e ? e.warranty : '1 Year Comp + 10 Years Compressor')}" placeholder="e.g. 1 Yr Comp + 10 Yr Compressor">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel pad" style="grid-column:1/-1">
+                <h2>Serial Numbers (comma separated)</h2>
+                <label>Opening Serial Numbers
+                    <input name="serials" value="${esc(e ? (e.units || []).map(u => u.sn).join(', ') : '')}" placeholder="e.g. DK-71001, DK-71002, DK-71003">
+                </label>
+            </div>
+        </div>
+
+        <div class="sticky" style="margin-top:20px">
+            <button type="button" class="btn" data-act="nav" data-p="products">Cancel</button>
+            <button type="button" class="btn pri" data-act="prod-save">${e ? 'Save Model' : 'Create AC Model'}</button>
+        </div>
+    </form>
+</div>`;
+}
+
+function custPage(id) {
+    const c = cust(id);
+    if (!c.id) return nf('customers', 'Customer');
+    const ss = S.sales.filter(s => s.cid === id);
+    const ms = S.msgs.filter(m => m.cid === id);
+    const cleanPhone = (c.phone || '').replace(/\D/g, '');
+
+    return `<div class="pg">
+    <nav class="bc mu">
+        <button class="lnk" data-act="nav" data-p="customers">Customers</button> / ${esc(c.name)}
+    </nav>
+    <div class="ph">
+        <div>
+            <h1>${esc(c.name)}</h1>
+            <p>${esc(c.locality || '')} · WhatsApp: ${esc(c.phone)} · Customer Record</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <a class="btn" href="https://wa.me/${cleanPhone}?text=${encodeURIComponent('Hello ' + c.name + ', greeting from ' + S.set.store)}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>
+            <button class="btn" data-act="nav" data-p="sales/new">${ic('plus')} New Sale</button>
+            <button class="btn pri" data-act="nav" data-p="customers/edit/${id}">Edit Customer</button>
+        </div>
+    </div>
+
+    <div class="cw2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:20px">
+        <div class="panel pad">
+            <h2>Customer Details</h2>
+            <dl class="kv" style="grid-template-columns:130px 1fr;margin-top:12px">
+                <dt>Full Name</dt>
+                <dd><b>${esc(c.name)}</b></dd>
+                <dt>WhatsApp No.</dt>
+                <dd><b>${esc(c.phone)}</b></dd>
+                <dt>Alternate No.</dt>
+                <dd>${esc(c.altPhone || '—')}</dd>
+                <dt>Locality / Area</dt>
+                <dd><b>${esc(c.locality || '—')}</b></dd>
+                <dt>Landmark</dt>
+                <dd>${esc(c.landmark || '—')}</dd>
+                <dt>Complete Address</dt>
+                <dd>${esc(c.address)}</dd>
+                <dt>Area PIN Code</dt>
+                <dd>${esc(c.pincode || '—')}</dd>
+                <dt>Account Status</dt>
+                <dd>${B(c.active ? 'Active' : 'Inactive')}</dd>
+            </dl>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:20px">
+            <div class="panel">
+                <div class="hd">
+                    <h2>Purchased AC Units (${ss.length})</h2>
+                </div>
+                ${ss.map(s => `
+                    <div class="li" style="cursor:pointer" data-act="nav" data-p="sales/${s.id}">
+                        <div>
+                            <b>${esc(s.brand)} ${esc(s.model)}</b>
+                            <small class="mu">S/N: ${esc(s.sn)} · Sold: ${fd(s.date)}</small>
+                            <small style="display:block">1st Service: ${fd(s.srv1Date)} | 2nd Service: ${fd(s.srv2Date)}</small>
+                        </div>
+                        ${srvBadge(s.srv1Status, s.srv1Date)}
+                    </div>
+                `).join('') || '<div class="empty">No AC purchases recorded yet</div>'}
+            </div>
+
+            <div class="panel">
+                <div class="hd">
+                    <h2>WhatsApp Messages History (${ms.length})</h2>
+                </div>
+                ${ms.map(m => `
+                    <div class="li">
+                        <div>
+                            <b>${esc(m.tpl)}</b>
+                            <small class="mu">${fd(m.time)}</small>
+                            ${m.text ? `<small style="display:block;margin-top:2px">${esc(m.text)}</small>` : ''}
+                        </div>
+                        ${B(m.status)}
+                    </div>
+                `).join('') || '<div class="empty">No automated messages recorded</div>'}
+            </div>
+        </div>
+    </div>
+</div>`;
+}
+
+function custFormPage(id) {
+    const c = id ? S.customers.find(x => x.id === id) : null;
+    if (id && !c) return nf('customers', 'Customer');
+    DIRTY = false;
+
+    return `<div class="pg">
+    <nav class="bc mu">
+        <button class="lnk" data-act="nav" data-p="customers">Customers</button> / ${c ? esc(c.name) + ' / Edit' : 'Add Customer'}
+    </nav>
+    <div class="ph">
+        <div>
+            <h1>${c ? 'Edit Customer' : 'Add Minimal Customer Record'}</h1>
+            <p>Customer name, complete address with landmark and area PIN code (including locality), WhatsApp &amp; alternate number.</p>
+        </div>
+    </div>
+
+    <form id="cust-form" novalidate onsubmit="return false">
+        <input type="hidden" name="cust_id" value="${c ? esc(c.id) : ''}">
+        <div class="fgrid">
+            <div class="panel pad">
+                <h2>Contact Information *</h2>
+                <div class="fg">
+                    <label>Customer Full Name *
+                        <input name="name" value="${esc(c ? c.name : '')}" placeholder="Full Name" required>
+                    </label>
+                    <label>WhatsApp Number (Primary) *
+                        <input name="phone" value="${esc(c ? c.phone : '')}" placeholder="+91 98250 XXXXX" required>
+                    </label>
+                    <label>Alternate Number
+                        <input name="altPhone" value="${esc(c ? (c.altPhone || '') : '')}" placeholder="Optional secondary contact number">
+                    </label>
+                    <label class="row">
+                        <input type="checkbox" name="active" ${(c ? c.active : true) ? 'checked' : ''}>
+                        Active Customer Record
+                    </label>
+                </div>
+            </div>
+
+            <div class="panel pad">
+                <h2>Complete Address Details *</h2>
+                <div class="fg">
+                    <label>Complete Address (House/Flat, Building, Street) *
+                        <textarea name="address" rows="3" placeholder="Complete physical address" required>${esc(c ? c.address : '')}</textarea>
+                    </label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <label>Locality / Area (e.g. Alkapuri, Manjalpur) *
+                            <input name="locality" value="${esc(c ? (c.locality || '') : '')}" placeholder="Locality or Area" required>
+                        </label>
+                        <label>Landmark
+                            <input name="landmark" value="${esc(c ? (c.landmark || '') : '')}" placeholder="e.g. Near Water Tank, Opp. Mall">
+                        </label>
+                    </div>
+                    <label>Area PIN Code *
+                        <input name="pincode" value="${esc(c ? (c.pincode || '') : '')}" placeholder="e.g. 390007" required>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="sticky" style="margin-top:20px">
+            <button type="button" class="btn" data-act="nav" data-p="customers">Cancel</button>
+            <button type="button" class="btn pri" data-act="cust-save">${c ? 'Save Changes' : 'Create Customer'}</button>
+        </div>
+    </form>
+</div>`;
+}
+
+function invPage(id) {
+    const inv = S.invoices.find(x => x.id === id);
+    if (!inv) return nf('invoices', 'Invoice');
+    const s = S.sales.find(x => x.id === inv.saleId) || {};
+    const c = cust(inv.cid);
+
+    return `<div class="pg">
+    <nav class="bc mu">
+        <button class="lnk" data-act="nav" data-p="invoices">Invoices</button> / ${esc(inv.id)}
+    </nav>
+    <div class="ph">
+        <div>
+            <h1>Invoice ${esc(inv.id)}</h1>
+            <p>Date: ${fd(inv.date)} · Linked Sale: ${esc(inv.saleId || '—')}</p>
+        </div>
+        <div style="display:flex;gap:8px">
+            <button class="btn" onclick="window.print()">Print / PDF</button>
+            ${inv.saleId ? `<button class="btn pri" data-act="nav" data-p="sales/${inv.saleId}">View Sale Record</button>` : ''}
+        </div>
+    </div>
+
+    <div class="doc panel pad" style="max-width:850px;margin:0 auto;background:#fff;color:#111">
+        <div style="display:flex;justify-content:space-between;border-bottom:2px solid #e5e7eb;padding-bottom:18px;margin-bottom:18px">
+            <div>
+                <h2 style="font-size:24px;font-weight:700;color:#0284c7;margin:0 0 4px">${esc(S.set.store)}</h2>
+                <div style="font-size:13px;color:#4b5563;line-height:1.5">
+                    <div>${esc(S.set.addr)}</div>
+                    <div>Phone: ${esc(S.set.phone)} | Email: ${esc(S.set.email)}</div>
+                    <div><b>GSTIN: ${esc(S.set.gstin)}</b></div>
+                </div>
+            </div>
+            <div style="text-align:right">
+                <span class="b ok" style="font-size:13px">OFFICIAL TAX INVOICE</span>
+                <div style="font-size:14px;margin-top:6px"><b>Invoice No:</b> ${esc(inv.id)}</div>
+                <div style="font-size:13px;color:#4b5563"><b>Date:</b> ${fdt(inv.date)}</div>
+                <div style="font-size:13px;color:#4b5563"><b>Payment Mode:</b> ${esc(inv.pay || 'UPI')}</div>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;font-size:13px">
+            <div style="background:#f9fafb;padding:12px;border-radius:6px;border:1px solid #e5e7eb">
+                <b style="color:#374151;text-transform:uppercase;font-size:11px;letter-spacing:0.5px">Billed To (Customer Details)</b>
+                <div style="font-size:15px;font-weight:700;margin:4px 0">${esc(c.name)}</div>
+                <div>WhatsApp: ${esc(c.phone)} ${c.altPhone ? '· Alt: ' + esc(c.altPhone) : ''}</div>
+                <div>${esc(c.address)}</div>
+                <div>${esc(c.locality || '')} ${c.landmark ? '(Near ' + esc(c.landmark) + ')' : ''} - ${esc(c.pincode || '')}</div>
+            </div>
+            <div style="background:#f9fafb;padding:12px;border-radius:6px;border:1px solid #e5e7eb">
+                <b style="color:#374151;text-transform:uppercase;font-size:11px;letter-spacing:0.5px">Sale &amp; Branch Information</b>
+                <div style="margin-top:4px"><b>Branch:</b> ${esc(inv.shopName || S.set.store)}</div>
+                <div><b>Linked Sale Ref:</b> ${esc(inv.saleId || '—')}</div>
+                <div><b>Installation Date:</b> ${s.installDate ? fdt(s.installDate) : 'Pending Schedule'}</div>
+                <div><b>Technician:</b> Dispatched by OEM / Manufacturer Brand</div>
+            </div>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px">
+            <thead>
+                <tr style="background:#f3f4f6;text-align:left">
+                    <th style="padding:10px;border:1px solid #e5e7eb">#</th>
+                    <th style="padding:10px;border:1px solid #e5e7eb">Description of Goods (Air Conditioner)</th>
+                    <th style="padding:10px;border:1px solid #e5e7eb">Product Serial Number</th>
+                    <th style="padding:10px;border:1px solid #e5e7eb;text-align:center">Qty</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding:10px;border:1px solid #e5e7eb">1</td>
+                    <td style="padding:10px;border:1px solid #e5e7eb">
+                        <b>${esc(inv.brand)} ${esc(inv.model)}</b>
+                        <div style="color:#6b7280;font-size:12px">Split Inverter Air Conditioner Unit with Remote &amp; Accessories</div>
+                    </td>
+                    <td style="padding:10px;border:1px solid #e5e7eb">
+                        <span style="font-family:monospace;font-weight:700">${esc(inv.sn)}</span>
+                    </td>
+                    <td style="padding:10px;border:1px solid #e5e7eb;text-align:center">1 Unit</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div style="border:2px dashed #0284c7;background:#f0f9ff;border-radius:8px;padding:16px;margin-bottom:20px">
+            <h3 style="margin:0 0 8px;color:#0369a1;font-size:15px;display:flex;align-items:center;gap:6px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6.9 7.5.7-5.7 5 1.7 7.4L12 18l-6.5 4 1.7-7.4-5.7-5 7.5-.7z"/></svg>
+                Complimentary 2-Free-Service Warranty Certificate
+            </h3>
+            <p style="font-size:12px;color:#0369a1;margin:0 0 10px;line-height:1.4">This invoice entitles the registered customer to 2 complimentary free services within the 1st year of purchase. Company OEM authorized service personnel will be arranged upon reminder confirmation.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+                <div style="background:#fff;padding:8px 12px;border-radius:6px;border:1px solid #bae6fd">
+                    <b>1st Free Service Milestone:</b>
+                    <div>Scheduled Due: <b>${fdt(inv.srv1Date)}</b> (3 to 5 Months)</div>
+                </div>
+                <div style="background:#fff;padding:8px 12px;border-radius:6px;border:1px solid #bae6fd">
+                    <b>2nd Free Service Milestone:</b>
+                    <div>Scheduled Due: <b>${fdt(inv.srv2Date)}</b> (Before 11 Months)</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:30px;font-size:12px;color:#6b7280">
+            <div>
+                <div>Goods once sold are covered under respective brand manufacturer warranty.</div>
+                <div>Authorized service &amp; installation handled directly by OEM brand centers.</div>
+            </div>
+            <div style="text-align:center">
+                <div style="margin-bottom:40px;font-weight:600;color:#111">For ${esc(S.set.store)}</div>
+                <div style="border-top:1px solid #d1d5db;padding-top:4px;width:160px">Authorized Signatory</div>
+            </div>
+        </div>
+    </div>
+</div>`;
 }
 
 
-let CAL_DATE = D(0);
-let CAL_VIEW = 'month';
-
-function cdd(s, n) {
-    const x = new Date(s + 'T00:00:00Z');
-    x.setUTCDate(x.getUTCDate() + n);
-    return x.toISOString().slice(0, 10);
-}
-
-function getAllServiceEvents() {
-    const events = [];
-    (S.sales || []).forEach(sl => {
-        if (sl.s1 && sl.s1.date) {
-            events.push({
-                saleId: sl.id,
-                sale: sl,
-                cname: sl.cname,
-                cphone: sl.cphone,
-                clocality: sl.clocality,
-                brand: sl.brand,
-                model: sl.model,
-                sn: sl.sn,
-                milestone: '1st Free Service (3-5 Mo)',
-                date: sl.s1.date,
-                status: sl.s1.status,
-                key: 's1',
-                sent: sl.s1.sent,
-                completedDate: sl.s1.completedDate
-            });
-        }
-        if (sl.s2 && sl.s2.date) {
-            events.push({
-                saleId: sl.id,
-                sale: sl,
-                cname: sl.cname,
-                cphone: sl.cphone,
-                clocality: sl.clocality,
-                brand: sl.brand,
-                model: sl.model,
-                sn: sl.sn,
-                milestone: '2nd Free Service (11 Mo)',
-                date: sl.s2.date,
-                status: sl.s2.status,
-                key: 's2',
-                sent: sl.s2.sent,
-                completedDate: sl.s2.completedDate
-            });
-        }
-    });
-    return events;
-}
-
-function calNav(v) {
-    if (v === 'today') {
-        CAL_DATE = D(0);
-    } else if (v === 'prev' || v === 'next') {
-        const step = v === 'next' ? 1 : -1;
-        if (CAL_VIEW === 'week') {
-            CAL_DATE = cdd(CAL_DATE, 7 * step);
-        } else if (CAL_VIEW === 'day') {
-            CAL_DATE = cdd(CAL_DATE, step);
-        } else {
-            const x = new Date(CAL_DATE + 'T00:00:00Z');
-            x.setUTCDate(1);
-            x.setUTCMonth(x.getUTCMonth() + step);
-            CAL_DATE = x.toISOString().slice(0, 10);
-        }
-    } else {
-        CAL_VIEW = v;
-    }
-    render(true);
-}
+let CV = 'month';
+let CD = D(0);
 
 function calendar() {
-    const events = getAllServiceEvents();
     const t0 = D(0);
-    const B0 = new Date(CAL_DATE + 'T00:00:00Z');
+    const B0 = new Date(CD + 'T00:00:00Z');
     const y = B0.getUTCFullYear();
     const mo = B0.getUTCMonth();
     const ms = `${y}-${String(mo + 1).padStart(2, '0')}`;
-
     const L = (d, o) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-IN', { timeZone: 'UTC', ...o });
-    const evFor = d => events.filter(e => e.date === d);
 
-    let body, title;
-
-    if (CAL_VIEW === 'month') {
-        title = L(CAL_DATE, { month: 'long', year: 'numeric' });
-        const firstDayDow = new Date(Date.UTC(y, mo, 1)).getUTCDay();
-        const daysInMonth = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
-
-        let cells = '';
-        for (let i = 0; i < firstDayDow; i++) {
-            cells += '<div style="background:var(--bg);opacity:0.35;min-height:96px"></div>';
+    const allEvents = [];
+    S.sales.forEach(s => {
+        const c = cust(s.cid);
+        if (s.installDate) {
+            allEvents.push({ id: s.id + '-inst', saleId: s.id, cid: s.cid, custName: c.name, title: 'AC Installation · ' + s.brand + ' ' + s.model, date: s.installDate, type: 'Installation', status: s.installDate <= t0 ? 'Completed' : 'Upcoming' });
         }
-        for (let d = 1; d <= daysInMonth; d++) {
-            const dateStr = `${y}-${String(mo + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-            const dayEvs = evFor(dateStr);
-            const isToday = dateStr === t0;
-            cells += `<div class="cd${isToday ? ' today' : ''}" data-date="${dateStr}" style="min-height:96px;cursor:pointer" data-act="cal-day-select" data-d="${dateStr}">
-<span class="dn">${d}</span>
-${dayEvs.slice(0, 3).map(ev => {
-    const isDone = ev.status === 'Completed';
-    const bg = isDone ? 'var(--ok)' : ev.key === 's1' ? 'var(--ac)' : 'var(--wa)';
-    return `<div style="font-size:10.5px;padding:2px 5px;border-radius:4px;margin-bottom:2px;background:${bg};color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="Customer: ${esc(ev.cname)} (${esc(ev.milestone)})">
-${esc(ev.cname)} · ${esc(ev.brand)}
-</div>`;
-}).join('')}
-${dayEvs.length > 3 ? `<small class="mu" style="font-size:10px">+${dayEvs.length - 3} more</small>` : ''}
-</div>`;
-        }
-        body = `<div class="cg">${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="mu" style="text-align:center;font-size:12px;font-weight:600;padding:6px 0">${d}</div>`).join('')}${cells}</div>`;
-    } else if (CAL_VIEW === 'week') {
-        const dow = B0.getUTCDay();
-        const startOfWeek = cdd(CAL_DATE, -dow);
-        const weekDates = Array.from({ length: 7 }, (_, i) => cdd(startOfWeek, i));
-        title = L(weekDates[0], { day: 'numeric', month: 'short' }) + ' – ' + L(weekDates[6], { day: 'numeric', month: 'short', year: 'numeric' });
-
-        body = `<div class="cg wk">
-${weekDates.map(d => `<div class="mu" style="text-align:center;font-size:12px;font-weight:600;padding:6px 0">${L(d, { weekday: 'short', day: 'numeric' })}</div>`).join('')}
-${weekDates.map(d => {
-    const dayEvs = evFor(d);
-    const isToday = d === t0;
-    return `<div class="cd${isToday ? ' today' : ''}" style="min-height:220px">
-<span class="dn">${+d.slice(8)}</span>
-${dayEvs.map(ev => `<div class="li" style="padding:6px 0;border-bottom:1px solid var(--bd);cursor:pointer" data-act="go" data-p="sales/${ev.saleId}">
-<div><b>Customer: ${esc(ev.cname)}</b><small>${esc(ev.brand)} ${esc(ev.model)}</small><small style="color:var(--mu);display:block">${esc(ev.milestone)}</small></div>
-${B(ev.status)}
-</div>`).join('') || '<small class="mu" style="display:block;margin-top:10px;text-align:center">No services</small>'}
-</div>`;
-}).join('')}
-</div>`;
-    } else if (CAL_VIEW === 'day') {
-        title = L(CAL_DATE, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-        const dayEvs = evFor(CAL_DATE);
-
-        body = `<div class="pad" style="display:grid;gap:12px">
-<div style="display:flex;justify-content:space-between;align-items:center">
-<h2>Services Scheduled for this Day (${dayEvs.length})</h2>
-<span class="mu">${CAL_DATE === t0 ? 'Today' : ''}</span>
-</div>
-${dayEvs.map(ev => `<div class="li" style="padding:12px 14px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-<div>
-<div style="font-size:15px;font-weight:700">Customer: ${esc(ev.cname)}</div>
-<div style="font-size:12.5px;color:var(--mu);margin-top:2px">WhatsApp: <b>${esc(ev.cphone)}</b> · Locality: <b>${esc(ev.clocality)}</b></div>
-<div style="font-size:12.5px;margin-top:4px">Unit: <b>${esc(ev.brand)} ${esc(ev.model)}</b> (S/N: <code>${esc(ev.sn)}</code>)</div>
-<div style="font-size:12px;margin-top:2px"><span class="b ac">${esc(ev.milestone)}</span> ${B(ev.status)}</div>
-</div>
-<div style="display:flex;gap:6px">
-${ev.status !== 'Completed' ? `<button class="btn sm" data-act="mark-serv-done" data-sid="${ev.saleId}" data-skey="${ev.key}">${ic('check')} Mark Done</button>` : ''}
-<button class="btn sm pri" data-act="quick-wa-serv" data-sid="${ev.saleId}" data-skey="${ev.key}">${ic('send')} Send WhatsApp Reminder</button>
-<button class="btn sm" data-act="go" data-p="sales/${ev.saleId}">View Sale</button>
-</div>
-</div>`).join('') || '<div class="empty">No AC service milestones scheduled for this date</div>'}
-</div>`;
-    } else {
-        title = L(CAL_DATE, { month: 'long', year: 'numeric' });
-        const monthEvs = events.filter(e => e.date.startsWith(ms)).sort((a, b) => a.date > b.date ? 1 : -1);
-        const grouped = {};
-        monthEvs.forEach(e => {
-            grouped[e.date] = grouped[e.date] || [];
-            grouped[e.date].push(e);
-        });
-
-        body = `<div style="display:grid;gap:14px;padding:12px">
-${Object.keys(grouped).map(d => `<div class="ag">
-<div class="agd${d === t0 ? ' t' : ''}"><b>${+d.slice(8)}</b><span>${L(d, { weekday: 'short', month: 'short' })}</span></div>
-<div class="ag-items" style="display:grid;gap:8px">
-${grouped[d].map(ev => `<div class="li" style="padding:10px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg)">
-<div style="flex:1">
-<div><b>Customer: ${esc(ev.cname)}</b> <span class="mu">(${esc(ev.cphone)})</span></div>
-<small>${esc(ev.milestone)} · ${esc(ev.brand)} ${esc(ev.model)} (S/N: ${esc(ev.sn)}) · ${esc(ev.clocality)}</small>
-</div>
-<div style="display:flex;gap:6px;align-items:center">
-${B(ev.status)}
-<button class="btn sm pri" data-act="quick-wa-serv" data-sid="${ev.saleId}" data-skey="${ev.key}">${ic('send')}</button>
-<button class="btn sm" data-act="go" data-p="sales/${ev.saleId}">View</button>
-</div>
-</div>`).join('')}
-</div>
-</div>`).join('') || '<div class="empty">No service milestones this month</div>'}
-</div>`;
-    }
-
-    const todayEvs = evFor(t0);
-    const overdueEvs = events.filter(e => e.date < t0 && e.status !== 'Completed');
-
-    return `<div class="pg"><div class="ph"><div><h1>AC Service Calendar</h1><p>Customer 1st and 2nd complimentary AC service schedules. Third-party dealer model (OEM brand company dispatches technicians).</p></div>
-<button class="btn pri" data-act="go" data-p="sales/new">${ic('plus')}New Sale</button></div>
-
-<div class="calbar">
-<div class="cal-t"><h2 class="cal-title">${title}</h2><span class="mu">${events.length} total annual service milestones</span></div>
-<div class="cal-ctl">
-<div class="seg-b">
-<button data-act="cal" data-v="prev" aria-label="Previous">◀</button>
-<button data-act="cal" data-v="today">Today</button>
-<button data-act="cal" data-v="next" aria-label="Next">▶</button>
-</div>
-<div class="tabs" role="tablist">
-${['month', 'week', 'day', 'agenda'].map(v => `<button role="tab" aria-selected="${CAL_VIEW === v}" class="${CAL_VIEW === v ? 'on' : ''}" data-act="cal" data-v="${v}">${v[0].toUpperCase() + v.slice(1)}</button>`).join('')}
-</div>
-</div>
-</div>
-
-<div class="cw">
-<div class="panel">${body}
-<div class="lg" style="padding:10px 14px;border-top:1px solid var(--bd);display:flex;gap:14px;font-size:12px;flex-wrap:wrap">
-<span><i style="background:var(--ac);width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px"></i>1st Service (3-5 Months)</span>
-<span><i style="background:var(--wa);width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px"></i>2nd Service (Before 11 Months)</span>
-<span><i style="background:var(--ok);width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px"></i>Completed Service</span>
-</div>
-</div>
-
-<div class="cside">
-<div class="panel">
-<div class="hd"><h2>Due Today (${todayEvs.length})</h2><span class="mu">${fd(t0)}</span></div>
-<div class="pad">
-${todayEvs.map(ev => `<div class="li" style="padding:6px 0;cursor:pointer" data-act="go" data-p="sales/${ev.saleId}">
-<div><b>Customer: ${esc(ev.cname)}</b><small>${esc(ev.brand)} · ${esc(ev.milestone)}</small></div>
-<button class="btn sm pri" data-act="quick-wa-serv" data-sid="${ev.saleId}" data-skey="${ev.key}">${ic('send')}</button>
-</div>`).join('') || '<span class="mu" style="font-size:12px">No services due today</span>'}
-</div>
-</div>
-
-<div class="panel" style="margin-top:14px">
-<div class="hd"><h2>Overdue Milestones (${overdueEvs.length})</h2></div>
-<div class="pad">
-${overdueEvs.map(ev => `<div class="li" style="padding:6px 0;cursor:pointer" data-act="go" data-p="sales/${ev.saleId}">
-<div><b>Customer: ${esc(ev.cname)}</b><small style="color:var(--er)">Due: ${fd(ev.date)} · ${esc(ev.brand)}</small></div>
-<button class="btn sm pri" data-act="quick-wa-serv" data-sid="${ev.saleId}" data-skey="${ev.key}">${ic('send')}</button>
-</div>`).join('') || '<span class="mu" style="font-size:12px">All past services up to date!</span>'}
-</div>
-</div>
-</div>
-
-</div></div>`;
-}
-
-function serviceActionModal(saleId, serviceKey) {
-    const sl = sale(saleId);
-    if (!sl) return;
-    const serv = sl[serviceKey];
-    const isS1 = serviceKey === 's1';
-    const milestoneName = isS1 ? '1st Free AC Service (3 to 5 Months)' : '2nd Free AC Service (Before 11 Months)';
-    const cleanPh = String(sl.cphone || '').replace(/\D/g, '');
-
-    const tplKey = isS1 ? 'service1' : 'service2';
-    const waText = renderMessageTemplate(tplKey, {
-        name: sl.cname,
-        brand: sl.brand,
-        model: sl.model,
-        sn: sl.sn,
-        date: fd(serv.date),
-        instDate: fd(sl.instDate)
+        allEvents.push({ id: s.id + '-srv1', saleId: s.id, cid: s.cid, custName: c.name, title: '1st Free Service · ' + s.brand + ' ' + s.model, date: s.srv1Date, type: '1st Service (3-5 Mo)', status: s.srv1Status });
+        allEvents.push({ id: s.id + '-srv2', saleId: s.id, cid: s.cid, custName: c.name, title: '2nd Free Service · ' + s.brand + ' ' + s.model, date: s.srv2Date, type: '2nd Service (<11 Mo)', status: s.srv2Status });
     });
 
-    modal(`<h1>${esc(milestoneName)}</h1>
-<p>Sale: <b>${sl.id}</b> · Customer: <b>${esc(sl.cname)}</b> (${esc(sl.cphone)})</p>
-<dl class="kv">
-<dt>AC Unit</dt><dd><b>${esc(sl.brand)} ${esc(sl.model)}</b> (S/N: ${esc(sl.sn)})</dd>
-<dt>Locality</dt><dd>${esc(sl.clocality)} · Pincode: ${esc(sl.cpincode)}</dd>
-<dt>Address</dt><dd>${esc(sl.caddress)}</dd>
-<dt>Scheduled Date</dt><dd><b>${fd(serv.date)}</b></dd>
-<dt>Current Status</dt><dd>${B(serv.status)}</dd>
-</dl>
+    const evf = d => allEvents.filter(e => e.date === d);
 
-<h2>WhatsApp Service Reminder Message</h2>
-<div class="wa-bubble" id="wa-preview-box">${esc(waText)}</div>
+    const evPill = e => `
+        <div class="cev ${e.status === 'Completed' ? 'ok' : e.date < t0 ? 'er' : 'ac'}" data-act="nav" data-p="sales/${e.saleId}" tabindex="0" title="${esc(e.title)} · ${esc(e.custName)}">
+            <b>${esc(e.custName)}</b>
+            <small>${esc(e.type)}</small>
+        </div>
+    `;
 
-<div class="acts" style="margin-top:16px">
-<button class="btn" data-act="close">Cancel</button>
-${serv.status !== 'Completed' ? `<button class="btn ok" data-act="mark-serv-done" data-sid="${sl.id}" data-skey="${serviceKey}">${ic('check')} Mark Completed</button>` : ''}
-<button class="btn pri" data-act="send-wa-trigger" data-phone="${cleanPh}" data-cid="${sl.cid}" data-sid="${sl.id}" data-skey="${serviceKey}">${ic('send')} Send WhatsApp Reminder</button>
-</div>`);
-}
+    const cell = (d, o = {}) => {
+        const evs = evf(d);
+        return `<div class="cd${d === t0 ? ' today' : ''}${o.out ? ' out' : ''}" data-date="${d}" style="min-height:${o.min || 110}px">
+            <span class="dn">${+d.slice(8)}</span>
+            ${o.w ? `<span class="wl">${L(d, { weekday: 'long' })}</span>` : ''}
+            ${evs.slice(0, o.max || 99).map(evPill).join('')}
+            ${(o.max && evs.length > o.max) ? `<span class="mu" style="font-size:11px">+${evs.length - o.max} more</span>` : ''}
+        </div>`;
+    };
 
+    let title, cnt, body;
+    const WK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-let ENG_TAB = 'auto';
-let ENG_FILTER = 'all';
-let ENG_SEARCH = '';
+    if (CV === 'month') {
+        const firstDay = new Date(Date.UTC(y, mo, 1));
+        const s0 = cdd(`${y}-${String(mo + 1).padStart(2, '0')}-01`, -dow(`${y}-${String(mo + 1).padStart(2, '0')}-01`));
+        const dim = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
+        const wks = Math.ceil((dow(`${y}-${String(mo + 1).padStart(2, '0')}-01`) + dim) / 7);
+        title = L(`${y}-${String(mo + 1).padStart(2, '0')}-01`, { month: 'long', year: 'numeric' });
+        cnt = allEvents.filter(e => e.date.startsWith(ms)).length;
 
-function engagementsPage() {
-  const S = SS();
-  const autos = S.automations || [];
-  const logs = S.waLogs || [];
-  const tmpls = S.templates || [];
-  const totalSent = logs.length;
-  const activeAutos = autos.filter(a => a.active).length;
+        let gridCells = '';
+        for (let i = 0; i < wks * 7; i++) {
+            const d = cdd(s0, i);
+            gridCells += cell(d, { min: 110, max: 3, out: !d.startsWith(ms) });
+        }
+        body = `<div class="cal-g">${WK.map(d => `<div class="cal-h">${d}</div>`).join('')}${gridCells}</div>`;
+    } else if (CV === 'week') {
+        const w0 = cdd(CD, -dow(CD));
+        const ds = [...Array(7)].map((_, i) => cdd(w0, i));
+        title = L(ds[0], { day: 'numeric', month: 'short' }) + ' – ' + L(ds[6], { day: 'numeric', month: 'short', year: 'numeric' });
+        cnt = ds.reduce((s, d) => s + evf(d).length, 0);
+        body = `<div class="cal-g wk">${ds.map(d => `<div class="cal-h">${L(d, { weekday: 'short' })}</div>`).join('')}${ds.map(d => cell(d, { min: 240, w: 1 })).join('')}</div>`;
+    } else if (CV === 'day') {
+        const dayEvs = evf(CD);
+        title = L(CD, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        cnt = dayEvs.length;
+        body = `<div style="padding:16px">
+            <div class="dv-h">
+                <b>All AC Service Milestones for this Day</b>
+                <span class="b">${cnt} event${cnt === 1 ? '' : 's'}</span>
+            </div>
+            ${dayEvs.map(e => `
+                <div class="li" data-act="nav" data-p="sales/${e.saleId}" tabindex="0" style="cursor:pointer;padding:12px 14px">
+                    <div>
+                        <b><span class="mu" style="font-weight:500">Customer: </span>${esc(e.custName)}</b>
+                        <small style="display:block;margin-top:2px">${esc(e.title)}</small>
+                        <small class="mu">Service Date: ${fd(e.date)} · OEM technician dispatched directly by brand</small>
+                    </div>
+                    ${srvBadge(e.status, e.date)}
+                </div>
+            `).join('') || '<div class="empty">No AC service milestones scheduled on this date</div>'}
+        </div>`;
+    } else {
+        title = L(CD, { month: 'long', year: 'numeric' });
+        const monthEvs = allEvents.filter(e => e.date.startsWith(ms)).sort((p, q) => p.date > q.date ? 1 : -1);
+        cnt = monthEvs.length;
+        const g = {};
+        monthEvs.forEach(e => (g[e.date] = g[e.date] || []).push(e));
 
-  return `
+        body = Object.keys(g).map(d => `
+            <div class="ag">
+                <div class="agd${d === t0 ? ' t' : ''}">
+                    <b>${+d.slice(8)}</b>
+                    <span>${L(d, { weekday: 'short', month: 'short' })}</span>
+                </div>
+                <div class="ag-items">
+                    ${g[d].map(e => `
+                        <div class="li" data-act="nav" data-p="sales/${e.saleId}" tabindex="0" style="cursor:pointer">
+                            <div>
+                                <b><span class="mu" style="font-weight:500">Customer: </span>${esc(e.custName)}</b>
+                                <small>${esc(e.title)}</small>
+                            </div>
+                            ${srvBadge(e.status, e.date)}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('') || '<div class="empty">No service milestones this month</div>';
+    }
+
+    const todayEvs = evf(t0);
+
+    return `<div class="pg cal">
     <div class="ph">
-      <div class="ph-left">
-        <h2>Customer Engagements & WhatsApp Automation</h2>
-        <p class="sub">Automated AC lifecycle messaging, service reminders, greetings & promotional broadcasts</p>
-      </div>
-      <div class="ph-right">
-        <button class="btn btn-sec" data-act="test-wa-modal">${ic('send')} Test WhatsApp Message</button>
-        <button class="btn btn-primary" data-act="eng-tab" data-tab="promo">${ic('speaker')} New Broadcast</button>
-      </div>
+        <div>
+            <h1>Service Calendar</h1>
+            <p>1st and 2nd AC complimentary service milestones (upcoming, past, and present all). Third-party OEM technician tracking.</p>
+        </div>
+        <button class="btn pri" data-act="nav" data-p="sales/new">${ic('plus')} Record New Sale</button>
     </div>
 
-    <div class="kpi-grid">
-      <div class="kpi-c">
-        <div class="kpi-t">Active Automations</div>
-        <div class="kpi-v" style="color:var(--pri)">${activeAutos} <span style="font-size:14px;color:var(--text-3);font-weight:400">/ ${autos.length}</span></div>
-        <div class="kpi-s">Triggering on sales & services</div>
-      </div>
-      <div class="kpi-c">
-        <div class="kpi-t">Total Messages Dispatched</div>
-        <div class="kpi-v" style="color:var(--suc)">${totalSent}</div>
-        <div class="kpi-s">Across WhatsApp channels</div>
-      </div>
-      <div class="kpi-c">
-        <div class="kpi-t">Service Reminders Sent</div>
-        <div class="kpi-v" style="color:var(--inf)">${logs.filter(l => l.type && l.type.includes('service')).length}</div>
-        <div class="kpi-s">1st & 2nd AC Service alerts</div>
-      </div>
-      <div class="kpi-c">
-        <div class="kpi-t">Customer Reach</div>
-        <div class="kpi-v" style="color:var(--warn)">${(S.customers || []).length}</div>
-        <div class="kpi-s">Registered customer WhatsApps</div>
-      </div>
+    <div class="calbar">
+        <div class="cal-t">
+            <h2 class="cal-title">${title}</h2>
+            <span class="mu">${cnt} service milestone${cnt === 1 ? '' : 's'}</span>
+        </div>
+        <div class="cal-ctl">
+            <div class="seg-b">
+                <button type="button" data-act="cal" data-v="prev" aria-label="Previous">‹</button>
+                <button type="button" data-act="cal" data-v="today">Today</button>
+                <button type="button" data-act="cal" data-v="next" aria-label="Next">›</button>
+            </div>
+            <div class="tabs" role="tablist">
+                ${['month', 'week', 'day', 'agenda'].map(v => `
+                    <button role="tab" type="button" aria-selected="${CV === v}" class="${CV === v ? 'on' : ''}" data-act="cal" data-v="${v}">${v[0].toUpperCase() + v.slice(1)}</button>
+                `).join('')}
+            </div>
+        </div>
     </div>
 
-    <div class="chips" style="margin-bottom:18px">
-      <div class="chip ${ENG_TAB === 'auto' ? 'active' : ''}" data-act="eng-tab" data-tab="auto">${ic('zap')} Automations (${autos.length})</div>
-      <div class="chip ${ENG_TAB === 'logs' ? 'active' : ''}" data-act="eng-tab" data-tab="logs">${ic('list')} Message Logs (${logs.length})</div>
-      <div class="chip ${ENG_TAB === 'templates' ? 'active' : ''}" data-act="eng-tab" data-tab="templates">${ic('file')} Message Templates (${tmpls.length})</div>
-      <div class="chip ${ENG_TAB === 'promo' ? 'active' : ''}" data-act="eng-tab" data-tab="promo">${ic('speaker')} Promotional Broadcast</div>
+    <div class="cw">
+        <div class="panel">
+            ${body}
+            <div class="lg">
+                <span><i style="background:var(--ok)"></i>Completed</span>
+                <span><i style="background:var(--ac)"></i>Upcoming</span>
+                <span><i style="background:var(--wa)"></i>Due Soon (&lt;30d)</span>
+                <span><i style="background:var(--er)"></i>Overdue</span>
+            </div>
+        </div>
+        <div class="cside">
+            <div class="panel">
+                <div class="hd">
+                    <h2>Today's Milestones</h2>
+                    <span class="mu">${L(t0, { day: 'numeric', month: 'short' })}</span>
+                </div>
+                <div class="pad">
+                    ${todayEvs.map(e => `
+                        <div class="li" style="padding-left:0;cursor:pointer" data-act="nav" data-p="sales/${e.saleId}">
+                            <div>
+                                <b>${esc(e.custName)}</b>
+                                <small>${esc(e.type)}</small>
+                            </div>
+                            ${srvBadge(e.status, e.date)}
+                        </div>
+                    `).join('') || '<span class="mu">No services scheduled today</span>'}
+                </div>
+            </div>
+            <div class="panel pad">
+                <h2>Third-Party Seller Note</h2>
+                <p class="mu" style="font-size:12px;line-height:1.5">Mobile Point AC Care arranges technician visits directly through company brands (Daikin, LG, Voltas, Hitachi, etc.). Milestones alert customers to claim their complimentary service before warranty deadlines.</p>
+            </div>
+        </div>
     </div>
-
-    ${ENG_TAB === 'auto' ? renderEngAutomations(autos, tmpls) : ''}
-    ${ENG_TAB === 'logs' ? renderEngLogs(logs) : ''}
-    ${ENG_TAB === 'templates' ? renderEngTemplates(tmpls) : ''}
-    ${ENG_TAB === 'promo' ? renderEngPromo(S) : ''}
-  `;
+</div>`;
 }
 
-function renderEngAutomations(autos, tmpls) {
-  const S = SS();
-  const sampleCust = (S.customers && S.customers[0]) || { name: 'Rajesh Verma', waPhone: '9876543210' };
-  const sampleProd = (S.products && S.products[0]) || { brand: 'Daikin', model: 'FTKF50TV' };
-  const sampleSale = (S.sales && S.sales[0]) || { serialNumber: 'DAIK-98214', purchaseDate: '2026-06-15', installationDate: '2026-06-16' };
+function notifs() {
+    const list = [];
+    S.sales.forEach(s => {
+        const c = cust(s.cid);
+        if (s.srv1Status !== 'Completed') {
+            const diff1 = Math.round((new Date(s.srv1Date + 'T00:00:00Z') - new Date(D(0) + 'T00:00:00Z')) / 864e5);
+            if (diff1 <= 30) {
+                list.push({
+                    id: 'N-S1-' + s.id,
+                    cat: 'Services',
+                    t: '1st AC Service Due for ' + c.name,
+                    sub: s.brand + ' ' + s.model + ' (S/N: ' + s.sn + ') due ' + fd(s.srv1Date),
+                    time: fd(s.srv1Date),
+                    go: ['sales/' + s.id]
+                });
+            }
+        }
+        if (s.srv2Status !== 'Completed') {
+            const diff2 = Math.round((new Date(s.srv2Date + 'T00:00:00Z') - new Date(D(0) + 'T00:00:00Z')) / 864e5);
+            if (diff2 <= 30) {
+                list.push({
+                    id: 'N-S2-' + s.id,
+                    cat: 'Services',
+                    t: '2nd AC Service Due for ' + c.name,
+                    sub: s.brand + ' ' + s.model + ' (S/N: ' + s.sn + ') due ' + fd(s.srv2Date),
+                    time: fd(s.srv2Date),
+                    go: ['sales/' + s.id]
+                });
+            }
+        }
+        if (!s.installDate || s.installDate >= D(0)) {
+            list.push({
+                id: 'N-INS-' + s.id,
+                cat: 'Sales',
+                t: 'Pending Installation for ' + c.name,
+                sub: s.brand + ' ' + s.model + ' · Scheduled: ' + (s.installDate ? fd(s.installDate) : 'Pending'),
+                time: fd(s.date),
+                go: ['sales/' + s.id]
+            });
+        }
+    });
+    return list;
+}
 
-  return `
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:20px;">
-      ${autos.map(a => {
-        const tmpl = tmpls.find(t => t.id === a.templateId) || {};
-        const rendered = renderMessageTemplate(tmpl.text || '', {
-          name: sampleCust.name,
-          phone: sampleCust.waPhone,
-          brand: sampleProd.brand,
-          model: sampleProd.model,
-          sn: sampleSale.serialNumber,
-          shop: S.settings.shopName || 'Mobile Point AC Care',
-          instDate: fd(sampleSale.installationDate),
-          servDate: fd(sampleSale.s1Due || '2026-10-15'),
-          servType: a.id === 'service_reminder_2' ? '2nd' : '1st',
-          daysLeft: '5'
+const nrd = () => (S.read = S.read || []);
+const isRd = id => nrd().includes(id);
+
+let NT = 'All';
+
+function npPos() {
+    const p = $('#np'), b = $('#bl');
+    if (!p || !b) return;
+    const r = b.getBoundingClientRect(), w = p.offsetWidth;
+    p.style.top = (r.bottom + 6) + 'px';
+    p.style.left = Math.max(8, Math.min(r.right - w, innerWidth - w - 8)) + 'px';
+}
+
+function npClose() {
+    const p = $('#np');
+    if (!p) return;
+    p.classList.add('out');
+    setTimeout(() => p.remove(), 140);
+}
+
+function npToggle() {
+    const o = $('#np');
+    if (o) {
+        if (!o.classList.contains('out')) npClose();
+        return;
+    }
+    const b = $('#bl');
+    if (!b) return;
+    const allN = notifs();
+    const unreadCount = allN.filter(n => !isRd(n.id)).length;
+    const p = document.createElement('div');
+    p.id = 'np';
+    p.className = 'np';
+    p.setAttribute('role', 'dialog');
+    p.setAttribute('aria-label', 'Notifications');
+    p.innerHTML = `<div class="np-h">
+        <b>Notifications</b>
+        <div style="display:flex;gap:6px">
+            <button class="btn sm" data-act="nall">Mark all read</button>
+            <button class="ib" data-act="close-np" aria-label="Close">×</button>
+        </div>
+    </div>
+    <div class="tabs" style="padding:6px 12px 0">
+        ${['All', 'Services', 'Sales'].map(t => `<button type="button" class="${NT === t ? 'on' : ''}" data-act="ntab" data-v="${t}">${t}</button>`).join('')}
+    </div>
+    <div class="np-l">
+        ${allN.filter(n => NT === 'All' || n.cat === NT).map(n => `
+            <div class="li${isRd(n.id) ? '' : ' unread'}" data-act="nread" data-id="${n.id}" data-p="${n.go[0]}" style="cursor:pointer;padding:10px 14px">
+                <div>
+                    <b>${esc(n.t)}</b>
+                    <small style="display:block;margin-top:2px">${esc(n.sub)}</small>
+                </div>
+                <small class="mu">${esc(n.time)}</small>
+            </div>
+        `).join('') || '<div class="empty">No notifications</div>'}
+    </div>
+    <div class="np-f">
+        <button class="btn sm" data-act="nav" data-p="notifications">View full notifications page</button>
+    </div>`;
+    document.body.append(p);
+    npPos();
+}
+
+function npRef() {
+    const b = $('#bl');
+    if (!b) return;
+    const unread = notifs().filter(n => !isRd(n.id)).length;
+    let badge = b.querySelector('.notif-dot');
+    if (unread > 0) {
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'notif-dot';
+            badge.style.cssText = 'position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ef4444';
+            b.style.position = 'relative';
+            b.append(badge);
+        }
+    } else if (badge) {
+        badge.remove();
+    }
+}
+
+function notifPage() {
+    const allN = notifs();
+    return `<div class="pg">
+    <div class="ph">
+        <div>
+            <h1>Notifications</h1>
+            <p>Service milestones, upcoming free services, and pending installation alerts.</p>
+        </div>
+        <button class="btn" data-act="nall">Mark All as Read</button>
+    </div>
+    <div class="panel">
+        <div class="tw">
+            <table class="tb">
+                <thead>
+                    <tr>
+                        <th>Notification</th>
+                        <th>Category</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th style="text-align:right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${allN.map(n => `
+                        <tr class="${isRd(n.id) ? '' : 'unread'}">
+                            <td>
+                                <b>${esc(n.t)}</b>
+                                <small class="mu" style="display:block">${esc(n.sub)}</small>
+                            </td>
+                            <td><span class="tag-pill">${esc(n.cat)}</span></td>
+                            <td>${esc(n.time)}</td>
+                            <td>${isRd(n.id) ? '<span class="mu">Read</span>' : '<span class="b ok">New</span>'}</td>
+                            <td style="text-align:right">
+                                <button class="btn sm" data-act="nav" data-p="${n.go[0]}">Open Sale</button>
+                            </td>
+                        </tr>
+                    `).join('') || '<tr><td colspan="5" class="empty">All clear, no notifications.</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>`;
+}
+
+function feed() {
+    return S.feed || [];
+}
+
+const adHTML = () => `
+<div class="ad-h">
+    <b>Recent Activity</b>
+    <button class="ib" data-act="adx" aria-label="Close activity" title="Close">×</button>
+</div>
+<div class="ad-l">
+    ${feed().map(f => `
+        <div class="li" style="cursor:pointer;padding:10px 14px" data-act="nav" data-p="${f.p || 'sales'}">
+            <div>
+                <b>${esc(f.t)}</b>
+                <small class="mu" style="display:block">${esc(f.time)}</small>
+            </div>
+            <span class="tag-pill">${esc(f.k || 'system')}</span>
+        </div>
+    `).join('') || '<div class="empty">No recent activity</div>'}
+</div>
+<div class="np-f">
+    <button class="btn sm" data-act="nav" data-p="activity">Open full activity page</button>
+</div>`;
+
+function adClose() {
+    const a = $('#ad');
+    if (a) {
+        a.classList.remove('open');
+        const b = $('#adb');
+        b && b.classList.remove('open');
+    }
+}
+
+function adToggle() {
+    let a = $('#ad');
+    if (!a) {
+        a = document.createElement('aside');
+        a.id = 'ad';
+        a.className = 'ad';
+        a.setAttribute('aria-label', 'Activity');
+        const b = document.createElement('div');
+        b.id = 'adb';
+        b.className = 'adb';
+        b.dataset.act = 'adx';
+        document.body.append(b, a);
+    }
+    if (a.classList.contains('open')) {
+        adClose();
+        return;
+    }
+    const n = $('#np');
+    if (n) n.remove();
+    a.innerHTML = adHTML();
+    void a.offsetWidth;
+    a.classList.add('open');
+    const b = $('#adb');
+    if (b) b.classList.add('open');
+}
+
+function actPage() {
+    return `<div class="pg">
+    <div class="ph">
+        <div>
+            <h1>Activity</h1>
+            <p>Chronological feed of recorded AC sales, customer additions, and WhatsApp automations.</p>
+        </div>
+    </div>
+    <div class="panel">
+        ${feed().map(f => `
+            <div class="li" style="padding:14px 18px;cursor:pointer" data-act="nav" data-p="${f.p || 'sales'}">
+                <div>
+                    <b>${esc(f.t)}</b>
+                    <small class="mu" style="display:block;margin-top:2px">${esc(f.time)}</small>
+                </div>
+                <span class="tag-pill">${esc(f.k || 'system')}</span>
+            </div>
+        `).join('') || '<div class="empty">No activity records yet</div>'}
+    </div>
+</div>`;
+}
+
+function reports() {
+    const brandCounts = {};
+    S.sales.forEach(s => {
+        brandCounts[s.brand] = (brandCounts[s.brand] || 0) + 1;
+    });
+
+    return `<div class="pg">
+    <div class="ph">
+        <div>
+            <h1>Reports &amp; Analytics</h1>
+            <p>AC sales volumes, brand distribution, and complimentary service tracking metrics.</p>
+        </div>
+    </div>
+
+    <div class="kp k4" style="margin-bottom:20px">
+        <div class="k"><span>Total ACs Sold</span><b>${S.sales.length}</b></div>
+        <div class="k"><span>Active Customers</span><b>${S.customers.length}</b></div>
+        <div class="k"><span>1st Services Done</span><b style="color:var(--ok)">${S.sales.filter(s => s.srv1Status === 'Completed').length}</b></div>
+        <div class="k"><span>2nd Services Done</span><b style="color:var(--ok)">${S.sales.filter(s => s.srv2Status === 'Completed').length}</b></div>
+    </div>
+
+    <div class="cw2" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px">
+        <div class="panel pad">
+            <h2>Brand Distribution</h2>
+            <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+                ${Object.entries(brandCounts).map(([b, cnt]) => {
+                    const pct = Math.round(cnt / S.sales.length * 100);
+                    return `<div>
+                        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                            <b>${esc(b)}</b>
+                            <span>${cnt} unit${cnt === 1 ? '' : 's'} (${pct}%)</span>
+                        </div>
+                        <div style="height:8px;border-radius:4px;background:var(--bd);overflow:hidden">
+                            <div style="width:${pct}%;height:100%;background:var(--ac)"></div>
+                        </div>
+                    </div>`;
+                }).join('') || '<div class="empty">No sales data</div>'}
+            </div>
+        </div>
+
+        <div class="panel pad">
+            <h2>Complimentary Service Health</h2>
+            <dl class="kv" style="grid-template-columns:160px 1fr;margin-top:14px">
+                <dt>1st Service Pending</dt>
+                <dd><b>${S.sales.filter(s => s.srv1Status !== 'Completed').length}</b> units</dd>
+                <dt>1st Service Completed</dt>
+                <dd><b style="color:var(--ok)">${S.sales.filter(s => s.srv1Status === 'Completed').length}</b> units</dd>
+                <dt>2nd Service Pending</dt>
+                <dd><b>${S.sales.filter(s => s.srv2Status !== 'Completed').length}</b> units</dd>
+                <dt>2nd Service Completed</dt>
+                <dd><b style="color:var(--ok)">${S.sales.filter(s => s.srv2Status === 'Completed').length}</b> units</dd>
+            </dl>
+        </div>
+    </div>
+</div>`;
+}
+
+function settings() {
+    return `<div class="pg">
+    <div class="ph">
+        <div>
+            <h1>Settings</h1>
+            <p>Third-Party AC Seller details, branch stores, and WhatsApp automation lead times.</p>
+        </div>
+    </div>
+
+    <form id="settings-form" novalidate onsubmit="return false">
+        <div class="fgrid">
+            <div class="panel pad">
+                <h2>Store Profile</h2>
+                <div class="fg">
+                    <label>Store Name *
+                        <input name="store" value="${esc(S.set.store)}" required>
+                    </label>
+                    <label>Branch Locations (comma separated)
+                        <input name="branches" value="${esc(S.set.branches || '')}">
+                    </label>
+                    <label>Store Complete Address
+                        <textarea name="addr" rows="2">${esc(S.set.addr)}</textarea>
+                    </label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <label>Phone / Helpline
+                            <input name="phone" value="${esc(S.set.phone)}">
+                        </label>
+                        <label>Email
+                            <input name="email" value="${esc(S.set.email)}">
+                        </label>
+                    </div>
+                    <label>GSTIN
+                        <input name="gstin" value="${esc(S.set.gstin)}">
+                    </label>
+                </div>
+            </div>
+
+            <div class="panel pad">
+                <h2>Service Reminder Defaults</h2>
+                <div class="fg">
+                    <label>1st Service Target (Days post-purchase)
+                        <input name="srv1Days" type="number" value="${S.set.srv1Days || 120}">
+                    </label>
+                    <label>2nd Service Target (Days post-purchase)
+                        <input name="srv2Days" type="number" value="${S.set.srv2Days || 330}">
+                    </label>
+                    <label>Reminder Lead Time (Days before due date)
+                        <input name="leadDays" type="number" value="${S.set.leadDays || 14}">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="sticky" style="margin-top:20px">
+            <button type="button" class="btn pri" data-act="settings-save">Save Settings</button>
+        </div>
+    </form>
+</div>`;
+}
+
+function userPermissionsPage(id) {
+    const u = S.users.find(x => x.id === id);
+    if (!u) return nf('users', 'User');
+    const p = u.permissions || {};
+
+    return `<div class="pg">
+    <nav class="bc mu">
+        <button class="lnk" data-act="nav" data-p="users">User Permissions</button> / ${esc(u.name)}
+    </nav>
+    <div class="ph">
+        <div>
+            <h1>${esc(u.name)}</h1>
+            <p>${esc(u.email)} · Role: ${esc(u.preset || 'custom')} · System Access</p>
+        </div>
+    </div>
+
+    <form id="user-perm-form" novalidate onsubmit="return false">
+        <input type="hidden" name="user_id" value="${esc(u.id)}">
+        <div class="panel pad" style="margin-bottom:20px">
+            <h2>Quick Preset Assignment</h2>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+                ${Object.entries(PRESETS).map(([k, def]) => `
+                    <button type="button" class="btn sm" data-act="apply-preset" data-preset="${k}">${esc(def.label)}</button>
+                `).join('')}
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="tw">
+                <table class="tb">
+                    <thead>
+                        <tr>
+                            <th>Module</th>
+                            <th>Enabled</th>
+                            <th>View</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${MODULE_DEFS.map(m => {
+                            const mp = p[m.id] || { enabled: false, view: false, edit: false, delete: false };
+                            return `<tr>
+                                <td>
+                                    <b>${esc(m.title)}</b>
+                                    <small class="mu" style="display:block">${esc(m.desc)}</small>
+                                </td>
+                                <td><input type="checkbox" name="mod_${m.id}_enabled" ${mp.enabled ? 'checked' : ''}></td>
+                                <td><input type="checkbox" name="mod_${m.id}_view" ${mp.view ? 'checked' : ''}></td>
+                                <td>${m.hasEdit ? `<input type="checkbox" name="mod_${m.id}_edit" ${mp.edit ? 'checked' : ''}>` : '—'}</td>
+                                <td>${m.hasDelete ? `<input type="checkbox" name="mod_${m.id}_delete" ${mp.delete ? 'checked' : ''}>` : '—'}</td>
+                            </tr>`;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="sticky" style="margin-top:20px">
+            <button type="button" class="btn" data-act="nav" data-p="users">Back</button>
+            <button type="button" class="btn pri" data-act="user-perm-save">Save Permissions</button>
+        </div>
+    </form>
+</div>`;
+}
+
+function newM() {
+    modal(`<h1>+ New Action</h1>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0">
+        <button class="btn" style="padding:14px;justify-content:center" data-act="nav-close" data-p="sales/new">${ic('cart')} Record AC Sale</button>
+        <button class="btn" style="padding:14px;justify-content:center" data-act="nav-close" data-p="customers/new">${ic('users')} Add Customer</button>
+        <button class="btn" style="padding:14px;justify-content:center" data-act="nav-close" data-p="products/new">${ic('wind')} Add AC Model</button>
+        <button class="btn" style="padding:14px;justify-content:center" data-act="nav-close" data-p="calendar">${ic('cal')} Service Calendar</button>
+    </div>
+    <div class="acts">
+        <button class="btn" data-act="close">Close</button>
+    </div>`);
+}
+
+function nf(back, type) {
+    return `<div class="pg">
+        <nav class="bc mu"><button class="lnk" data-act="nav" data-p="${back}">${back}</button> / Not found</nav>
+        <div class="ph"><div><h1>${type || 'Page'} not found</h1><p>The requested record does not exist or was deleted.</p></div></div>
+        <div class="panel pad"><button class="btn pri" data-act="nav" data-p="${back}">Back to ${back}</button></div>
+    </div>`;
+}
+
+
+function listPage(k) {
+    const def = P[k];
+    if (!def) return nf('overview', 'Page');
+    let rows = def.rows();
+
+    if (V.f && V.f !== 'All' && def.chip) {
+        rows = rows.filter(r => def.chip(r, V.f));
+    }
+    if (V.q.trim()) {
+        const q = V.q.toLowerCase().trim();
+        rows = rows.filter(r => JSON.stringify(r).toLowerCase().includes(q));
+    }
+
+    const total = rows.length;
+    const pageRows = rows.slice(V.p * 25, (V.p + 1) * 25);
+
+    return `<div class="pg">
+    <div class="ph">
+        <div>
+            <h1>${esc(def.t)}</h1>
+            <p>${esc(def.s)}</p>
+        </div>
+        ${def.add ? `<button class="btn pri" data-act="${def.add[1]}">${ic('plus')}${esc(def.add[0])}</button>` : ''}
+    </div>
+
+    <div class="bar">
+        <div class="sb">${ic('search')}<input id="lq" placeholder="Search ${esc(def.t).toLowerCase()}..." value="${esc(V.q)}" aria-label="Search"></div>
+        ${def.chips ? `<div class="chips">
+            ${def.chips.map(c => `<button class="chip${V.f === c ? ' on' : ''}" data-act="chip" data-v="${c}">${c}</button>`).join('')}
+        </div>` : ''}
+    </div>
+
+    <div class="panel">
+        <div class="tw">
+            <table class="tb">
+                <thead>
+                    <tr>
+                        ${def.cols.map(c => `<th>${c[0]}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody id="tb">
+                    ${pageRows.map(r => `
+                        <tr style="cursor:pointer" data-act="open-row" data-k="${k}" data-id="${r.id}">
+                            ${def.cols.map(c => `<td>${c[1](r)}</td>`).join('')}
+                        </tr>
+                    `).join('') || `<tr><td colspan="${def.cols.length}" class="empty">No records found matching filter</td></tr>`}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>`;
+}
+
+function autoEditM(id) {
+    const a = S.automations.find(x => x.id === id);
+    if (!a) return;
+    modal(`<h1>WhatsApp Automation: ${esc(a.name)}</h1>
+    <div class="fg" style="margin-top:12px">
+        <label>Trigger Condition
+            <input value="${esc(a.trig)}" readonly style="background:var(--bg)">
+        </label>
+        <label>Channel
+            <input value="WhatsApp Cloud API (Official Integration)" readonly style="background:var(--bg)">
+        </label>
+        <label>Message Template Body (Supports {{name}}, {{brand}}, {{model}}, {{date}}, {{store}}, {{phone}})
+            <textarea id="auto-body" rows="4">${esc(a.body)}</textarea>
+        </label>
+        <div class="panel pad" style="background:#dcfce7;border:1px solid #86efac;color:#166534">
+            <b>WhatsApp Message Bubble Preview:</b>
+            <div style="margin-top:6px;font-size:13px;line-height:1.4" id="auto-preview-bubble">${esc(a.body.replace(/\{\{name\}\}/g, 'Amit Sharma').replace(/\{\{store\}\}/g, S.set.store).replace(/\{\{phone\}\}/g, S.set.phone).replace(/\{\{brand\}\}/g, 'Daikin').replace(/\{\{model\}\}/g, 'FTKF35TV16U').replace(/\{\{sn\}\}/g, 'DK-71001').replace(/\{\{date\}\}/g, fd(D(14))).replace(/\{\{installDate\}\}/g, fd(D(1))))}</div>
+        </div>
+    </div>
+    <div class="acts" style="margin-top:16px">
+        <button class="btn" data-act="close">Cancel</button>
+        <button class="btn" data-act="auto-test" data-id="${a.id}">${ic('send')} Send Test Message</button>
+        <button class="btn pri" data-act="auto-save" data-id="${a.id}">Save Template</button>
+    </div>`);
+}
+
+function waRemindM(saleId, type) {
+    const s = sale(saleId);
+    if (!s) return;
+    const c = cust(s.cid);
+    const dateStr = fd(type === '1' ? s.srv1Date : s.srv2Date);
+    const tplName = type === '1' ? '1st AC Service Reminder (3 to 5 Months)' : '2nd AC Service Reminder (Before 11 Months)';
+    const autoDef = S.automations.find(a => a.id === (type === '1' ? 'W3' : 'W4'));
+    let text = (autoDef ? autoDef.body : 'Hi {{name}}, your AC service is due on {{date}}.')
+        .replace(/\{\{name\}\}/g, s.custName)
+        .replace(/\{\{store\}\}/g, S.set.store)
+        .replace(/\{\{phone\}\}/g, S.set.phone)
+        .replace(/\{\{brand\}\}/g, s.brand)
+        .replace(/\{\{model\}\}/g, s.model)
+        .replace(/\{\{sn\}\}/g, s.sn)
+        .replace(/\{\{date\}\}/g, dateStr);
+
+    modal(`<h1>Trigger WhatsApp ${type === '1' ? '1st' : '2nd'} Service Reminder</h1>
+    <p class="mu">Customer: <b>${esc(s.custName)}</b> · WhatsApp: <b>${esc(s.custPhone)}</b></p>
+    <div class="panel pad" style="background:#dcfce7;border:1px solid #86efac;color:#166534;margin:14px 0">
+        <div style="display:flex;align-items:center;gap:6px;font-weight:600;margin-bottom:6px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Message Preview (Template: ${esc(tplName)})
+        </div>
+        <div style="font-size:13px;line-height:1.5">${esc(text)}</div>
+    </div>
+    <div class="acts">
+        <button class="btn" data-act="close">Cancel</button>
+        <button class="btn pri" data-act="wa-send-now" data-id="${s.id}" data-type="${type}">Send WhatsApp Reminder Now</button>
+    </div>`);
+}
+
+function render(keep) {
+    const main = $('#main');
+    if (!main) return;
+    const p = V.page || 'overview';
+    const p0 = p.split('/')[0];
+
+    const nv = $('#nv');
+    if (nv) {
+        nv.innerHTML = NAV.map(([k, label, icon]) => `
+            <button class="nvi${(p0 === k) ? ' on' : ''}" data-act="nav" data-p="${k}">
+                ${ic(icon)}
+                <span>${esc(label)}</span>
+            </button>
+        `).join('');
+    }
+
+    const ub = $('#user-badge');
+    if (ub && currentUser) {
+        ub.innerHTML = `<div class="av">${esc(ini(currentUser.name))}</div>
+        <div class="lb us-info">
+            <b>${esc(currentUser.name)}</b>
+            <small>${esc(currentUser.email)}</small>
+        </div>
+        <button class="ib lb" data-act="logout" aria-label="Log out" title="Log out">${ic('logout')}</button>`;
+    }
+
+    const sub = subPage(p);
+    if (sub) {
+        main.innerHTML = sub;
+    } else if (p === 'sales') {
+        main.innerHTML = salesPage();
+    } else if (p === 'overview') {
+        main.innerHTML = overview();
+    } else if (p === 'calendar') {
+        main.innerHTML = calendar();
+    } else if (p === 'reports') {
+        main.innerHTML = reports();
+    } else if (p === 'settings') {
+        main.innerHTML = settings();
+    } else if (P[p]) {
+        main.innerHTML = listPage(p);
+    } else {
+        main.innerHTML = overview();
+    }
+
+    npRef();
+    if (!keep) window.scrollTo(0, 0);
+}
+
+function go(p, f, q) {
+    if (DIRTY && !confirm('You have unsaved changes. Leave this page?')) return;
+    DIRTY = false;
+    V.k = ['overview', 'calendar', 'reports', 'settings', 'sales', 'notifications', 'activity'].includes(p.split('/')[0]) ? '' : p.split('/')[0];
+    V.f = f || 'All';
+    V.q = q || '';
+    V.p = 0;
+    V.page = p;
+    location.hash = p;
+    render();
+}
+
+function act(a, e) {
+    const d = a.dataset;
+    switch (d.act) {
+        case 'ovl':
+        case 'close':
+            return closeM();
+        case 'close-np':
+            return npClose();
+        case 'menu':
+            return innerWidth <= 820 ? $('#app').classList.toggle('dr') : $('#app').classList.toggle('col');
+        case 'drawer':
+            return $('#app').classList.remove('dr');
+        case 'nav':
+            $('#app').classList.remove('dr');
+            return go(d.p);
+        case 'nav-close':
+            closeM();
+            $('#app').classList.remove('dr');
+            return go(d.p);
+        case 'theme': {
+            const r = document.documentElement;
+            const next = r.dataset.theme === 'dark' ? 'light' : 'dark';
+            r.dataset.theme = next;
+            SS().theme = next;
+            save();
+            return;
+        }
+        case 'bell':
+            return npToggle();
+        case 'actd':
+            return adToggle();
+        case 'adx':
+            return adClose();
+        case 'new':
+            return newM();
+        case 'chip':
+            V.f = d.v;
+            V.p = 0;
+            return render(true);
+        case 'sales-chip':
+            SF = d.v;
+            return render(true);
+        case 'cal':
+            if (d.v === 'prev') CD = cdd(CD, CV === 'month' ? -30 : CV === 'week' ? -7 : -1);
+            else if (d.v === 'next') CD = cdd(CD, CV === 'month' ? 30 : CV === 'week' ? 7 : 1);
+            else if (d.v === 'today') CD = D(0);
+            else CV = d.v;
+            return render(true);
+        case 'open-row':
+            if (P[d.k] && P[d.k].open) return P[d.k].open(d.id);
+            return;
+        case 'sale-cmode': {
+            SALE_CUST_MODE = d.v;
+            const box = $('#sale-cust-existing-box');
+            if (box) box.style.display = d.v === 'existing' ? 'block' : 'none';
+            $$e($('#sale-form'), '[data-act="sale-cmode"]').forEach(b => b.classList.toggle('on', b.dataset.v === d.v));
+            return;
+        }
+        case 'sale-pmode': {
+            SALE_PROD_MODE = d.v;
+            const box = $('#sale-prod-existing-box');
+            if (box) box.style.display = d.v === 'existing' ? 'block' : 'none';
+            $$e($('#sale-form'), '[data-act="sale-pmode"]').forEach(b => b.classList.toggle('on', b.dataset.v === d.v));
+            return;
+        }
+        case 'img-del': {
+            e.stopPropagation();
+            const idx = +d.idx;
+            if (!isNaN(idx)) {
+                SALE_IMAGES.splice(idx, 1);
+                const g = $('#sale-img-preview-grid');
+                if (g) g.innerHTML = renderImageThumbnails();
+            }
+            return;
+        }
+        case 'img-lightbox': {
+            const idx = +d.idx;
+            const src = SALE_IMAGES[idx];
+            if (src) modal(`<div style="text-align:center"><img src="${src}" style="max-width:100%;max-height:80vh;border-radius:8px"><div class="acts" style="margin-top:12px"><button class="btn" data-act="close">Close</button></div></div>`);
+            return;
+        }
+        case 'img-lightbox-view': {
+            const src = decodeURIComponent(d.src);
+            if (src) modal(`<div style="text-align:center"><img src="${src}" style="max-width:100%;max-height:80vh;border-radius:8px"><div class="acts" style="margin-top:12px"><button class="btn" data-act="close">Close</button></div></div>`);
+            return;
+        }
+        case 'auto-toggle': {
+            const auto = S.automations.find(x => x.id === d.id);
+            if (auto) {
+                auto.on = !auto.on;
+                save();
+                toast(auto.name + (auto.on ? ' activated' : ' paused'));
+                render(true);
+            }
+            return;
+        }
+        case 'auto-test': {
+            const auto = S.automations.find(x => x.id === d.id);
+            if (auto) {
+                auto.sentCount = (auto.sentCount || 0) + 1;
+                S.feed.unshift({ id: 'EV' + Date.now(), t: 'Simulated WhatsApp message sent: ' + auto.name, time: 'Just now', k: 'messages', p: 'automations' });
+                save();
+                closeM();
+                toast('Test message delivered to +91 98250 12345 (Simulated)', 'ok');
+                render(true);
+            }
+            return;
+        }
+        case 'auto-save': {
+            const auto = S.automations.find(x => x.id === d.id);
+            const tb = $('#auto-body');
+            if (auto && tb) {
+                auto.body = tb.value.trim();
+                save();
+                closeM();
+                toast('Automation template saved');
+                render(true);
+            }
+            return;
+        }
+        case 'wa-remind':
+            return waRemindM(d.id, d.type);
+        case 'wa-send-now': {
+            const s = sale(d.id);
+            if (s) {
+                if (d.type === '1') s.srv1Status = 'Sent';
+                else s.srv2Status = 'Sent';
+                S.feed.unshift({ id: 'EV' + Date.now(), t: (d.type === '1' ? '1st' : '2nd') + ' Service reminder sent to ' + s.custName, time: 'Just now', k: 'calendar', p: 'sales/' + s.id });
+                S.msgs.unshift({ id: 'M' + Date.now(), cid: s.cid, saleId: s.id, ch: 'WhatsApp', tpl: d.type === '1' ? '1st AC Service Reminder' : '2nd AC Service Reminder', time: D(0), status: 'Delivered', text: 'Service reminder sent to ' + s.custName });
+                save();
+                closeM();
+                toast('WhatsApp reminder sent successfully to ' + s.custPhone, 'ok');
+                render(true);
+            }
+            return;
+        }
+        case 'mark-srv': {
+            const s = sale(d.id);
+            if (s) {
+                if (d.type === '1') {
+                    s.srv1Status = s.srv1Status === 'Completed' ? 'Upcoming' : 'Completed';
+                    s.srv1DoneDate = s.srv1Status === 'Completed' ? D(0) : '';
+                } else {
+                    s.srv2Status = s.srv2Status === 'Completed' ? 'Upcoming' : 'Completed';
+                    s.srv2DoneDate = s.srv2Status === 'Completed' ? D(0) : '';
+                }
+                save();
+                toast('Service milestone updated');
+                render(true);
+            }
+            return;
+        }
+        case 'sale-save':
+            return handleSaleSave();
+        case 'cust-save':
+            return handleCustSave();
+        case 'prod-save':
+            return handleProdSave();
+        case 'settings-save':
+            return handleSettingsSave();
+        case 'user-perm-save':
+            return handleUserPermSave();
+        case 'apply-preset': {
+            const pDef = PRESETS[d.preset];
+            if (!pDef) return;
+            MODULE_DEFS.forEach(m => {
+                const mp = pDef.perms[m.id] || { enabled: false };
+                const en = document.querySelector(`[name="mod_${m.id}_enabled"]`);
+                if (en) en.checked = !!mp.enabled;
+                const vw = document.querySelector(`[name="mod_${m.id}_view"]`);
+                if (vw) vw.checked = !!mp.view;
+                const ed = document.querySelector(`[name="mod_${m.id}_edit"]`);
+                if (ed) ed.checked = !!mp.edit;
+                const del = document.querySelector(`[name="mod_${m.id}_delete"]`);
+                if (del) del.checked = !!mp.delete;
+            });
+            toast('Applied preset: ' + pDef.label);
+            return;
+        }
+        case 'cust-new':
+            return go('customers/new');
+        case 'prod-new':
+            return go('products/new');
+        case 'user-new':
+            return userNewM();
+        case 'logout': {
+            currentUser = null;
+            localStorage.removeItem(AUTH_KEY);
+            localStorage.setItem('mp_logged_out', '1');
+            toast('Logged out');
+            render();
+            return;
+        }
+        case 'nall':
+            notifs().forEach(n => { if (!isRd(n.id)) nrd().push(n.id); });
+            save();
+            npRef();
+            toast('All notifications marked as read');
+            render(true);
+            return;
+        case 'ntab':
+            NT = d.v;
+            npRef();
+            {
+                const p = $('#np');
+                if (p) {
+                    p.remove();
+                    npToggle();
+                }
+            }
+            return;
+        case 'nread':
+            if (!isRd(d.id)) {
+                nrd().push(d.id);
+                save();
+            }
+            npClose();
+            if (d.p) go(d.p);
+            return;
+    }
+}
+
+function handleSaleSave() {
+    const f = $('#sale-form');
+    if (!f) return;
+    const fd = new FormData(f);
+    const saleId = fd.get('sale_id');
+
+    let cid = fd.get('existing_cid');
+    const custName = (fd.get('cust_name') || '').trim();
+    const custPhone = (fd.get('cust_phone') || '').trim();
+    const custAltPhone = (fd.get('cust_alt_phone') || '').trim();
+    const custAddress = (fd.get('cust_address') || '').trim();
+    const custLocality = (fd.get('cust_locality') || '').trim();
+    const custLandmark = (fd.get('cust_landmark') || '').trim();
+    const custPincode = (fd.get('cust_pincode') || '').trim();
+
+    if (!custName) return toast('Please enter customer name', 'er');
+    if (!custPhone) return toast('Please enter WhatsApp number', 'er');
+    if (!custAddress) return toast('Please enter complete address', 'er');
+    if (!custLocality) return toast('Please enter locality', 'er');
+
+    let customer = S.customers.find(c => c.id === cid);
+    if (SALE_CUST_MODE === 'new' || !customer) {
+        cid = 'C' + (Math.max(100, ...S.customers.map(c => +c.id.replace(/\D/g, '') || 0)) + 1);
+        customer = {
+            id: cid,
+            name: custName,
+            phone: custPhone,
+            altPhone: custAltPhone,
+            address: custAddress,
+            locality: custLocality,
+            landmark: custLandmark,
+            pincode: custPincode,
+            active: true
+        };
+        S.customers.unshift(customer);
+        S.feed.unshift({ id: 'EV' + Date.now(), t: 'New customer registered: ' + custName, time: 'Just now', k: 'customers', p: 'customers/' + cid });
+        S.msgs.unshift({ id: 'M' + Date.now(), cid: cid, ch: 'WhatsApp', tpl: 'New Customer Welcome Message', time: D(0), status: 'Delivered', text: 'Welcome ' + custName + ' to ' + S.set.store });
+    } else {
+        customer.name = custName;
+        customer.phone = custPhone;
+        customer.altPhone = custAltPhone;
+        customer.address = custAddress;
+        customer.locality = custLocality;
+        customer.landmark = custLandmark;
+        customer.pincode = custPincode;
+    }
+
+    const brand = (fd.get('prod_brand') || '').trim();
+    const model = (fd.get('prod_model') || '').trim();
+    const sn = (fd.get('prod_sn') || '').trim();
+    const capacity = (fd.get('prod_cap') || '1.5 Ton').trim();
+    const star = (fd.get('prod_star') || '5 Star').trim();
+
+    if (!brand) return toast('Please enter AC brand name', 'er');
+    if (!model) return toast('Please enter AC model number', 'er');
+    if (!sn) return toast('Please enter AC serial number', 'er');
+
+    let prodObj = S.products.find(p => p.brand.toLowerCase() === brand.toLowerCase() && p.model.toLowerCase() === model.toLowerCase());
+    if (!prodObj) {
+        const newPid = 'P' + (Math.max(1000, ...S.products.map(p => +p.id.replace(/\D/g, '') || 0)) + 1);
+        prodObj = {
+            id: newPid,
+            brand: brand,
+            model: model,
+            name: brand + ' ' + model + ' ' + capacity,
+            capacity: capacity,
+            star: star,
+            invType: 'Inverter',
+            condenser: '100% Copper',
+            gas: 'R32',
+            warranty: '1 Year Comp + 10 Years Compressor',
+            units: [{ sn: sn, st: 'Sold' }]
+        };
+        S.products.unshift(prodObj);
+        S.feed.unshift({ id: 'EV' + Date.now(), t: 'New AC model added to catalog: ' + brand + ' ' + model, time: 'Just now', k: 'products', p: 'products/' + newPid });
+    } else {
+        prodObj.units = prodObj.units || [];
+        const existingUnit = prodObj.units.find(u => u.sn === sn);
+        if (existingUnit) existingUnit.st = 'Sold';
+        else prodObj.units.push({ sn: sn, st: 'Sold' });
+    }
+
+    const saleDate = fd.get('sale_date') || D(0);
+    const installDate = fd.get('install_date') || '';
+    const shopName = (fd.get('shop_name') || S.set.store).trim();
+    const notes = (fd.get('sale_notes') || '').trim();
+
+    const srv1Date = cdd(saleDate, S.set.srv1Days || 120);
+    const srv2Date = cdd(saleDate, S.set.srv2Days || 330);
+
+    let targetSale = saleId ? S.sales.find(s => s.id === saleId) : null;
+    if (targetSale) {
+        targetSale.cid = cid;
+        targetSale.custName = custName;
+        targetSale.custPhone = custPhone;
+        targetSale.custAltPhone = custAltPhone;
+        targetSale.custAddress = custAddress;
+        targetSale.custLocality = custLocality;
+        targetSale.custLandmark = custLandmark;
+        targetSale.custPincode = custPincode;
+        targetSale.pid = prodObj.id;
+        targetSale.brand = brand;
+        targetSale.model = model;
+        targetSale.sn = sn;
+        targetSale.date = saleDate;
+        targetSale.installDate = installDate;
+        targetSale.shopName = shopName;
+        targetSale.notes = notes;
+        targetSale.images = [...SALE_IMAGES];
+        targetSale.srv1Date = srv1Date;
+        targetSale.srv2Date = srv2Date;
+        toast('Sale record updated successfully');
+    } else {
+        const newSaleId = 'SALE-2026-' + String(S.sales.length + 1).padStart(3, '0');
+        const newInvId = 'INV-' + (Math.max(5000, ...S.invoices.map(i => +i.id.replace(/\D/g, '') || 0)) + 1);
+
+        targetSale = {
+            id: newSaleId,
+            invId: newInvId,
+            cid: cid,
+            custName: custName,
+            custPhone: custPhone,
+            custAltPhone: custAltPhone,
+            custAddress: custAddress,
+            custLocality: custLocality,
+            custLandmark: custLandmark,
+            custPincode: custPincode,
+            pid: prodObj.id,
+            brand: brand,
+            model: model,
+            sn: sn,
+            date: saleDate,
+            shopName: shopName,
+            installDate: installDate,
+            srv1Date: srv1Date,
+            srv1Status: 'Upcoming',
+            srv1DoneDate: '',
+            srv2Date: srv2Date,
+            srv2Status: 'Upcoming',
+            srv2DoneDate: '',
+            images: [...SALE_IMAGES],
+            notes: notes
+        };
+        S.sales.unshift(targetSale);
+
+        S.invoices.unshift({
+            id: newInvId,
+            saleId: newSaleId,
+            cid: cid,
+            date: saleDate,
+            shopName: shopName,
+            brand: brand,
+            model: model,
+            sn: sn,
+            pay: 'UPI',
+            srv1Date: srv1Date,
+            srv2Date: srv2Date
         });
 
-        return `
-          <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;border-top:4px solid ${a.active ? 'var(--pri)' : 'var(--border)'}">
-            <div>
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-                <div>
-                  <div style="font-weight:700;font-size:16px;color:var(--text-1);display:flex;align-items:center;gap:8px">
-                    ${ic(a.id.includes('service') ? 'tool' : a.id.includes('welcome') ? 'user' : a.id.includes('promo') ? 'speaker' : 'check')}
-                    ${esc(a.name)}
-                  </div>
-                  <div style="font-size:12px;color:var(--text-3);margin-top:2px">${esc(a.triggerDesc || a.trigger)}</div>
-                </div>
-                <label style="display:flex;align-items:center;cursor:pointer;gap:6px">
-                  <input type="checkbox" ${a.active ? 'checked' : ''} data-act="toggle-auto" data-id="${a.id}" style="accent-color:var(--pri);width:16px;height:16px">
-                  <span style="font-size:12px;font-weight:600;color:${a.active ? 'var(--suc)' : 'var(--text-3)'}">${a.active ? 'Active' : 'Paused'}</span>
-                </label>
-              </div>
+        S.feed.unshift({
+            id: 'EV' + Date.now(),
+            t: 'Sale recorded: ' + brand + ' ' + model + ' for ' + custName,
+            time: 'Just now',
+            k: 'sales',
+            p: 'sales/' + newSaleId
+        });
 
-              <p style="font-size:13px;color:var(--text-2);margin-bottom:14px;line-height:1.4">${esc(a.desc || '')}</p>
+        S.msgs.unshift({
+            id: 'M' + Date.now(),
+            cid: cid,
+            saleId: newSaleId,
+            ch: 'WhatsApp',
+            tpl: 'AC Purchase Greeting & Warranty Confirmation',
+            time: D(0),
+            status: 'Delivered',
+            text: 'Dear ' + custName + ', congratulations on purchasing your ' + brand + ' AC from ' + shopName + '!'
+        });
 
-              <div style="margin-bottom:12px">
-                <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:6px">Sample Preview</div>
-                <div class="wa-bubble">
-                  ${esc(rendered)}
-                  <div class="wa-bubble-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} ✓✓</div>
-                </div>
-              </div>
-            </div>
+        toast('AC Sale recorded and complimentary services scheduled!', 'ok');
+    }
 
-            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--border-light)">
-              <div style="font-size:12px;color:var(--text-3)">Sent: <strong>${a.sentCount || 0}</strong> messages</div>
-              <div style="display:flex;gap:6px">
-                <button class="btn btn-sm btn-sec" data-act="test-auto" data-id="${a.id}">${ic('send')} Test</button>
-                <button class="btn btn-sm btn-sec" data-act="edit-tmpl" data-id="${a.templateId}">${ic('edit')} Edit Template</button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('')}
-    </div>
-  `;
+    save();
+    DIRTY = false;
+    go('sales/' + targetSale.id);
 }
 
-function renderEngLogs(logs) {
-  let filtered = logs.slice();
-  if (ENG_FILTER && ENG_FILTER !== 'all') {
-    filtered = filtered.filter(l => l.type === ENG_FILTER);
-  }
-  if (ENG_SEARCH) {
-    const q = ENG_SEARCH.toLowerCase();
-    filtered = filtered.filter(l => 
-      (l.customerName && l.customerName.toLowerCase().includes(q)) ||
-      (l.phone && l.phone.includes(q)) ||
-      (l.message && l.message.toLowerCase().includes(q))
-    );
-  }
+function handleCustSave() {
+    const f = $('#cust-form');
+    if (!f) return;
+    const fd = new FormData(f);
+    const custId = fd.get('cust_id');
+    const name = (fd.get('name') || '').trim();
+    const phone = (fd.get('phone') || '').trim();
+    const altPhone = (fd.get('altPhone') || '').trim();
+    const address = (fd.get('address') || '').trim();
+    const locality = (fd.get('locality') || '').trim();
+    const landmark = (fd.get('landmark') || '').trim();
+    const pincode = (fd.get('pincode') || '').trim();
+    const active = fd.get('active') !== null;
 
-  return `
-    <div class="card" style="padding:0">
-      <div style="padding:16px 20px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--border-light);flex-wrap:wrap">
-        <div class="search-box" style="max-width:320px;flex:1">
-          ${ic('search')}
-          <input type="text" placeholder="Search customer, phone or message..." value="${esc(ENG_SEARCH)}" data-act="eng-log-search">
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <label style="font-size:13px;color:var(--text-2);font-weight:600">Type:</label>
-          <select class="form-ctrl" style="width:180px" data-act="eng-log-filter">
-            <option value="all" ${ENG_FILTER === 'all' ? 'selected' : ''}>All Types</option>
-            <option value="welcome" ${ENG_FILTER === 'welcome' ? 'selected' : ''}>Welcome Messages</option>
-            <option value="purchase_greeting" ${ENG_FILTER === 'purchase_greeting' ? 'selected' : ''}>Purchase Greetings</option>
-            <option value="service_reminder_1" ${ENG_FILTER === 'service_reminder_1' ? 'selected' : ''}>1st Service Reminders</option>
-            <option value="service_reminder_2" ${ENG_FILTER === 'service_reminder_2' ? 'selected' : ''}>2nd Service Reminders</option>
-            <option value="promo" ${ENG_FILTER === 'promo' ? 'selected' : ''}>Promotions</option>
-          </select>
-        </div>
-      </div>
+    if (!name) return toast('Please enter customer name', 'er');
+    if (!phone) return toast('Please enter WhatsApp number', 'er');
+    if (!address) return toast('Please enter complete address', 'er');
+    if (!locality) return toast('Please enter locality', 'er');
 
-      <div class="table-wrap">
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Customer</th>
-              <th>WhatsApp Number</th>
-              <th>Campaign / Type</th>
-              <th>Message Excerpt</th>
-              <th>Status</th>
-              <th style="text-align:right">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filtered.length === 0 ? `
-              <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-3)">No message logs found</td></tr>
-            ` : filtered.map(l => `
-              <tr>
-                <td style="white-space:nowrap;font-size:12px;color:var(--text-3)">${fds(l.timestamp)}</td>
-                <td><strong>${esc(l.customerName || 'Customer')}</strong></td>
-                <td><span style="font-family:monospace;font-size:13px">${esc(l.phone || '—')}</span></td>
-                <td><span class="badge ${l.type && l.type.includes('service') ? 'badge-warn' : l.type === 'promo' ? 'badge-inf' : 'badge-pri'}">${esc(l.type || 'WhatsApp')}</span></td>
-                <td style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--text-2)">${esc(l.message || '')}</td>
-                <td><span class="badge ${l.status === 'delivered' ? 'badge-suc' : l.status === 'sent' ? 'badge-inf' : 'badge-warn'}">${esc(l.status || 'sent')}</span></td>
-                <td style="text-align:right;white-space:nowrap">
-                  <button class="btn btn-sm btn-sec" data-act="view-log" data-id="${l.id}">${ic('eye')}</button>
-                  <a class="btn btn-sm btn-pri" href="https://wa.me/91${esc(l.phone || '').replace(/\D/g,'')}?text=${encodeURIComponent(l.message || '')}" target="_blank">${ic('send')} Open WA</a>
-                </td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
+    if (custId) {
+        const c = S.customers.find(x => x.id === custId);
+        if (c) {
+            c.name = name;
+            c.phone = phone;
+            c.altPhone = altPhone;
+            c.address = address;
+            c.locality = locality;
+            c.landmark = landmark;
+            c.pincode = pincode;
+            c.active = active;
+        }
+        toast('Customer record updated');
+    } else {
+        const newId = 'C' + (Math.max(100, ...S.customers.map(c => +c.id.replace(/\D/g, '') || 0)) + 1);
+        S.customers.unshift({
+            id: newId,
+            name: name,
+            phone: phone,
+            altPhone: altPhone,
+            address: address,
+            locality: locality,
+            landmark: landmark,
+            pincode: pincode,
+            active: active
+        });
+        S.feed.unshift({ id: 'EV' + Date.now(), t: 'New customer added: ' + name, time: 'Just now', k: 'customers', p: 'customers/' + newId });
+        toast('Customer created successfully');
+    }
+    save();
+    DIRTY = false;
+    go('customers');
 }
 
-function renderEngTemplates(tmpls) {
-  return `
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:20px">
-      ${tmpls.map(t => `
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-            <div>
-              <div style="font-weight:700;font-size:15px;color:var(--text-1)">${esc(t.name)}</div>
-              <div style="font-size:12px;color:var(--text-3)">Template ID: <code>${esc(t.id)}</code></div>
-            </div>
-            <button class="btn btn-sm btn-sec" data-act="edit-tmpl" data-id="${t.id}">${ic('edit')} Edit</button>
-          </div>
+function handleProdSave() {
+    const f = $('#prod-form');
+    if (!f) return;
+    const fd = new FormData(f);
+    const prodId = fd.get('prod_id');
+    const brand = (fd.get('brand') || '').trim();
+    const model = (fd.get('model') || '').trim();
+    const name = (fd.get('name') || (brand + ' ' + model)).trim();
+    const capacity = fd.get('capacity') || '1.5 Ton';
+    const star = fd.get('star') || '5 Star';
+    const invType = fd.get('invType') || 'Inverter';
+    const condenser = (fd.get('condenser') || '100% Copper').trim();
+    const gas = (fd.get('gas') || 'R32').trim();
+    const warranty = (fd.get('warranty') || '1 Year Comp + 10 Years Compressor').trim();
+    const serials = (fd.get('serials') || '').split(',').map(s => s.trim()).filter(Boolean);
 
-          <div class="wa-bubble" style="margin-top:12px;white-space:pre-wrap;font-size:13px">${esc(t.text)}</div>
+    if (!brand) return toast('Please enter brand name', 'er');
+    if (!model) return toast('Please enter model number', 'er');
 
-          <div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border-light)">
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-3);margin-bottom:6px">Supported Variables</div>
-            <div style="display:flex;flex-wrap:wrap;gap:4px">
-              ${(t.vars || ['name', 'shop']).map(v => `<span class="badge" style="background:var(--bg-app);font-family:monospace;font-size:11px">{{${v}}}</span>`).join('')}
-            </div>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `;
+    if (prodId) {
+        const p = S.products.find(x => x.id === prodId);
+        if (p) {
+            p.brand = brand;
+            p.model = model;
+            p.name = name;
+            p.capacity = capacity;
+            p.star = star;
+            p.invType = invType;
+            p.condenser = condenser;
+            p.gas = gas;
+            p.warranty = warranty;
+            serials.forEach(sn => {
+                p.units = p.units || [];
+                if (!p.units.some(u => u.sn === sn)) p.units.push({ sn, st: 'In stock' });
+            });
+        }
+        toast('AC Model updated');
+    } else {
+        const newId = 'P' + (Math.max(1000, ...S.products.map(p => +p.id.replace(/\D/g, '') || 0)) + 1);
+        S.products.unshift({
+            id: newId,
+            brand,
+            model,
+            name,
+            capacity,
+            star,
+            invType,
+            condenser,
+            gas,
+            warranty,
+            units: serials.map(sn => ({ sn, st: 'In stock' }))
+        });
+        toast('AC Model created');
+    }
+    save();
+    DIRTY = false;
+    go('products');
 }
 
-function renderEngPromo(S) {
-  const localities = Array.from(new Set((S.customers || []).map(c => c.locality).filter(Boolean)));
-  const totalCust = (S.customers || []).length;
-
-  return `
-    <div class="card" style="max-width:760px;margin:0 auto">
-      <div style="border-bottom:1px solid var(--border-light);padding-bottom:14px;margin-bottom:18px">
-        <h3 style="margin-bottom:4px">Send Promotional WhatsApp Broadcast</h3>
-        <p class="sub">Reach your customer base with seasonal AC checkup discounts, festive offers, and maintenance tips.</p>
-      </div>
-
-      <div class="form-grid" style="grid-template-columns:1fr 1fr;margin-bottom:16px">
-        <div class="form-group">
-          <label class="form-lbl">Target Audience *</label>
-          <select class="form-ctrl" id="promo-audience" data-act="promo-audience-change">
-            <option value="all">All Registered Customers (${totalCust})</option>
-            ${localities.map(loc => {
-              const count = (S.customers || []).filter(c => c.locality === loc).length;
-              return `<option value="loc:${esc(loc)}">Locality: ${esc(loc)} (${count} customers)</option>`;
-            }).join('')}
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-lbl">Campaign Name</label>
-          <input type="text" class="form-ctrl" id="promo-camp-name" value="Pre-Summer AC Maintenance Drive 2026">
-        </div>
-      </div>
-
-      <div class="form-group" style="margin-bottom:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <label class="form-lbl" style="margin-bottom:0">Message Body *</label>
-          <span style="font-size:12px;color:var(--text-3)">Use <code>{{name}}</code> for customer name, <code>{{shop}}</code> for shop name</span>
-        </div>
-        <textarea class="form-ctrl" id="promo-body" rows="6" style="resize:vertical;font-family:inherit">Dear {{name}},
-Beat the summer heat! Get your Air Conditioners thoroughly serviced and checked by authorized brand experts before the peak season.
-
-Special offer from {{shop}}:
-- Deep Jet Cleaning
-- Gas Pressure & Leakage Check
-- Coil & Filter Sanitization
-
-Book your slot today! Reply to this message or call us at 9876543210.</textarea>
-      </div>
-
-      <div style="background:var(--bg-app);border-radius:var(--r-md);padding:14px;margin-bottom:20px;border:1px solid var(--border)">
-        <div style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;margin-bottom:6px">Quick Variable Insertion</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button type="button" class="btn btn-sm btn-sec" data-act="insert-promo-var" data-var="{{name}}">{{name}}</button>
-          <button type="button" class="btn btn-sm btn-sec" data-act="insert-promo-var" data-var="{{shop}}">{{shop}}</button>
-          <button type="button" class="btn btn-sm btn-sec" data-act="insert-promo-var" data-var="{{brand}}">{{brand}}</button>
-        </div>
-      </div>
-
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:13px;color:var(--text-3)">
-          Estimated recipients: <strong id="promo-recip-count" style="color:var(--pri)">${totalCust}</strong> customers
-        </div>
-        <button class="btn btn-primary" data-act="dispatch-promo">${ic('send')} Dispatch Broadcast to Customers</button>
-      </div>
-    </div>
-  `;
+function handleSettingsSave() {
+    const f = $('#settings-form');
+    if (!f) return;
+    const fd = new FormData(f);
+    S.set.store = (fd.get('store') || 'Mobile Point AC Care').trim();
+    S.set.branches = (fd.get('branches') || '').trim();
+    S.set.addr = (fd.get('addr') || '').trim();
+    S.set.phone = (fd.get('phone') || '').trim();
+    S.set.email = (fd.get('email') || '').trim();
+    S.set.gstin = (fd.get('gstin') || '').trim();
+    S.set.srv1Days = +fd.get('srv1Days') || 120;
+    S.set.srv2Days = +fd.get('srv2Days') || 330;
+    S.set.leadDays = +fd.get('leadDays') || 14;
+    save();
+    toast('Settings saved successfully');
+    render(true);
 }
 
-function testWaModal(autoId) {
-  const S = SS();
-  const auto = (S.automations || []).find(a => a.id === autoId) || (S.automations || [])[0];
-  const tmpl = (S.templates || []).find(t => t.id === (auto ? auto.templateId : 'welcome')) || (S.templates || [])[0];
+function handleUserPermSave() {
+    const f = $('#user-perm-form');
+    if (!f) return;
+    const fd = new FormData(f);
+    const uid = fd.get('user_id');
+    const u = S.users.find(x => x.id === uid);
+    if (!u) return;
 
-  const content = `
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="form-group">
-        <label class="form-lbl">Select Customer for Sample Data</label>
-        <select class="form-ctrl" id="test-cust-sel" data-act="test-cust-change">
-          ${(S.customers || []).map(c => `<option value="${c.id}">${esc(c.name)} (${esc(c.waPhone)}) - ${esc(c.locality || '')}</option>`).join('')}
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-lbl">Test WhatsApp Number (e.g. 9876543210)</label>
-        <input type="tel" class="form-ctrl" id="test-phone-input" value="${(S.customers && S.customers[0]) ? S.customers[0].waPhone : '9876543210'}">
-      </div>
-
-      <div class="form-group">
-        <label class="form-lbl">Rendered Message Preview</label>
-        <div class="wa-bubble" id="test-wa-preview" style="min-height:90px;white-space:pre-wrap"></div>
-      </div>
-    </div>
-  `;
-
-  modal({
-    title: 'Test WhatsApp Message Trigger',
-    content: content,
-    actions: `
-      <button class="btn btn-sec" data-act="close-modal">Cancel</button>
-      <button class="btn btn-primary" data-act="send-test-wa" data-auto="${auto ? auto.id : ''}">${ic('send')} Launch in WhatsApp Web / App</button>
-    `
-  });
-
-  updateTestWaPreview(auto ? auto.id : 'welcome');
+    u.permissions = u.permissions || {};
+    MODULE_DEFS.forEach(m => {
+        u.permissions[m.id] = {
+            enabled: fd.get(`mod_${m.id}_enabled`) !== null,
+            view: fd.get(`mod_${m.id}_view`) !== null,
+            edit: fd.get(`mod_${m.id}_edit`) !== null,
+            delete: fd.get(`mod_${m.id}_delete`) !== null
+        };
+    });
+    save();
+    toast('Permissions saved for ' + u.name);
+    go('users');
 }
 
-function updateTestWaPreview(autoId) {
-  const S = SS();
-  const cSel = $('#test-cust-sel');
-  const custId = cSel ? cSel.value : ((S.customers && S.customers[0]) ? S.customers[0].id : null);
-  const cust = (S.customers || []).find(c => c.id === custId) || (S.customers && S.customers[0]) || {};
-  const auto = (S.automations || []).find(a => a.id === autoId) || (S.automations || [])[0];
-  const tmpl = (S.templates || []).find(t => t.id === (auto ? auto.templateId : 'welcome')) || (S.templates || [])[0];
-
-  const relatedSale = (S.sales || []).find(s => s.customerId === cust.id) || (S.sales && S.sales[0]) || {};
-  const relatedProd = (S.products || []).find(p => p.id === relatedSale.productId) || (S.products && S.products[0]) || {};
-
-  const rendered = renderMessageTemplate(tmpl.text || '', {
-    name: cust.name || 'Customer',
-    phone: cust.waPhone || '',
-    brand: relatedSale.brand || relatedProd.brand || 'Daikin',
-    model: relatedSale.model || relatedProd.model || 'FTKF50TV',
-    sn: relatedSale.serialNumber || 'DAIK-98214',
-    shop: S.settings.shopName || 'Mobile Point AC Care',
-    instDate: fd(relatedSale.installationDate || '2026-06-16'),
-    servDate: fd(relatedSale.s1Due || '2026-10-15'),
-    servType: (auto && auto.id === 'service_reminder_2') ? '2nd' : '1st',
-    daysLeft: '5'
-  });
-
-  const preview = $('#test-wa-preview');
-  if (preview) {
-    preview.textContent = rendered;
-  }
-}
-
-function templateEditModal(tmplId) {
-  const S = SS();
-  const tmpl = (S.templates || []).find(t => t.id === tmplId);
-  if (!tmpl) return;
-
-  const content = `
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="form-group">
-        <label class="form-lbl">Template Name</label>
-        <input type="text" class="form-ctrl" id="edit-tmpl-name" value="${esc(tmpl.name)}">
-      </div>
-
-      <div class="form-group">
-        <label class="form-lbl">Template Text</label>
-        <textarea class="form-ctrl" id="edit-tmpl-text" rows="8" style="resize:vertical;font-family:inherit">${esc(tmpl.text)}</textarea>
-      </div>
-
-      <div style="background:var(--bg-app);border-radius:var(--r-md);padding:10px 14px;border:1px solid var(--border)">
-        <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;margin-bottom:6px">Insert Variables</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          ${(tmpl.vars || ['name', 'shop', 'brand', 'model']).map(v => `
-            <button type="button" class="btn btn-sm btn-sec" data-act="insert-tmpl-var" data-var="{{${v}}}">{{${v}}}</button>
-          `).join('')}
+function userNewM() {
+    modal(`<h1>Add Staff User</h1>
+    <form id="new-user-form" novalidate onsubmit="return false">
+        <div class="fg">
+            <label>Full Name *
+                <input name="name" required placeholder="Staff member name">
+            </label>
+            <label>Email *
+                <input name="email" type="email" required placeholder="name@mobilepoint.in">
+            </label>
+            <label>Phone
+                <input name="phone" placeholder="+91 98250 XXXXX">
+            </label>
+            <label>Role Preset
+                <select name="preset">
+                    ${Object.entries(PRESETS).map(([k, def]) => `<option value="${k}">${esc(def.label)}</option>`).join('')}
+                </select>
+            </label>
         </div>
-      </div>
-    </div>
-  `;
-
-  modal({
-    title: `Edit Template: ${esc(tmpl.name)}`,
-    content: content,
-    actions: `
-      <button class="btn btn-sec" data-act="close-modal">Cancel</button>
-      <button class="btn btn-primary" data-act="save-tmpl" data-id="${tmpl.id}">${ic('check')} Save Template</button>
-    `
-  });
-}
-
-function logViewModal(logId) {
-  const S = SS();
-  const log = (S.waLogs || []).find(l => l.id === logId);
-  if (!log) return;
-
-  const content = `
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--bg-app);padding:12px;border-radius:var(--r-md);border:1px solid var(--border)">
-        <div>
-          <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:700">Customer</div>
-          <div style="font-weight:600;font-size:14px;color:var(--text-1)">${esc(log.customerName || 'Customer')}</div>
+        <div class="acts" style="margin-top:16px">
+            <button class="btn" data-act="close">Cancel</button>
+            <button class="btn pri" data-act="save-new-user">Create User</button>
         </div>
-        <div>
-          <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:700">WhatsApp Number</div>
-          <div style="font-family:monospace;font-size:14px;color:var(--text-1)">${esc(log.phone || '—')}</div>
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:700">Campaign / Type</div>
-          <div><span class="badge badge-pri">${esc(log.type || 'WhatsApp')}</span></div>
-        </div>
-        <div>
-          <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;font-weight:700">Dispatched Time</div>
-          <div style="font-size:13px;color:var(--text-2)">${fds(log.timestamp)}</div>
-        </div>
-      </div>
-
-      <div>
-        <label class="form-lbl">Complete Message Dispatched</label>
-        <div class="wa-bubble" style="white-space:pre-wrap;font-size:13px;min-height:80px">
-          ${esc(log.message)}
-          <div class="wa-bubble-time">${fds(log.timestamp)} ✓✓</div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  modal({
-    title: 'WhatsApp Message Dispatch Details',
-    content: content,
-    actions: `
-      <button class="btn btn-sec" data-act="close-modal">Close</button>
-      <a class="btn btn-primary" href="https://wa.me/91${esc(log.phone || '').replace(/\D/g,'')}?text=${encodeURIComponent(log.message || '')}" target="_blank">${ic('send')} Resend via WhatsApp</a>
-    `
-  });
-}
-
-
-let INV_SEARCH = '';
-let INV_FILTER = 'all';
-
-function invoicesPage() {
-  const S = SS();
-  const sales = S.sales || [];
-
-  let filtered = sales.slice();
-  if (INV_FILTER && INV_FILTER !== 'all') {
-    filtered = filtered.filter(s => s.status === INV_FILTER);
-  }
-  if (INV_SEARCH) {
-    const q = INV_SEARCH.toLowerCase();
-    filtered = filtered.filter(s => 
-      (s.invoiceNo && s.invoiceNo.toLowerCase().includes(q)) ||
-      (s.id && s.id.toLowerCase().includes(q)) ||
-      (s.customerName && s.customerName.toLowerCase().includes(q)) ||
-      (s.cname && s.cname.toLowerCase().includes(q)) ||
-      (s.brand && s.brand.toLowerCase().includes(q)) ||
-      (s.model && s.model.toLowerCase().includes(q)) ||
-      (s.serialNumber && s.serialNumber.toLowerCase().includes(q)) ||
-      (s.sn && s.sn.toLowerCase().includes(q))
-    );
-  }
-
-  return `
-    <div class="pg">
-      <div class="ph">
-        <div>
-          <h1>AC Invoices & Delivery Memos</h1>
-          <p>Official tax invoices, purchase certificates and complimentary service schedules</p>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button class="btn pri" data-act="go" data-p="sales/new">${ic('plus')} Record New Sale</button>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div style="padding:14px 18px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--bd);flex-wrap:wrap">
-          <div class="sb" style="max-width:320px;flex:1">
-            ${ic('search')}
-            <input type="text" placeholder="Search invoice #, customer, model, serial..." value="${esc(INV_SEARCH)}" data-act="inv-search">
-          </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <span style="font-size:13px;color:var(--mu);font-weight:600">Status:</span>
-            <select class="form-ctrl" style="width:160px" data-act="inv-filter">
-              <option value="all" ${INV_FILTER === 'all' ? 'selected' : ''}>All Status</option>
-              <option value="Installed" ${INV_FILTER === 'Installed' ? 'selected' : ''}>Installed</option>
-              <option value="Pending Installation" ${INV_FILTER === 'Pending Installation' ? 'selected' : ''}>Pending Installation</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="tb-wrap">
-          <table class="tb">
-            <thead>
-              <tr>
-                <th style="text-align:left">Invoice #</th>
-                <th style="text-align:left">Date</th>
-                <th style="text-align:left">Customer Name</th>
-                <th style="text-align:left">AC Brand & Model</th>
-                <th style="text-align:left">Serial Number</th>
-                <th style="text-align:left">1st Service Due</th>
-                <th style="text-align:left">Status</th>
-                <th style="text-align:right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filtered.length === 0 ? `
-                <tr><td colspan="8" style="text-align:center;padding:36px;color:var(--mu)">No invoices found</td></tr>
-              ` : filtered.map(s => `
-                <tr>
-                  <td style="text-align:left"><strong style="font-family:monospace;color:var(--ac)">${esc(s.invoiceNo || s.id)}</strong></td>
-                  <td style="text-align:left;font-size:13px;white-space:nowrap">${fd(s.purchaseDate || s.purDate || s.pdate)}</td>
-                  <td style="text-align:left">
-                    <div style="font-weight:600">${esc(s.customerName || s.cname)}</div>
-                    <div style="font-size:12px;color:var(--mu)">${esc(s.customerWaPhone || s.cphone || '')}</div>
-                  </td>
-                  <td style="text-align:left">
-                    <span class="b" style="font-size:11px">${esc(s.brand)}</span> <strong>${esc(s.model)}</strong>
-                  </td>
-                  <td style="text-align:left"><span style="font-family:monospace;font-size:12px">${esc(s.serialNumber || s.sn || '—')}</span></td>
-                  <td style="text-align:left;font-size:13px;white-space:nowrap">${fd(s.s1 ? s.s1.date : s.s1Due)}</td>
-                  <td style="text-align:left">${B(s.status || 'Installed')}</td>
-                  <td style="text-align:right;white-space:nowrap">
-                    <button class="btn sm" data-act="go" data-p="invoices/${s.id}">${ic('file')} View Invoice</button>
-                    <button class="btn sm" data-act="send-inv-wa" data-id="${s.id}" title="Share via WhatsApp">${ic('send')}</button>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function invoiceDetailPage(saleId) {
-  const S = SS();
-  const s = (S.sales || []).find(item => item.id === saleId) || (S.sales && S.sales[0]);
-  if (!s) {
-    return `<div class="pg"><div class="panel" style="padding:24px"><p>Sale invoice not found.</p><button class="btn" data-act="go" data-p="invoices">Back to Invoices</button></div></div>`;
-  }
-
-  const c = (S.customers || []).find(item => item.id === (s.customerId || s.cid)) || {};
-  const p = (S.products || []).find(item => item.id === (s.productId || s.pid)) || {};
-  const shop = S.set || S.settings || {};
-
-  return `
-    <div class="pg" style="max-width:880px;margin:0 auto">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px" class="no-print">
-        <button class="btn" data-act="go" data-p="invoices">${ic('home')} Back to Invoices</button>
-        <div style="display:flex;gap:8px">
-          <button class="btn" data-act="send-inv-wa" data-id="${s.id}">${ic('send')} Share on WhatsApp</button>
-          <button class="btn pri" onclick="window.print()">${ic('file')} Print Invoice</button>
-        </div>
-      </div>
-
-      <div class="panel inv-sheet" style="padding:36px;border-top:6px solid var(--ac);background:#fff;color:#111">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #eee;padding-bottom:20px;margin-bottom:24px">
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:6px;background:var(--ac);color:#fff">${ic('zap')}</span>
-              <h1 style="font-size:24px;font-weight:800;color:var(--ac);margin:0;letter-spacing:-0.5px">${esc(shop.store || shop.shopName || 'Mobile Point AC Care')}</h1>
-            </div>
-            <div style="font-size:13px;color:#555;line-height:1.5">
-              ${esc(shop.addr || shop.address || 'Alkapuri, Vadodara, Gujarat 390007')}<br>
-              Phone: ${esc(shop.phone || '+91 98250 00000')} | WhatsApp: ${esc(shop.waPhone || shop.phone || '+91 98250 00000')}<br>
-              GSTIN: ${esc(shop.gstin || '24ABCDE1234F1Z5')} | Authorized AC Sales & Care
-            </div>
-          </div>
-          <div style="text-align:right">
-            <span class="b ok" style="font-size:13px;padding:4px 10px;text-transform:uppercase">Tax Invoice & Delivery Memo</span>
-            <div style="font-size:18px;font-weight:700;margin-top:8px;font-family:monospace">${esc(s.invoiceNo || s.id)}</div>
-            <div style="font-size:12px;color:#666;margin-top:3px">Date: <strong>${fd(s.purchaseDate || s.purDate || s.pdate)}</strong></div>
-            <div style="font-size:12px;color:#666">Status: <strong style="text-transform:uppercase">${esc(s.status || 'Installed')}</strong></div>
-          </div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;background:#f9fafb;padding:16px;border-radius:6px;border:1px solid #e5e7eb">
-          <div>
-            <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;margin-bottom:6px">Customer Details</div>
-            <div style="font-weight:700;font-size:15px;color:#111827">${esc(s.customerName || s.cname || c.name || 'Customer')}</div>
-            <div style="font-size:13px;color:#374151;margin-top:4px;line-height:1.4">
-              ${esc(s.customerAddress || s.caddr || c.address || '—')}<br>
-              ${(s.customerLandmark || s.clandmark || c.landmark) ? `Landmark: ${esc(s.customerLandmark || s.clandmark || c.landmark)}<br>` : ''}
-              ${(s.customerLocality || s.clocality || c.locality) ? `Locality: ${esc(s.customerLocality || s.clocality || c.locality)}, ` : ''}
-              Pin: ${esc(s.customerPincode || s.cpincode || c.pincode || '—')}
-            </div>
-            <div style="font-size:13px;color:#1f2937;margin-top:6px">
-              WhatsApp: <strong>${esc(s.customerWaPhone || s.cphone || c.phone || '—')}</strong>
-              ${(s.customerAltPhone || s.caltPhone || c.altPhone) ? ` | Alt: ${esc(s.customerAltPhone || s.caltPhone || c.altPhone)}` : ''}
-            </div>
-          </div>
-
-          <div>
-            <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;margin-bottom:6px">Supply & Installation Information</div>
-            <table style="width:100%;font-size:13px;color:#374151;border-collapse:collapse">
-              <tr>
-                <td style="padding:3px 0;color:#6b7280;width:130px">Shop / Branch:</td>
-                <td style="padding:3px 0;font-weight:600">${esc(s.shop || shop.store || 'Mobile Point AC Care')}</td>
-              </tr>
-              <tr>
-                <td style="padding:3px 0;color:#6b7280">Date of Purchase:</td>
-                <td style="padding:3px 0;font-weight:600">${fd(s.purchaseDate || s.purDate || s.pdate)}</td>
-              </tr>
-              <tr>
-                <td style="padding:3px 0;color:#6b7280">Installation Date:</td>
-                <td style="padding:3px 0;font-weight:600">${fd(s.installationDate || s.idate)}</td>
-              </tr>
-              <tr>
-                <td style="padding:3px 0;color:#6b7280">Brand OEM Support:</td>
-                <td style="padding:3px 0;font-weight:600">Company Authorized Technicians</td>
-              </tr>
-            </table>
-          </div>
-        </div>
-
-        <table style="width:100%;border-collapse:collapse;margin-bottom:24px">
-          <thead>
-            <tr style="background:#f3f4f6;border-top:1px solid #d1d5db;border-bottom:1px solid #d1d5db">
-              <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:700;color:#374151">#</th>
-              <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:700;color:#374151">Item Description / AC Specification</th>
-              <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:700;color:#374151">Brand</th>
-              <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:700;color:#374151">Model Number</th>
-              <th style="padding:10px 12px;text-align:left;font-size:12px;font-weight:700;color:#374151">Serial Number</th>
-              <th style="padding:10px 12px;text-align:center;font-size:12px;font-weight:700;color:#374151">Qty</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid #e5e7eb">
-              <td style="padding:12px;text-align:left;font-size:13px;vertical-align:top">1</td>
-              <td style="padding:12px;text-align:left;font-size:13px;vertical-align:top">
-                <div style="font-weight:700;color:#111827">${esc(s.brand)} ${esc(s.model)} Air Conditioner</div>
-                <div style="font-size:12px;color:#6b7280;margin-top:2px">
-                  ${p.capacity ? esc(p.capacity) + ' • ' : ''}
-                  ${p.star ? esc(p.star) + ' • ' : ''}
-                  ${p.invType ? esc(p.invType) + ' • ' : ''}
-                  ${p.condenser ? esc(p.condenser) : ''}
-                </div>
-                ${s.notes ? `<div style="font-size:11px;color:#9ca3af;margin-top:4px">Note: ${esc(s.notes)}</div>` : ''}
-              </td>
-              <td style="padding:12px;text-align:left;font-size:13px;vertical-align:top;font-weight:600">${esc(s.brand)}</td>
-              <td style="padding:12px;text-align:left;font-size:13px;vertical-align:top;font-family:monospace">${esc(s.model)}</td>
-              <td style="padding:12px;text-align:left;font-size:13px;vertical-align:top;font-family:monospace;font-weight:700;color:var(--ac)">${esc(s.serialNumber || s.sn || '—')}</td>
-              <td style="padding:12px;text-align:center;font-size:13px;vertical-align:top;font-weight:600">1 Unit</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div style="border:2px dashed #93c5fd;border-radius:8px;padding:16px;background:#eff6ff;margin-bottom:24px">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="color:#2563eb">${ic('zap')}</span>
-            <h4 style="margin:0;color:#1e40af;font-size:15px;font-weight:700">Complimentary Service Schedule Certificate</h4>
-          </div>
-          <p style="font-size:12px;color:#1e3a8a;margin-bottom:12px;line-height:1.4">
-            As part of Mobile Point AC Care customer assurance, you are entitled to two free routine services within your first year. Technicians are dispatched directly by the OEM brand.
-          </p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-            <div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #bfdbfe">
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#2563eb">1st Complimentary Service</div>
-              <div style="font-size:14px;font-weight:700;color:#111;margin-top:3px">Due Date: ${fd(s.s1 ? s.s1.date : s.s1Due)}</div>
-              <div style="font-size:12px;color:${(s.s1 && s.s1.status === 'Completed') || s.s1Done ? '#059669' : '#d97706'};margin-top:2px;font-weight:600">
-                ${(s.s1 && s.s1.status === 'Completed') || s.s1Done ? '✓ Completed' : '• Scheduled / Pending'}
-              </div>
-            </div>
-            <div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #bfdbfe">
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#2563eb">2nd Complimentary Service</div>
-              <div style="font-size:14px;font-weight:700;color:#111;margin-top:3px">Due Date: ${fd(s.s2 ? s.s2.date : s.s2Due)}</div>
-              <div style="font-size:12px;color:${(s.s2 && s.s2.status === 'Completed') || s.s2Done ? '#059669' : '#d97706'};margin-top:2px;font-weight:600">
-                ${(s.s2 && s.s2.status === 'Completed') || s.s2Done ? '✓ Completed' : '• Scheduled / Pending'}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:36px;padding-top:20px;border-top:1px solid #e5e7eb">
-          <div style="font-size:12px;color:#6b7280;max-width:440px;line-height:1.4">
-            <strong>Terms & Notes:</strong><br>
-            • AC installation and on-site servicing are performed exclusively by authorized OEM brand engineers.<br>
-            • WhatsApp service reminder notifications will be automatically triggered prior to due dates.<br>
-            • Please retain this receipt and delivery memo for any warranty claims with the manufacturer.
-          </div>
-          <div style="text-align:center">
-            <div style="width:160px;border-bottom:1px solid #111;margin-bottom:6px"></div>
-            <div style="font-size:12px;font-weight:700;color:#111">Authorized Signatory</div>
-            <div style="font-size:11px;color:#6b7280">${esc(shop.store || 'Mobile Point AC Care')}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function reportsPage() {
-  const S = SS();
-  const sales = S.sales || [];
-  const custs = S.customers || [];
-  const prods = S.products || [];
-
-  const brandCounts = {};
-  const capacityCounts = {};
-  sales.forEach(s => {
-    brandCounts[s.brand] = (brandCounts[s.brand] || 0) + 1;
-    const p = prods.find(item => item.id === (s.productId || s.pid));
-    const cap = (p && p.capacity) ? p.capacity : '1.5 Ton';
-    capacityCounts[cap] = (capacityCounts[cap] || 0) + 1;
-  });
-
-  const localityCounts = {};
-  custs.forEach(c => {
-    const loc = c.locality || 'Other';
-    localityCounts[loc] = (localityCounts[loc] || 0) + 1;
-  });
-
-  let s1Completed = 0;
-  let s1Pending = 0;
-  let s2Completed = 0;
-  let s2Pending = 0;
-
-  sales.forEach(s => {
-    if ((s.s1 && s.s1.status === 'Completed') || s.s1Done) s1Completed++; else s1Pending++;
-    if ((s.s2 && s.s2.status === 'Completed') || s.s2Done) s2Completed++; else s2Pending++;
-  });
-
-  return `
-    <div class="pg">
-      <div class="ph">
-        <div>
-          <h1>Reports & Sales Analytics</h1>
-          <p>AC brand performance, service schedule tracking and customer locality distribution</p>
-        </div>
-      </div>
-
-      <div class="kp">
-        <div class="k">
-          ${ic('cart')}
-          <b>${sales.length}</b>
-          <span>Total Units Sold</span>
-        </div>
-        <div class="k">
-          ${ic('users')}
-          <b>${custs.length}</b>
-          <span>Customer Base</span>
-        </div>
-        <div class="k hl">
-          ${ic('wrench')}
-          <b>${sales.length ? Math.round((s1Completed / sales.length) * 100) : 0}%</b>
-          <span>1st Service Done (${s1Completed}/${sales.length})</span>
-        </div>
-        <div class="k hl">
-          ${ic('cal')}
-          <b>${sales.length ? Math.round((s2Completed / sales.length) * 100) : 0}%</b>
-          <span>2nd Service Done (${s2Completed}/${sales.length})</span>
-        </div>
-      </div>
-
-      <div class="gr">
-        <div class="panel">
-          <div class="hd"><h2>${ic('tag')} AC Sales by Brand</h2></div>
-          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
-            ${Object.keys(brandCounts).sort((a,b) => brandCounts[b] - brandCounts[a]).map(b => {
-              const count = brandCounts[b];
-              const pct = Math.round((count / (sales.length || 1)) * 100);
-              return `
-                <div>
-                  <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-                    <span style="font-weight:600">${esc(b)}</span>
-                    <span>${count} units (${pct}%)</span>
-                  </div>
-                  <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden">
-                    <div style="height:100%;width:${pct}%;background:var(--ac);border-radius:4px"></div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="hd"><h2>${ic('zap')} AC Sales by Capacity / Tonnage</h2></div>
-          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
-            ${Object.keys(capacityCounts).map(cap => {
-              const count = capacityCounts[cap];
-              const pct = Math.round((count / (sales.length || 1)) * 100);
-              return `
-                <div>
-                  <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-                    <span style="font-weight:600">${esc(cap)}</span>
-                    <span>${count} units (${pct}%)</span>
-                  </div>
-                  <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden">
-                    <div style="height:100%;width:${pct}%;background:var(--ok);border-radius:4px"></div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="hd"><h2>${ic('home')} Customers by Locality</h2></div>
-          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
-            ${Object.keys(localityCounts).sort((a,b) => localityCounts[b] - localityCounts[a]).map(loc => {
-              const count = localityCounts[loc];
-              const pct = Math.round((count / (custs.length || 1)) * 100);
-              return `
-                <div>
-                  <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-                    <span style="font-weight:600">${esc(loc)}</span>
-                    <span>${count} customers (${pct}%)</span>
-                  </div>
-                  <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden">
-                    <div style="height:100%;width:${pct}%;background:var(--ac);border-radius:4px"></div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="hd"><h2>${ic('wrench')} Service Compliance Tracker</h2></div>
-          <div style="padding:16px;display:flex;flex-direction:column;gap:14px">
-            <div style="background:var(--bg);padding:12px;border-radius:8px;border:1px solid var(--bd)">
-              <div style="font-weight:700;font-size:13px;margin-bottom:4px">1st Free Service (3-5 Months)</div>
-              <div style="font-size:12px;color:var(--mu);margin-bottom:8px">Target: within 120 days of installation</div>
-              <div style="display:flex;gap:10px">
-                <span class="b ok">Completed: ${s1Completed}</span>
-                <span class="b wa">Pending / Due: ${s1Pending}</span>
-              </div>
-            </div>
-            <div style="background:var(--bg);padding:12px;border-radius:8px;border:1px solid var(--bd)">
-              <div style="font-weight:700;font-size:13px;margin-bottom:4px">2nd Free Service (Before 11 Months)</div>
-              <div style="font-size:12px;color:var(--mu);margin-bottom:8px">Target: within 330 days of installation</div>
-              <div style="display:flex;gap:10px">
-                <span class="b ok">Completed: ${s2Completed}</span>
-                <span class="b wa">Pending / Due: ${s2Pending}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function usersPage() {
-  const S = SS();
-  const users = S.users || [
-    { id: 'u1', name: 'Admin Store Manager', email: 'admin@mobilepoint.com', role: 'Administrator', status: 'Active', perms: ['all'] },
-    { id: 'u2', name: 'Sales Executive', email: 'sales@mobilepoint.com', role: 'Sales Officer', status: 'Active', perms: ['sales', 'customers', 'products', 'calendar'] },
-    { id: 'u3', name: 'Service Coordinator', email: 'support@mobilepoint.com', role: 'Service Desk', status: 'Active', perms: ['calendar', 'engagements', 'customers'] }
-  ];
-
-  return `
-    <div class="pg">
-      <div class="ph">
-        <div>
-          <h1>User Management & Permissions</h1>
-          <p>Configure staff logins, CRM roles and system module access</p>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="tb-wrap">
-          <table class="tb">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Access Permissions</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${users.map(u => `
-                <tr>
-                  <td><strong>${esc(u.name)}</strong></td>
-                  <td><span style="font-family:monospace;font-size:13px">${esc(u.email)}</span></td>
-                  <td><span class="b">${esc(u.role)}</span></td>
-                  <td>
-                    <div style="display:flex;flex-wrap:wrap;gap:4px">
-                      ${(u.perms || ['all']).map(p => `<span class="b" style="font-size:11px">${esc(p)}</span>`).join('')}
-                    </div>
-                  </td>
-                  <td><span class="b ok">${esc(u.status || 'Active')}</span></td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function settingsPage() {
-  const S = SS();
-  const set = S.set || S.settings || {};
-
-  return `
-    <div class="pg">
-      <div class="ph">
-        <div>
-          <h1>System Settings & Store Profile</h1>
-          <p>Customize store branding, invoice headers, and automatic service calculation rules</p>
-        </div>
-        <div>
-          <button class="btn pri" data-act="save-settings">${ic('check')} Save Changes</button>
-        </div>
-      </div>
-
-      <div class="gr">
-        <div class="panel">
-          <div class="hd"><h2>${ic('gear')} Shop & Business Profile</h2></div>
-          <div class="pad">
-            <div class="form-group">
-              <label class="form-lbl">Shop Business Name *</label>
-              <input type="text" class="form-ctrl" id="set-shop-name" value="${esc(set.store || set.shopName || 'Mobile Point AC Care')}">
-            </div>
-            <div class="form-group">
-              <label class="form-lbl">Complete Shop Address *</label>
-              <textarea class="form-ctrl" id="set-shop-address" rows="3">${esc(set.addr || set.address || 'Alkapuri, Vadodara, Gujarat 390007')}</textarea>
-            </div>
-            <div class="fgrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-              <div class="form-group">
-                <label class="form-lbl">Official Phone</label>
-                <input type="tel" class="form-ctrl" id="set-phone" value="${esc(set.phone || '+91 98250 00000')}">
-              </div>
-              <div class="form-group">
-                <label class="form-lbl">WhatsApp Business Number *</label>
-                <input type="tel" class="form-ctrl" id="set-wa-phone" value="${esc(set.waPhone || set.phone || '+91 98250 00000')}">
-              </div>
-            </div>
-            <div class="fgrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div class="form-group">
-                <label class="form-lbl">GSTIN</label>
-                <input type="text" class="form-ctrl" id="set-gstin" value="${esc(set.gstin || '24ABCDE1234F1Z5')}">
-              </div>
-              <div class="form-group">
-                <label class="form-lbl">Support Email</label>
-                <input type="email" class="form-ctrl" id="set-email" value="${esc(set.email || 'support@mobilepoint.in')}">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="hd"><h2>${ic('wrench')} AC Free Service Schedule Intervals</h2></div>
-          <div class="pad">
-            <p style="font-size:13px;color:var(--mu);margin-bottom:16px">Define days from purchase date to auto-schedule routine brand free services</p>
-
-            <div class="form-group">
-              <label class="form-lbl">1st Free Service Due (Days from Purchase)</label>
-              <div style="display:flex;gap:10px;align-items:center">
-                <input type="number" class="form-ctrl" id="set-s1-days" value="${set.s1Days || 120}" min="30" max="180" style="width:120px">
-                <span style="font-size:13px;color:var(--mu)">days (Default: 120 days / 4 months)</span>
-              </div>
-            </div>
-
-            <div class="form-group" style="margin-bottom:24px">
-              <label class="form-lbl">2nd Free Service Due (Days from Purchase)</label>
-              <div style="display:flex;gap:10px;align-items:center">
-                <input type="number" class="form-ctrl" id="set-s2-days" value="${set.s2Days || 330}" min="180" max="365" style="width:120px">
-                <span style="font-size:13px;color:var(--mu)">days (Default: 330 days / 11 months)</span>
-              </div>
-            </div>
-
-            <div style="border-top:1px solid var(--bd);padding-top:16px">
-              <h3 style="font-size:14px;margin-bottom:8px">Data Backup & Demo Reset</h3>
-              <div style="display:flex;gap:10px;flex-wrap:wrap">
-                <button class="btn" data-act="export-data">${ic('file')} Export JSON Backup</button>
-                <button class="btn" data-act="reset-data" style="color:var(--er)">${ic('trash')} Reset Demo Data</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function notificationsPage() {
-  const S = SS();
-  const notifs = S.notifs || S.notifications || [];
-
-  return `
-    <div class="pg">
-      <div class="ph">
-        <div>
-          <h1>System Notifications</h1>
-          <p>Service due alerts, WhatsApp delivery updates and installation reminders</p>
-        </div>
-        <div>
-          <button class="btn" data-act="mark-all-read">${ic('check')} Mark All as Read</button>
-        </div>
-      </div>
-
-      <div class="panel" style="max-width:800px;margin:0 auto">
-        <div class="pad">
-          ${notifs.length === 0 ? `
-            <div style="text-align:center;padding:36px;color:var(--mu)">No notifications right now</div>
-          ` : `
-            <div style="display:flex;flex-direction:column;gap:12px">
-              ${notifs.map(n => `
-                <div style="display:flex;gap:12px;padding:12px;border-radius:8px;background:${n.unread ? 'var(--acs)' : 'var(--bg)'};border:1px solid var(--bd)">
-                  <div style="color:var(--ac);padding-top:2px">${ic('bell')}</div>
-                  <div style="flex:1">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                      <div style="font-weight:700;font-size:14px;color:var(--tx)">${esc(n.title)}</div>
-                      <div style="font-size:11px;color:var(--mu)">${fd(n.time)}</div>
-                    </div>
-                    <div style="font-size:13px;color:var(--mu);margin-top:3px">${esc(n.desc)}</div>
-                    ${n.link ? `<button class="btn sm" style="margin-top:8px" data-act="go" data-p="${n.link}">View Details</button>` : ''}
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          `}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function activityPage() {
-  const S = SS();
-  const acts = S.activity || [];
-
-  return `
-    <div class="pg">
-      <div class="ph">
-        <div>
-          <h1>Activity Audit Log</h1>
-          <p>Chronological history of AC sales, service milestones, and WhatsApp automations</p>
-        </div>
-      </div>
-
-      <div class="panel" style="max-width:800px;margin:0 auto">
-        <div class="tb-wrap">
-          <table class="tb">
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Action</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${acts.length === 0 ? `
-                <tr><td colspan="3" style="text-align:center;padding:32px;color:var(--mu)">No activity logged yet</td></tr>
-              ` : acts.map(a => `
-                <tr>
-                  <td style="white-space:nowrap;font-size:12px;color:var(--mu)">${esc(a.time)}</td>
-                  <td><span class="b">${esc(a.title || a.action || 'Event')}</span></td>
-                  <td style="font-size:13px;color:var(--tx)">${esc(a.desc || a.details || '')}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function quickNewModal() {
-  const content = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-      <div class="panel" style="cursor:pointer;border:2px solid var(--bd);text-align:center;padding:20px" data-act="go" data-p="sales/new">
-        <div style="color:var(--ac);margin-bottom:8px">${ic('plus')}</div>
-        <div style="font-weight:700;font-size:15px;color:var(--tx)">Record AC Sale</div>
-        <div style="font-size:12px;color:var(--mu);margin-top:4px">New sale with auto customer/product creation</div>
-      </div>
-
-      <div class="panel" style="cursor:pointer;border:2px solid var(--bd);text-align:center;padding:20px" data-act="go" data-p="customers/new">
-        <div style="color:var(--ok);margin-bottom:8px">${ic('users')}</div>
-        <div style="font-weight:700;font-size:15px;color:var(--tx)">Add Customer</div>
-        <div style="font-size:12px;color:var(--mu);margin-top:4px">Save address, landmark, locality & WhatsApp</div>
-      </div>
-
-      <div class="panel" style="cursor:pointer;border:2px solid var(--bd);text-align:center;padding:20px" data-act="go" data-p="products/new">
-        <div style="color:var(--ac);margin-bottom:8px">${ic('wind')}</div>
-        <div style="font-weight:700;font-size:15px;color:var(--tx)">Add AC Model</div>
-        <div style="font-size:12px;color:var(--mu);margin-top:4px">Brand, model & specifications catalog</div>
-      </div>
-
-      <div class="panel" style="cursor:pointer;border:2px solid var(--bd);text-align:center;padding:20px" data-act="go" data-p="engagements">
-        <div style="color:var(--wa);margin-bottom:8px">${ic('send')}</div>
-        <div style="font-weight:700;font-size:15px;color:var(--tx)">WhatsApp Broadcast</div>
-        <div style="font-size:12px;color:var(--mu);margin-top:4px">Promotional offer or service reminder trigger</div>
-      </div>
-    </div>
-  `;
-
-  modal({
-    title: 'Quick Create / Action',
-    content: content,
-    actions: `<button class="btn" data-act="close">Cancel</button>`
-  });
-}
-
-function globalSearchModal(query) {
-  const S = SS();
-  const q = (query || '').toLowerCase().trim();
-  if (!q) return;
-
-  const mCusts = (S.customers || []).filter(c => 
-    (c.name || '').toLowerCase().includes(q) ||
-    (c.phone || '').includes(q) ||
-    (c.locality && c.locality.toLowerCase().includes(q))
-  );
-
-  const mProds = (S.products || []).filter(p =>
-    (p.brand || '').toLowerCase().includes(q) ||
-    (p.model || '').toLowerCase().includes(q)
-  );
-
-  const mSales = (S.sales || []).filter(s =>
-    (s.id && s.id.toLowerCase().includes(q)) ||
-    (s.sn && s.sn.toLowerCase().includes(q)) ||
-    (s.cname && s.cname.toLowerCase().includes(q))
-  );
-
-  const content = `
-    <div style="display:flex;flex-direction:column;gap:16px">
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:6px">Customers (${mCusts.length})</div>
-        ${mCusts.length === 0 ? '<div style="font-size:13px;color:var(--mu)">No customers match</div>' : `
-          <div style="display:flex;flex-direction:column;gap:6px">
-            ${mCusts.slice(0, 5).map(c => `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:6px;cursor:pointer" data-act="cust-view" data-id="${c.id}">
-                <div>
-                  <strong>${esc(c.name)}</strong> - <span style="font-size:12px;color:var(--mu)">${esc(c.phone)} (${esc(c.locality || '')})</span>
-                </div>
-                <button class="btn sm">View</button>
-              </div>
-            `).join('')}
-          </div>
-        `}
-      </div>
-
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:6px">AC Products (${mProds.length})</div>
-        ${mProds.length === 0 ? '<div style="font-size:13px;color:var(--mu)">No AC products match</div>' : `
-          <div style="display:flex;flex-direction:column;gap:6px">
-            ${mProds.slice(0, 5).map(p => `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:6px;cursor:pointer" data-act="go" data-p="products/${p.id}">
-                <div>
-                  <span class="b">${esc(p.brand)}</span> <strong>${esc(p.model)}</strong>
-                </div>
-                <button class="btn sm">Details</button>
-              </div>
-            `).join('')}
-          </div>
-        `}
-      </div>
-
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:6px">Sales Records (${mSales.length})</div>
-        ${mSales.length === 0 ? '<div style="font-size:13px;color:var(--mu)">No sales match</div>' : `
-          <div style="display:flex;flex-direction:column;gap:6px">
-            ${mSales.slice(0, 5).map(s => `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:6px;cursor:pointer" data-act="go" data-p="sales/${s.id}">
-                <div>
-                  <strong>${esc(s.id)}</strong> - ${esc(s.cname)} (${esc(s.brand)} ${esc(s.model)})
-                </div>
-                <button class="btn sm">Open</button>
-              </div>
-            `).join('')}
-          </div>
-        `}
-      </div>
-    </div>
-  `;
-
-  modal({
-    title: `Search Results for "${esc(query)}"`,
-    content: content,
-    actions: `<button class="btn" data-act="close">Close</button>`
-  });
-}
-
-function subPage(p) {
-  if (!p) return;
-  if (p.page === 'sale-new') go('sales/new');
-  else if (p.page === 'sale-edit') go('sales/edit/' + p.id);
-  else if (p.page === 'sale-detail') go('sales/' + p.id);
-  else if (p.page === 'cust-new') go('customers/new');
-  else if (p.page === 'cust-edit') go('customers/edit/' + p.id);
-  else if (p.page === 'prod-new') go('products/new');
-  else if (p.page === 'prod-edit') go('products/edit/' + p.id);
-  else if (p.page === 'prod-detail') go('products/' + p.id);
-  else if (p.page === 'inv-detail') go('invoices/' + p.id);
-  else go(p.page);
-}
-
-function go(p) {
-  if (!p) p = 'overview';
-  V.page = p;
-  PAGE = p;
-  SUB = null;
-  const parts = p.split('/');
-  const mainP = parts[0];
-  const subP = parts[1];
-  const subId = parts[2];
-
-  if (mainP === 'sales') {
-    if (subP === 'new') SUB = { page: 'sale-new' };
-    else if (subP === 'edit') SUB = { page: 'sale-edit', id: subId };
-    else if (subP) SUB = { page: 'sale-detail', id: subP };
-  } else if (mainP === 'customers') {
-    if (subP === 'new') SUB = { page: 'cust-new' };
-    else if (subP === 'edit') SUB = { page: 'cust-edit', id: subId };
-  } else if (mainP === 'products') {
-    if (subP === 'new') SUB = { page: 'prod-new' };
-    else if (subP === 'edit') SUB = { page: 'prod-edit', id: subId };
-    else if (subP === 'detail') SUB = { page: 'prod-detail', id: subId };
-    else if (subP) SUB = { page: 'prod-detail', id: subP };
-  } else if (mainP === 'invoices') {
-    if (subP) SUB = { page: 'inv-detail', id: subP };
-  }
-
-  PAGE = mainP;
-  if (window.history && window.history.pushState) {
-    window.history.pushState(null, '', '#' + p);
-  }
-  render();
-}
-
-function render(keepScroll) {
-  const scr = keepScroll ? window.scrollY : 0;
-  const basePage = (V.page || 'overview').split('/')[0];
-
-  const nv = $('#nv');
-  if (nv) {
-    nv.innerHTML = NAV.map(p => `
-      <button class="ni ${basePage === p[0] ? 'on' : ''}" data-act="go" data-p="${p[0]}">
-        ${ic(p[2])}<span>${p[1]}</span>
-      </button>
-    `).join('');
-  }
-
-  const bn = $('#bn');
-  if (bn) {
-    const mobileNav = [
-      ['overview', 'Overview', 'home'],
-      ['sales', 'Sales', 'cart'],
-      ['customers', 'Customers', 'users'],
-      ['calendar', 'Calendar', 'cal'],
-      ['engagements', 'WhatsApp', 'zap']
-    ];
-    bn.innerHTML = mobileNav.map(p => `
-      <button class="${basePage === p[0] ? 'on' : ''}" data-act="go" data-p="${p[0]}">
-        ${ic(p[2])}<span>${p[1]}</span>
-      </button>
-    `).join('');
-  }
-
-  const mb = $('#mb');
-  if (mb && !mb.innerHTML) mb.innerHTML = ic('menu');
-  const gsb = $('#gsb');
-  if (gsb && !gsb.querySelector('input')) {
-    gsb.innerHTML = `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input type="search" placeholder="Search customers, products, sales... (/)" id="gq" data-act="gsearch">`;
-  }
-  const nb = $('#nb');
-  if (nb && !nb.innerHTML) nb.innerHTML = ic('plus') + '<span>+ New</span>';
-  const ab = $('#ab');
-  if (ab && !ab.innerHTML) ab.innerHTML = ic('list');
-  const bl = $('#bl');
-  if (bl) {
-    const un = (S.notifs || S.notifications || []).filter(n => n.unread || !n.read).length;
-    bl.innerHTML = ic('bell') + (un > 0 ? `<span class="badge" style="position:absolute;top:4px;right:4px;background:var(--er);color:#fff;border-radius:10px;padding:1px 5px;font-size:10px">${un}</span>` : '');
-    bl.style.position = 'relative';
-  }
-  const th = $('#th');
-  if (th) {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    th.innerHTML = ic('moon');
-  }
-
-  const app = $('#main') || $('#app');
-  if (!app) return;
-
-  let html = '';
-  const parts = (V.page || 'overview').split('/');
-  const page = parts[0];
-  const sub = parts[1];
-  const subId = parts[2];
-
-  if (page === 'overview') {
-    html = overview();
-  } else if (page === 'customers') {
-    if (sub === 'new') html = customerFormPage(null);
-    else if (sub === 'edit') html = customerFormPage(subId);
-    else html = customersPage();
-  } else if (page === 'products') {
-    if (sub === 'new') html = productFormPage(null);
-    else if (sub === 'edit') html = productFormPage(subId);
-    else if (sub === 'detail') html = productDetailPage(subId);
-    else if (sub) html = productDetailPage(sub);
-    else html = productsPage();
-  } else if (page === 'sales') {
-    if (sub === 'new') html = saleFormPage(null);
-    else if (sub === 'edit') html = saleFormPage(subId);
-    else if (sub) html = saleDetailPage(sub);
-    else html = salesPage();
-  } else if (page === 'calendar') {
-    html = calendar();
-  } else if (page === 'engagements') {
-    html = engagementsPage();
-  } else if (page === 'invoices') {
-    if (sub) html = invoiceDetailPage(sub);
-    else html = invoicesPage();
-  } else if (page === 'reports') {
-    html = reportsPage();
-  } else if (page === 'users') {
-    html = usersPage();
-  } else if (page === 'settings') {
-    html = settingsPage();
-  } else if (page === 'notifications') {
-    html = notificationsPage();
-  } else if (page === 'activity') {
-    html = activityPage();
-  } else {
-    html = overview();
-  }
-
-  app.innerHTML = html;
-  if (keepScroll) window.scrollTo(0, scr);
+    </form>`);
 }
 
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-act]');
-  if (!t) return;
-  const act = t.getAttribute('data-act');
-
-  if (act === 'go') {
-    const p = t.getAttribute('data-p') || t.getAttribute('data-page');
-    const sd = $('#sd');
-    if (sd) sd.classList.remove('open');
-    go(p);
-  } else if (act === 'go-nav') {
-    const p = t.getAttribute('data-page') || t.getAttribute('data-p');
-    const sd = $('#sd');
-    if (sd) sd.classList.remove('open');
-    go(p);
-  } else if (act === 'go-sub') {
-    const page = t.getAttribute('data-page');
-    const id = t.getAttribute('data-id');
-    subPage({ page: page, id: id });
-  } else if (act === 'menu') {
-    const sd = $('#sd');
-    if (sd) sd.classList.toggle('open');
-  } else if (act === 'drawer') {
-    const sd = $('#sd');
-    if (sd) sd.classList.remove('open');
-  } else if (act === 'actd') {
-    go('activity');
-  } else if (act === 'bell') {
-    go('notifications');
-  } else if (act === 'theme') {
-    const cur = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('mp-theme', next);
-    SS().theme = next;
-    save();
-    render(true);
-  } else if (act === 'new') {
-    quickNewModal();
-  } else if (act === 'logout') {
-    toast('Demo session is permanent');
-  } else if (act === 'close' || act === 'close-modal') {
-    closeM();
-  } else if (act === 'chip') {
-    V.f = t.getAttribute('data-v');
-    render(true);
-  } else if (act === 'pview') {
-    SS().view = t.getAttribute('data-v');
-    save();
-    render(true);
-  } else if (act === 'cust-view') {
-    const id = t.getAttribute('data-id');
-    custModal(id);
-  } else if (act === 'sale-for-cust') {
-    const cid = t.getAttribute('data-cid');
-    V.prefillCust = cid;
-    closeM();
-    go('sales/new');
-  } else if (act === 'sale-with-prod') {
-    const pid = t.getAttribute('data-pid');
-    V.prefillProd = pid;
-    go('sales/new');
-  } else if (act === 'sale-cust-mode') {
-    SALE_CUST_MODE = t.getAttribute('data-v');
-    const boxNew = $('#sale-new-cust-fields');
-    const boxExt = $('#sale-ext-cust-field');
-    if (boxNew && boxExt) {
-      boxNew.style.display = SALE_CUST_MODE === 'new' ? 'block' : 'none';
-      boxExt.style.display = SALE_CUST_MODE === 'existing' ? 'block' : 'none';
+    const t = e.target.closest('[data-act]');
+    if (t) {
+        act(t, e);
+        return;
     }
-    $$('.cust-toggle-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-v') === SALE_CUST_MODE));
-  } else if (act === 'sale-prod-mode') {
-    SALE_PROD_MODE = t.getAttribute('data-v');
-    const boxNew = $('#sale-new-prod-fields');
-    const boxExt = $('#sale-ext-prod-field');
-    if (boxNew && boxExt) {
-      boxNew.style.display = SALE_PROD_MODE === 'new' ? 'block' : 'none';
-      boxExt.style.display = SALE_PROD_MODE === 'existing' ? 'block' : 'none';
+    const upz = e.target.closest('#sale-upz');
+    if (upz) {
+        const fi = $('#sale-file-input');
+        if (fi) fi.click();
+        return;
     }
-    $$('.prod-toggle-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-v') === SALE_PROD_MODE));
-  } else if (act === 'del-sale-img') {
-    const idx = parseInt(t.getAttribute('data-idx'), 10);
-    if (!isNaN(idx) && SALE_IMAGES[idx]) {
-      SALE_IMAGES.splice(idx, 1);
-      renderSaleImagesThumbnails();
+    const np = $('#np');
+    if (np && !e.target.closest('#np') && !e.target.closest('#bl')) {
+        npClose();
     }
-  } else if (act === 'lightbox' || act === 'view-lightbox') {
-    const src = t.getAttribute('data-src');
-    lightboxModal(src);
-  } else if (act === 'cust-save') {
-    const id = t.getAttribute('data-id');
-    custSave(id);
-  } else if (act === 'prod-save') {
-    const id = t.getAttribute('data-id');
-    prodSave(id);
-  } else if (act === 'sale-save') {
-    const id = t.getAttribute('data-id');
-    saleSave(id);
-  } else if (act === 'sale-delete') {
-    const id = t.getAttribute('data-id');
-    if (confirm('Delete this sale record?')) {
-      S.sales = S.sales.filter(s => s.id !== id);
-      save();
-      toast('Sale record deleted');
-      go('sales');
-    }
-  } else if (act === 'mark-serv-done') {
-    const saleId = t.getAttribute('data-sale') || t.getAttribute('data-id');
-    const servKey = t.getAttribute('data-serv') || t.getAttribute('data-key');
-    const sl = S.sales.find(s => s.id === saleId);
-    if (sl) {
-      if (sl[servKey]) {
-        sl[servKey].status = 'Completed';
-        sl[servKey].completedDate = D(0);
-        sl[servKey].done = true;
-      }
-      sl[servKey + 'Done'] = true;
-      sl[servKey + 'DoneDate'] = D(0);
-      logActivity('wrench', 'Service Completed', `${servKey === 's2' ? '2nd' : '1st'} AC service marked completed for ${sl.cname || sl.customerName} (${sl.brand} ${sl.model})`);
-      save();
-      toast(`${servKey === 's2' ? '2nd' : '1st'} Service marked completed`, 'ok');
-      closeM();
-      render(true);
-    }
-  } else if (act === 'quick-wa-serv') {
-    const saleId = t.getAttribute('data-sale') || t.getAttribute('data-id');
-    const servKey = t.getAttribute('data-serv') || t.getAttribute('data-key');
-    const sl = S.sales.find(s => s.id === saleId);
-    if (sl) {
-      const isS2 = servKey === 's2';
-      const tmpl = (S.templates || []).find(tpl => tpl.id === (isS2 ? 'TP4' : 'TP3') || tpl.id === (isS2 ? 'service_reminder_2' : 'service_reminder_1')) || {};
-      const textTmpl = tmpl.body || tmpl.text || 'Dear {{name}}, your AC service is due.';
-      const msg = renderMessageTemplate(textTmpl, {
-        name: sl.cname || sl.customerName,
-        phone: sl.cphone || sl.customerWaPhone,
-        brand: sl.brand,
-        model: sl.model,
-        sn: sl.sn || sl.serialNumber,
-        shop: SS().store || 'Mobile Point AC Care',
-        instDate: fd(sl.idate || sl.installationDate),
-        servDate: fd(sl[servKey] ? sl[servKey].date : (isS2 ? sl.s2Due : sl.s1Due)),
-        servType: isS2 ? '2nd' : '1st',
-        daysLeft: '5'
-      });
-      if (sl[servKey]) sl[servKey].remSent = true;
-      sl[servKey + 'RemSent'] = true;
-      save();
-      closeM();
-      sendWhatsAppWA(sl.cphone || sl.customerWaPhone, msg, isS2 ? 'service_reminder_2' : 'service_reminder_1', sl.cname || sl.customerName);
-      render(true);
-    }
-  } else if (act === 'cal') {
-    calNav(t.getAttribute('data-v'));
-  } else if (act === 'cal-day-select') {
-    CAL_DATE = t.getAttribute('data-d');
-    CAL_VIEW = 'day';
-    render(true);
-  } else if (act === 'send-wa-trigger') {
-    const type = t.getAttribute('data-type');
-    const cid = t.getAttribute('data-cid');
-    const c = cust(cid);
-    const msg = `Hello ${c.name}, greetings from ${SS().store || 'Mobile Point AC Care'}!`;
-    sendWhatsAppWA(c.phone || c.waPhone, msg, type, c.name);
-  } else if (act === 'test-flow') {
-    const key = t.getAttribute('data-key');
-    testWaModal(key);
-  } else if (act === 'eng-tab') {
-    ENG_TAB = t.getAttribute('data-tab');
-    render(true);
-  } else if (act === 'toggle-auto') {
-    const aId = t.getAttribute('data-id');
-    const auto = (S.automations || S.flows || []).find(a => a.id === aId || a.key === aId);
-    if (auto) {
-      auto.active = t.checked;
-      save();
-      toast(`Automation ${auto.name} ${auto.active ? 'activated' : 'paused'}`);
-    }
-  } else if (act === 'test-auto' || act === 'test-wa-modal') {
-    const aId = t.getAttribute('data-id') || 'welcome';
-    testWaModal(aId);
-  } else if (act === 'edit-tmpl') {
-    const tId = t.getAttribute('data-id');
-    templateEditModal(tId);
-  } else if (act === 'view-log') {
-    const lId = t.getAttribute('data-id');
-    logViewModal(lId);
-  } else if (act === 'save-tmpl') {
-    const tId = t.getAttribute('data-id');
-    const tmpl = (S.templates || []).find(item => item.id === tId);
-    if (tmpl) {
-      tmpl.name = $('#edit-tmpl-name').value.trim();
-      tmpl.text = $('#edit-tmpl-text').value.trim();
-      tmpl.body = tmpl.text;
-      save();
-      closeM();
-      toast('Message template updated');
-      render(true);
-    }
-  } else if (act === 'send-test-wa') {
-    const autoId = t.getAttribute('data-auto') || 'welcome';
-    const cSel = $('#test-cust-sel');
-    const phoneInput = $('#test-phone-input');
-    const phone = phoneInput ? phoneInput.value.trim() : '9876543210';
-    const custId = cSel ? cSel.value : null;
-
-    const custObj = (S.customers || []).find(c => c.id === custId) || { name: 'Customer' };
-    const auto = (S.automations || S.flows || []).find(a => a.id === autoId || a.key === autoId) || {};
-    const tmpl = (S.templates || []).find(tmplItem => tmplItem.id === (auto.templateId || 'welcome')) || {};
-    
-    const rendered = renderMessageTemplate(tmpl.text || tmpl.body || '', {
-      name: custObj.name || 'Customer',
-      phone: phone,
-      brand: 'Daikin',
-      model: 'FTKF35',
-      sn: 'DK-89211',
-      shop: SS().store || 'Mobile Point AC Care',
-      instDate: '16 Jun 2026',
-      servDate: '15 Oct 2026',
-      servType: '1st',
-      daysLeft: '5'
-    });
-
-    sendWhatsAppWA(phone, rendered, autoId, custObj.name);
-    closeM();
-  } else if (act === 'insert-promo-var') {
-    const v = t.getAttribute('data-var');
-    const ta = $('#promo-body');
-    if (ta) {
-      ta.value += ' ' + v;
-      ta.focus();
-    }
-  } else if (act === 'insert-tmpl-var') {
-    const v = t.getAttribute('data-var');
-    const ta = $('#edit-tmpl-text');
-    if (ta) {
-      ta.value += ' ' + v;
-      ta.focus();
-    }
-  } else if (act === 'dispatch-promo') {
-    const aud = $('#promo-audience').value;
-    const body = $('#promo-body').value.trim();
-    if (!body) {
-      toast('Please enter promotional message text', 'wa');
-      return;
-    }
-    let targets = S.customers || [];
-    if (aud.startsWith('loc:')) {
-      const loc = aud.slice(4);
-      targets = targets.filter(c => c.locality === loc);
-    }
-    if (!S.msgs) S.msgs = [];
-    if (!S.waLogs) S.waLogs = S.msgs;
-    targets.forEach(c => {
-      const rendered = renderMessageTemplate(body, {
-        name: c.name,
-        phone: c.phone || c.waPhone,
-        shop: SS().store || 'Mobile Point AC Care'
-      });
-      S.msgs.unshift({
-        id: 'M' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
-        cid: c.id,
-        cname: c.name,
-        phone: c.phone || c.waPhone,
-        ch: 'WhatsApp',
-        tpl: 'Promotional Broadcast',
-        type: 'promo',
-        message: rendered,
-        time: D(0),
-        timestamp: new Date().toISOString(),
-        status: 'Delivered'
-      });
-    });
-    save();
-    toast(`Broadcast queued to ${targets.length} customers!`);
-    ENG_TAB = 'logs';
-    render(true);
-  } else if (act === 'send-inv-wa') {
-    const sId = t.getAttribute('data-id');
-    const s = (S.sales || []).find(item => item.id === sId);
-    if (!s) return;
-    const msg = `Dear ${s.cname || s.customerName},\nHere is your purchase confirmation & complimentary service certificate from ${SS().store || 'Mobile Point AC Care'}.\n\nInvoice: ${s.invoiceNo || s.id}\nAC: ${s.brand} ${s.model}\nSerial No: ${s.sn || s.serialNumber}\nPurchase Date: ${fd(s.purDate || s.purchaseDate)}\n\n1st Service Due: ${fd(s.s1 ? s.s1.date : s.s1Due)}\n2nd Service Due: ${fd(s.s2 ? s.s2.date : s.s2Due)}\n\nThank you for choosing us!`;
-    sendWhatsAppWA(s.cphone || s.customerWaPhone, msg, 'invoice_share', s.cname || s.customerName);
-  } else if (act === 'save-settings') {
-    const set = S.set || (S.set = {});
-    set.store = $('#set-shop-name').value.trim() || 'Mobile Point AC Care';
-    set.shopName = set.store;
-    set.addr = $('#set-shop-address').value.trim();
-    set.address = set.addr;
-    set.phone = $('#set-phone').value.trim();
-    set.waPhone = $('#set-wa-phone').value.trim();
-    set.gstin = $('#set-gstin').value.trim();
-    set.email = $('#set-email').value.trim();
-    set.s1Days = parseInt($('#set-s1-days').value || '120', 10);
-    set.s2Days = parseInt($('#set-s2-days').value || '330', 10);
-    S.settings = set;
-    save();
-    toast('Settings successfully saved');
-    render(true);
-  } else if (act === 'export-data') {
-    const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `mobile-point-ac-backup-${D(0)}.json`;
-    a.click();
-    toast('Database exported successfully');
-  } else if (act === 'reset-data') {
-    if (confirm('Reset database to default sample AC CRM data? All custom entries will be restored to seed state.')) {
-      localStorage.removeItem(KEY);
-      window.location.reload();
-    }
-  } else if (act === 'mark-all-read') {
-    (S.notifs || S.notifications || []).forEach(n => { n.unread = false; n.read = true; });
-    save();
-    toast('All notifications marked as read');
-    render(true);
-  }
-});
-
-document.addEventListener('input', e => {
-  const t = e.target;
-  if (!t) return;
-  if (t.id === 'cust-q' || t.id === 'prod-q' || t.id === 'sale-q') {
-    V.q = t.value;
-    render(true);
-  } else {
-    const act = t.getAttribute('data-act');
-    if (act === 'inv-search') {
-      INV_SEARCH = t.value;
-      render(true);
-    } else if (act === 'eng-log-search') {
-      ENG_SEARCH = t.value;
-      render(true);
-    }
-  }
 });
 
 document.addEventListener('change', e => {
-  const t = e.target;
-  if (!t) return;
-  if (t.id === 'sale-multi-files') {
-    const files = Array.from(t.files || []);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = ev => {
-        SALE_IMAGES.push(ev.target.result);
-        renderSaleImagesThumbnails();
-      };
-      reader.readAsDataURL(file);
-    });
-  } else {
-    const act = t.getAttribute('data-act');
-    if (act === 'inv-filter') {
-      INV_FILTER = t.value;
-      render(true);
-    } else if (act === 'eng-log-filter') {
-      ENG_FILTER = t.value;
-      render(true);
-    } else if (act === 'test-cust-change') {
-      updateTestWaPreview();
-    } else if (act === 'promo-audience-change') {
-      const v = t.value;
-      const cEl = $('#promo-recip-count');
-      if (cEl) {
-        if (v === 'all') {
-          cEl.textContent = (S.customers || []).length;
-        } else if (v.startsWith('loc:')) {
-          const loc = v.slice(4);
-          cEl.textContent = (S.customers || []).filter(c => c.locality === loc).length;
+    const t = e.target;
+    if (t.id === 'sale-file-input' && t.files) {
+        const files = [...t.files];
+        files.forEach(f => {
+            const r = new FileReader();
+            r.onload = ev => {
+                SALE_IMAGES.push(ev.target.result);
+                const g = $('#sale-img-preview-grid');
+                if (g) g.innerHTML = renderImageThumbnails();
+            };
+            r.readAsDataURL(f);
+        });
+        t.value = '';
+    } else if (t.id === 'sale-cust-select') {
+        const c = cust(t.value);
+        if (c.id) {
+            const scn = $('#sc_name'), scp = $('#sc_phone'), sca = $('#sc_alt'), scad = $('#sc_addr'), scl = $('#sc_loc'), sclm = $('#sc_land'), scpin = $('#sc_pin');
+            if (scn) scn.value = c.name;
+            if (scp) scp.value = c.phone;
+            if (sca) sca.value = c.altPhone || '';
+            if (scad) scad.value = c.address;
+            if (scl) scl.value = c.locality || '';
+            if (sclm) sclm.value = c.landmark || '';
+            if (scpin) scpin.value = c.pincode || '';
         }
-      }
+    } else if (t.id === 'sale-prod-select') {
+        const p = S.products.find(x => x.id === t.value);
+        if (p) {
+            const spb = $('#sp_brand'), spm = $('#sp_model'), spc = $('#sp_cap'), sps = $('#sp_star');
+            if (spb) spb.value = p.brand;
+            if (spm) spm.value = p.model;
+            if (spc) spc.value = p.capacity;
+            if (sps) sps.value = p.star;
+        }
+    } else if (t.id === 'sale-date-input') {
+        const d = t.value;
+        if (d) {
+            const p1 = $('#srv1-preview-date'), p2 = $('#srv2-preview-date');
+            if (p1) p1.textContent = fd(cdd(d, S.set.srv1Days || 120));
+            if (p2) p2.textContent = fd(cdd(d, S.set.srv2Days || 330));
+        }
     }
-  }
 });
 
-window.addEventListener('popstate', () => {
-  const hash = (window.location && window.location.hash) ? window.location.hash.replace('#', '') : 'overview';
-  go(hash || 'overview');
+document.addEventListener('input', e => {
+    if (e.target.id === 'sq') {
+        SQ = e.target.value;
+        const main = $('#main');
+        if (V.page === 'sales' && main) main.innerHTML = salesPage();
+    } else if (e.target.id === 'lq') {
+        V.q = e.target.value;
+        V.p = 0;
+        const tb = $('#tb');
+        if (tb && P[V.page]) {
+            const def = P[V.page];
+            let rows = def.rows();
+            if (V.f && V.f !== 'All' && def.chip) rows = rows.filter(r => def.chip(r, V.f));
+            if (V.q.trim()) {
+                const q = V.q.toLowerCase().trim();
+                rows = rows.filter(r => JSON.stringify(r).toLowerCase().includes(q));
+            }
+            tb.innerHTML = rows.slice(0, 25).map(r => `
+                <tr style="cursor:pointer" data-act="open-row" data-k="${V.page}" data-id="${r.id}">
+                    ${def.cols.map(c => `<td>${c[1](r)}</td>`).join('')}
+                </tr>
+            `).join('') || `<tr><td colspan="${def.cols.length}" class="empty">No records found matching filter</td></tr>`;
+        }
+    } else if (e.target.id === 'gq') {
+        const q = e.target.value.toLowerCase().trim();
+        let existing = $('.gsr');
+        if (existing) existing.remove();
+        if (!q) return;
+        const matches = [];
+        S.customers.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q)).slice(0, 4).forEach(c => matches.push({ t: c.name, s: 'Customer · ' + c.phone, p: 'customers/' + c.id }));
+        S.products.filter(p => p.brand.toLowerCase().includes(q) || p.model.toLowerCase().includes(q)).slice(0, 4).forEach(p => matches.push({ t: p.brand + ' ' + p.model, s: 'AC Product', p: 'products/' + p.id }));
+        S.sales.filter(s => s.id.toLowerCase().includes(q) || s.sn.toLowerCase().includes(q)).slice(0, 4).forEach(s => matches.push({ t: s.id + ' · ' + s.custName, s: 'Sale · S/N ' + s.sn, p: 'sales/' + s.id }));
+        const r = e.target.getBoundingClientRect();
+        const popup = document.createElement('div');
+        popup.className = 'gsr';
+        popup.style.cssText = `left:${r.left}px;top:${r.bottom + 6}px;width:${Math.max(r.width, 320)}px;position:fixed;background:var(--sf);border:1px solid var(--bd);border-radius:10px;box-shadow:0 12px 32px rgba(0,0,0,0.18);z-index:9999;max-height:360px;overflow-y:auto;padding:6px`;
+        popup.innerHTML = matches.map(m => `
+            <div data-act="nav" data-p="${m.p}" style="padding:8px 12px;border-radius:6px;cursor:pointer">
+                <b>${esc(m.t)}</b>
+                <small class="mu" style="display:block">${esc(m.s)}</small>
+            </div>
+        `).join('') || '<div class="mu" style="padding:10px">No matching records found</div>';
+        document.body.append(popup);
+    }
 });
 
 document.addEventListener('keydown', e => {
-  if (e.target && e.target.id === 'gq' && e.key === 'Enter') {
-    const q = e.target.value.trim();
-    if (q) {
-      globalSearchModal(q);
-      e.target.value = '';
+    if (e.key === 'Escape') {
+        closeM();
+        npClose();
+        adClose();
+        const g = $('.gsr');
+        if (g) g.remove();
     }
-  } else if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-    e.preventDefault();
-    const gq = $('#gq');
-    if (gq) gq.focus();
-  }
 });
 
-const initHash = (window.location && window.location.hash) ? window.location.hash.replace('#', '') : '';
-go(initHash || 'overview');
+window.addEventListener('resize', npPos);
 
+document.addEventListener('submit', e => {
+    if (e.target && e.target.dataset && e.target.dataset.act === 'save-new-user') {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const name = (fd.get('name') || '').trim();
+        const email = (fd.get('email') || '').trim();
+        const phone = (fd.get('phone') || '').trim();
+        const preset = fd.get('preset') || 'cashier';
+        if (!name || !email) return toast('Name and email are required', 'er');
+        const newU = {
+            id: 'U' + (S.users.length + 1),
+            name,
+            email,
+            phone,
+            status: 'Active',
+            lastLogin: 'Never',
+            preset,
+            permissions: JSON.parse(JSON.stringify(PRESETS[preset].perms))
+        };
+        S.users.push(newU);
+        save();
+        closeM();
+        toast('Staff user added');
+        go('users');
+    }
+});
 
+const mb = $('#mb');
+if (mb) mb.innerHTML = ic('menu');
+const bl = $('#bl');
+if (bl) bl.innerHTML = ic('bell');
+const ab = $('#ab');
+if (ab) ab.innerHTML = ic('pulse');
+const th = $('#th');
+if (th) th.innerHTML = ic('moon');
+const nb = $('#nb');
+if (nb) nb.innerHTML = ic('plus') + '<span>New</span>';
+const gsb = $('#gsb');
+if (gsb) gsb.innerHTML = ic('search') + '<input id="gq" placeholder="Global search customers, AC models, sales, serials..." aria-label="Global search">';
+
+V.page = location.hash.slice(1) || 'overview';
+if (!NAV.some(n => n[0] === V.page.split('/')[0])) V.page = 'overview';
+V.k = ['overview', 'calendar', 'reports', 'settings', 'sales', 'notifications', 'activity'].includes(V.page.split('/')[0]) ? '' : V.page.split('/')[0];
+render();
