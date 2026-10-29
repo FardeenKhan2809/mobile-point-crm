@@ -1182,7 +1182,8 @@ function custSave(id) {
     if (!f) return;
     $$e(f, '.er').forEach(x => x.remove());
     const d = {};
-    [...f.elements].forEach(x => { if (x.name) d[x.name] = x.type === 'checkbox' ? x.checked : x.value.trim(); });
+    const fEls = f.elements ? [...f.elements] : Array.from(f.querySelectorAll('input, select, textarea'));
+    fEls.forEach(x => { if (x.name) d[x.name] = x.type === 'checkbox' ? x.checked : (x.value || '').trim(); });
 
     let ok = 1;
     const E = (n, m) => {
@@ -1400,7 +1401,8 @@ function prodSave(id) {
     if (!f) return;
     $$e(f, '.er').forEach(x => x.remove());
     const d = {};
-    [...f.elements].forEach(x => { if (x.name) d[x.name] = x.value.trim(); });
+    const fEls = f.elements ? [...f.elements] : Array.from(f.querySelectorAll('input, select, textarea'));
+    fEls.forEach(x => { if (x.name) d[x.name] = (x.value || '').trim(); });
 
     let ok = 1;
     const E = (n, m) => {
@@ -1678,7 +1680,8 @@ function saleSave(id) {
     $$e(f, '.er').forEach(x => x.remove());
 
     const d = {};
-    [...f.elements].forEach(x => { if (x.name) d[x.name] = x.value.trim(); });
+    const fEls = f.elements ? [...f.elements] : Array.from(f.querySelectorAll('input, select, textarea'));
+    fEls.forEach(x => { if (x.name) d[x.name] = (x.value || '').trim(); });
 
     let ok = 1;
     const E = (n, m) => {
@@ -2679,80 +2682,84 @@ function invoicesPage() {
     const q = INV_SEARCH.toLowerCase();
     filtered = filtered.filter(s => 
       (s.invoiceNo && s.invoiceNo.toLowerCase().includes(q)) ||
+      (s.id && s.id.toLowerCase().includes(q)) ||
       (s.customerName && s.customerName.toLowerCase().includes(q)) ||
+      (s.cname && s.cname.toLowerCase().includes(q)) ||
       (s.brand && s.brand.toLowerCase().includes(q)) ||
       (s.model && s.model.toLowerCase().includes(q)) ||
-      (s.serialNumber && s.serialNumber.toLowerCase().includes(q))
+      (s.serialNumber && s.serialNumber.toLowerCase().includes(q)) ||
+      (s.sn && s.sn.toLowerCase().includes(q))
     );
   }
 
   return `
-    <div class="ph">
-      <div class="ph-left">
-        <h2>AC Invoices & Delivery Memos</h2>
-        <p class="sub">View, print and share sales invoices with complimentary AC service schedules</p>
-      </div>
-      <div class="ph-right">
-        <button class="btn btn-primary" data-act="go-sub" data-page="sale-new">${ic('plus')} Record New Sale</button>
-      </div>
-    </div>
-
-    <div class="card" style="padding:0">
-      <div style="padding:16px 20px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--border-light);flex-wrap:wrap">
-        <div class="search-box" style="max-width:320px;flex:1">
-          ${ic('search')}
-          <input type="text" placeholder="Search invoice #, customer, model, serial..." value="${esc(INV_SEARCH)}" data-act="inv-search">
+    <div class="pg">
+      <div class="ph">
+        <div>
+          <h1>AC Invoices & Delivery Memos</h1>
+          <p>Official tax invoices, purchase certificates and complimentary service schedules</p>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <label style="font-size:13px;color:var(--text-2);font-weight:600">Status:</label>
-          <select class="form-ctrl" style="width:160px" data-act="inv-filter">
-            <option value="all" ${INV_FILTER === 'all' ? 'selected' : ''}>All Status</option>
-            <option value="installed" ${INV_FILTER === 'installed' ? 'selected' : ''}>Installed</option>
-            <option value="delivered" ${INV_FILTER === 'delivered' ? 'selected' : ''}>Delivered</option>
-            <option value="booked" ${INV_FILTER === 'booked' ? 'selected' : ''}>Booked</option>
-          </select>
+        <div style="display:flex;gap:8px">
+          <button class="btn pri" data-act="go" data-p="sales/new">${ic('plus')} Record New Sale</button>
         </div>
       </div>
 
-      <div class="table-wrap">
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th style="text-align:left">Invoice #</th>
-              <th style="text-align:left">Date</th>
-              <th style="text-align:left">Customer Name</th>
-              <th style="text-align:left">AC Brand & Model</th>
-              <th style="text-align:left">Serial Number</th>
-              <th style="text-align:left">1st Service Due</th>
-              <th style="text-align:left">Status</th>
-              <th style="text-align:right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filtered.length === 0 ? `
-              <tr><td colspan="8" style="text-align:center;padding:36px;color:var(--text-3)">No invoices found</td></tr>
-            ` : filtered.map(s => `
+      <div class="panel">
+        <div style="padding:14px 18px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--bd);flex-wrap:wrap">
+          <div class="sb" style="max-width:320px;flex:1">
+            ${ic('search')}
+            <input type="text" placeholder="Search invoice #, customer, model, serial..." value="${esc(INV_SEARCH)}" data-act="inv-search">
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:13px;color:var(--mu);font-weight:600">Status:</span>
+            <select class="form-ctrl" style="width:160px" data-act="inv-filter">
+              <option value="all" ${INV_FILTER === 'all' ? 'selected' : ''}>All Status</option>
+              <option value="Installed" ${INV_FILTER === 'Installed' ? 'selected' : ''}>Installed</option>
+              <option value="Pending Installation" ${INV_FILTER === 'Pending Installation' ? 'selected' : ''}>Pending Installation</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="tb-wrap">
+          <table class="tb">
+            <thead>
               <tr>
-                <td style="text-align:left"><strong style="font-family:monospace;color:var(--pri)">${esc(s.invoiceNo || 'INV-' + s.id)}</strong></td>
-                <td style="text-align:left;font-size:13px;white-space:nowrap">${fd(s.purchaseDate)}</td>
-                <td style="text-align:left">
-                  <div style="font-weight:600">${esc(s.customerName)}</div>
-                  <div style="font-size:12px;color:var(--text-3)">${esc(s.customerWaPhone || '')}</div>
-                </td>
-                <td style="text-align:left">
-                  <span class="badge badge-sec">${esc(s.brand)}</span> <strong>${esc(s.model)}</strong>
-                </td>
-                <td style="text-align:left"><span style="font-family:monospace;font-size:12px">${esc(s.serialNumber || '—')}</span></td>
-                <td style="text-align:left;font-size:13px;white-space:nowrap">${fd(s.s1Due)}</td>
-                <td style="text-align:left"><span class="badge ${s.status === 'installed' ? 'badge-suc' : s.status === 'delivered' ? 'badge-inf' : 'badge-warn'}">${esc(s.status || 'delivered')}</span></td>
-                <td style="text-align:right;white-space:nowrap">
-                  <button class="btn btn-sm btn-sec" data-act="go-sub" data-page="inv-detail" data-id="${s.id}">${ic('printer')} View Invoice</button>
-                  <button class="btn btn-sm btn-sec" data-act="send-inv-wa" data-id="${s.id}" title="Share via WhatsApp">${ic('send')}</button>
-                </td>
+                <th style="text-align:left">Invoice #</th>
+                <th style="text-align:left">Date</th>
+                <th style="text-align:left">Customer Name</th>
+                <th style="text-align:left">AC Brand & Model</th>
+                <th style="text-align:left">Serial Number</th>
+                <th style="text-align:left">1st Service Due</th>
+                <th style="text-align:left">Status</th>
+                <th style="text-align:right">Actions</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${filtered.length === 0 ? `
+                <tr><td colspan="8" style="text-align:center;padding:36px;color:var(--mu)">No invoices found</td></tr>
+              ` : filtered.map(s => `
+                <tr>
+                  <td style="text-align:left"><strong style="font-family:monospace;color:var(--ac)">${esc(s.invoiceNo || s.id)}</strong></td>
+                  <td style="text-align:left;font-size:13px;white-space:nowrap">${fd(s.purchaseDate || s.purDate || s.pdate)}</td>
+                  <td style="text-align:left">
+                    <div style="font-weight:600">${esc(s.customerName || s.cname)}</div>
+                    <div style="font-size:12px;color:var(--mu)">${esc(s.customerWaPhone || s.cphone || '')}</div>
+                  </td>
+                  <td style="text-align:left">
+                    <span class="b" style="font-size:11px">${esc(s.brand)}</span> <strong>${esc(s.model)}</strong>
+                  </td>
+                  <td style="text-align:left"><span style="font-family:monospace;font-size:12px">${esc(s.serialNumber || s.sn || '—')}</span></td>
+                  <td style="text-align:left;font-size:13px;white-space:nowrap">${fd(s.s1 ? s.s1.date : s.s1Due)}</td>
+                  <td style="text-align:left">${B(s.status || 'Installed')}</td>
+                  <td style="text-align:right;white-space:nowrap">
+                    <button class="btn sm" data-act="go" data-p="invoices/${s.id}">${ic('file')} View Invoice</button>
+                    <button class="btn sm" data-act="send-inv-wa" data-id="${s.id}" title="Share via WhatsApp">${ic('send')}</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   `;
@@ -2760,59 +2767,59 @@ function invoicesPage() {
 
 function invoiceDetailPage(saleId) {
   const S = SS();
-  const s = (S.sales || []).find(item => item.id === saleId);
+  const s = (S.sales || []).find(item => item.id === saleId) || (S.sales && S.sales[0]);
   if (!s) {
-    return `<div class="card"><p>Sale invoice not found.</p><button class="btn btn-sec" data-act="go-nav" data-page="invoices">Back to Invoices</button></div>`;
+    return `<div class="pg"><div class="panel" style="padding:24px"><p>Sale invoice not found.</p><button class="btn" data-act="go" data-p="invoices">Back to Invoices</button></div></div>`;
   }
 
-  const c = (S.customers || []).find(item => item.id === s.customerId) || {};
-  const p = (S.products || []).find(item => item.id === s.productId) || {};
-  const shop = S.settings || {};
+  const c = (S.customers || []).find(item => item.id === (s.customerId || s.cid)) || {};
+  const p = (S.products || []).find(item => item.id === (s.productId || s.pid)) || {};
+  const shop = S.set || S.settings || {};
 
   return `
-    <div style="max-width:850px;margin:0 auto">
+    <div class="pg" style="max-width:880px;margin:0 auto">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px" class="no-print">
-        <button class="btn btn-sec" data-act="go-nav" data-page="invoices">${ic('back')} Back to Invoices</button>
+        <button class="btn" data-act="go" data-p="invoices">${ic('home')} Back to Invoices</button>
         <div style="display:flex;gap:8px">
-          <button class="btn btn-sec" data-act="send-inv-wa" data-id="${s.id}">${ic('send')} Share on WhatsApp</button>
-          <button class="btn btn-primary" onclick="window.print()">${ic('printer')} Print Invoice</button>
+          <button class="btn" data-act="send-inv-wa" data-id="${s.id}">${ic('send')} Share on WhatsApp</button>
+          <button class="btn pri" onclick="window.print()">${ic('file')} Print Invoice</button>
         </div>
       </div>
 
-      <div class="card inv-sheet" style="padding:36px;border-top:6px solid var(--pri);background:#fff;color:#111">
+      <div class="panel inv-sheet" style="padding:36px;border-top:6px solid var(--ac);background:#fff;color:#111">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #eee;padding-bottom:20px;margin-bottom:24px">
           <div>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:6px;background:var(--pri);color:#fff">${ic('zap')}</span>
-              <h1 style="font-size:24px;font-weight:800;color:var(--pri);margin:0;letter-spacing:-0.5px">${esc(shop.shopName || 'Mobile Point AC Care')}</h1>
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:6px;background:var(--ac);color:#fff">${ic('zap')}</span>
+              <h1 style="font-size:24px;font-weight:800;color:var(--ac);margin:0;letter-spacing:-0.5px">${esc(shop.store || shop.shopName || 'Mobile Point AC Care')}</h1>
             </div>
             <div style="font-size:13px;color:#555;line-height:1.5">
-              ${esc(shop.address || 'Shop No. 12, Main Market, City Center')}<br>
-              Phone: ${esc(shop.phone || '9876543210')} | WhatsApp: ${esc(shop.waPhone || '9876543210')}<br>
-              GSTIN: ${esc(shop.gstin || '07AAAAA0000A1Z5')} | Authorized AC Sales & Care
+              ${esc(shop.addr || shop.address || 'Alkapuri, Vadodara, Gujarat 390007')}<br>
+              Phone: ${esc(shop.phone || '+91 98250 00000')} | WhatsApp: ${esc(shop.waPhone || shop.phone || '+91 98250 00000')}<br>
+              GSTIN: ${esc(shop.gstin || '24ABCDE1234F1Z5')} | Authorized AC Sales & Care
             </div>
           </div>
           <div style="text-align:right">
-            <span class="badge badge-pri" style="font-size:13px;padding:4px 10px;text-transform:uppercase">Tax Invoice & Delivery Memo</span>
-            <div style="font-size:18px;font-weight:700;margin-top:8px;font-family:monospace">${esc(s.invoiceNo || 'INV-' + s.id)}</div>
-            <div style="font-size:12px;color:#666;margin-top:3px">Date: <strong>${fd(s.purchaseDate)}</strong></div>
-            <div style="font-size:12px;color:#666">Status: <strong style="text-transform:uppercase">${esc(s.status || 'Delivered')}</strong></div>
+            <span class="b ok" style="font-size:13px;padding:4px 10px;text-transform:uppercase">Tax Invoice & Delivery Memo</span>
+            <div style="font-size:18px;font-weight:700;margin-top:8px;font-family:monospace">${esc(s.invoiceNo || s.id)}</div>
+            <div style="font-size:12px;color:#666;margin-top:3px">Date: <strong>${fd(s.purchaseDate || s.purDate || s.pdate)}</strong></div>
+            <div style="font-size:12px;color:#666">Status: <strong style="text-transform:uppercase">${esc(s.status || 'Installed')}</strong></div>
           </div>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;background:#f9fafb;padding:16px;border-radius:6px;border:1px solid #e5e7eb">
           <div>
             <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;margin-bottom:6px">Customer Details</div>
-            <div style="font-weight:700;font-size:15px;color:#111827">${esc(s.customerName || c.name || 'Customer')}</div>
+            <div style="font-weight:700;font-size:15px;color:#111827">${esc(s.customerName || s.cname || c.name || 'Customer')}</div>
             <div style="font-size:13px;color:#374151;margin-top:4px;line-height:1.4">
-              ${esc(s.customerAddress || c.address || '—')}<br>
-              ${(s.customerLandmark || c.landmark) ? `Landmark: ${esc(s.customerLandmark || c.landmark)}<br>` : ''}
-              ${(s.customerLocality || c.locality) ? `Locality: ${esc(s.customerLocality || c.locality)}, ` : ''}
-              Pin: ${esc(s.customerPincode || c.pincode || '—')}
+              ${esc(s.customerAddress || s.caddr || c.address || '—')}<br>
+              ${(s.customerLandmark || s.clandmark || c.landmark) ? `Landmark: ${esc(s.customerLandmark || s.clandmark || c.landmark)}<br>` : ''}
+              ${(s.customerLocality || s.clocality || c.locality) ? `Locality: ${esc(s.customerLocality || s.clocality || c.locality)}, ` : ''}
+              Pin: ${esc(s.customerPincode || s.cpincode || c.pincode || '—')}
             </div>
             <div style="font-size:13px;color:#1f2937;margin-top:6px">
-              WhatsApp: <strong>${esc(s.customerWaPhone || c.waPhone || '—')}</strong>
-              ${(s.customerAltPhone || c.altPhone) ? ` | Alt: ${esc(s.customerAltPhone || c.altPhone)}` : ''}
+              WhatsApp: <strong>${esc(s.customerWaPhone || s.cphone || c.phone || '—')}</strong>
+              ${(s.customerAltPhone || s.caltPhone || c.altPhone) ? ` | Alt: ${esc(s.customerAltPhone || s.caltPhone || c.altPhone)}` : ''}
             </div>
           </div>
 
@@ -2821,15 +2828,15 @@ function invoiceDetailPage(saleId) {
             <table style="width:100%;font-size:13px;color:#374151;border-collapse:collapse">
               <tr>
                 <td style="padding:3px 0;color:#6b7280;width:130px">Shop / Branch:</td>
-                <td style="padding:3px 0;font-weight:600">${esc(s.shopName || shop.shopName || 'Mobile Point AC Care')}</td>
+                <td style="padding:3px 0;font-weight:600">${esc(s.shop || shop.store || 'Mobile Point AC Care')}</td>
               </tr>
               <tr>
                 <td style="padding:3px 0;color:#6b7280">Date of Purchase:</td>
-                <td style="padding:3px 0;font-weight:600">${fd(s.purchaseDate)}</td>
+                <td style="padding:3px 0;font-weight:600">${fd(s.purchaseDate || s.purDate || s.pdate)}</td>
               </tr>
               <tr>
                 <td style="padding:3px 0;color:#6b7280">Installation Date:</td>
-                <td style="padding:3px 0;font-weight:600">${fd(s.installationDate)}</td>
+                <td style="padding:3px 0;font-weight:600">${fd(s.installationDate || s.idate)}</td>
               </tr>
               <tr>
                 <td style="padding:3px 0;color:#6b7280">Brand OEM Support:</td>
@@ -2857,15 +2864,15 @@ function invoiceDetailPage(saleId) {
                 <div style="font-weight:700;color:#111827">${esc(s.brand)} ${esc(s.model)} Air Conditioner</div>
                 <div style="font-size:12px;color:#6b7280;margin-top:2px">
                   ${p.capacity ? esc(p.capacity) + ' • ' : ''}
-                  ${p.starRating ? esc(p.starRating) + ' • ' : ''}
-                  ${p.inverterType ? esc(p.inverterType) + ' Inverter • ' : ''}
-                  ${p.condenser ? esc(p.condenser) + ' Condenser' : ''}
+                  ${p.star ? esc(p.star) + ' • ' : ''}
+                  ${p.invType ? esc(p.invType) + ' • ' : ''}
+                  ${p.condenser ? esc(p.condenser) : ''}
                 </div>
                 ${s.notes ? `<div style="font-size:11px;color:#9ca3af;margin-top:4px">Note: ${esc(s.notes)}</div>` : ''}
               </td>
               <td style="padding:12px;text-align:left;font-size:13px;vertical-align:top;font-weight:600">${esc(s.brand)}</td>
               <td style="padding:12px;text-align:left;font-size:13px;vertical-align:top;font-family:monospace">${esc(s.model)}</td>
-              <td style="padding:12px;text-align:left;font-size:13px;vertical-align:top;font-family:monospace;font-weight:700;color:var(--pri)">${esc(s.serialNumber || '—')}</td>
+              <td style="padding:12px;text-align:left;font-size:13px;vertical-align:top;font-family:monospace;font-weight:700;color:var(--ac)">${esc(s.serialNumber || s.sn || '—')}</td>
               <td style="padding:12px;text-align:center;font-size:13px;vertical-align:top;font-weight:600">1 Unit</td>
             </tr>
           </tbody>
@@ -2873,7 +2880,7 @@ function invoiceDetailPage(saleId) {
 
         <div style="border:2px dashed #93c5fd;border-radius:8px;padding:16px;background:#eff6ff;margin-bottom:24px">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-            <span style="color:#2563eb">${ic('shield')}</span>
+            <span style="color:#2563eb">${ic('zap')}</span>
             <h4 style="margin:0;color:#1e40af;font-size:15px;font-weight:700">Complimentary Service Schedule Certificate</h4>
           </div>
           <p style="font-size:12px;color:#1e3a8a;margin-bottom:12px;line-height:1.4">
@@ -2882,16 +2889,16 @@ function invoiceDetailPage(saleId) {
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
             <div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #bfdbfe">
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#2563eb">1st Complimentary Service</div>
-              <div style="font-size:14px;font-weight:700;color:#111;margin-top:3px">Due Date: ${fd(s.s1Due)}</div>
-              <div style="font-size:12px;color:${s.s1Done ? '#059669' : '#d97706'};margin-top:2px;font-weight:600">
-                ${s.s1Done ? '✓ Completed on ' + fd(s.s1DoneDate) : '• Scheduled / Pending'}
+              <div style="font-size:14px;font-weight:700;color:#111;margin-top:3px">Due Date: ${fd(s.s1 ? s.s1.date : s.s1Due)}</div>
+              <div style="font-size:12px;color:${(s.s1 && s.s1.status === 'Completed') || s.s1Done ? '#059669' : '#d97706'};margin-top:2px;font-weight:600">
+                ${(s.s1 && s.s1.status === 'Completed') || s.s1Done ? '✓ Completed' : '• Scheduled / Pending'}
               </div>
             </div>
             <div style="background:#fff;padding:12px;border-radius:6px;border:1px solid #bfdbfe">
               <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#2563eb">2nd Complimentary Service</div>
-              <div style="font-size:14px;font-weight:700;color:#111;margin-top:3px">Due Date: ${fd(s.s2Due)}</div>
-              <div style="font-size:12px;color:${s.s2Done ? '#059669' : '#d97706'};margin-top:2px;font-weight:600">
-                ${s.s2Done ? '✓ Completed on ' + fd(s.s2DoneDate) : '• Scheduled / Pending'}
+              <div style="font-size:14px;font-weight:700;color:#111;margin-top:3px">Due Date: ${fd(s.s2 ? s.s2.date : s.s2Due)}</div>
+              <div style="font-size:12px;color:${(s.s2 && s.s2.status === 'Completed') || s.s2Done ? '#059669' : '#d97706'};margin-top:2px;font-weight:600">
+                ${(s.s2 && s.s2.status === 'Completed') || s.s2Done ? '✓ Completed' : '• Scheduled / Pending'}
               </div>
             </div>
           </div>
@@ -2907,7 +2914,7 @@ function invoiceDetailPage(saleId) {
           <div style="text-align:center">
             <div style="width:160px;border-bottom:1px solid #111;margin-bottom:6px"></div>
             <div style="font-size:12px;font-weight:700;color:#111">Authorized Signatory</div>
-            <div style="font-size:11px;color:#6b7280">${esc(shop.shopName || 'Mobile Point AC Care')}</div>
+            <div style="font-size:11px;color:#6b7280">${esc(shop.store || 'Mobile Point AC Care')}</div>
           </div>
         </div>
       </div>
@@ -2925,7 +2932,7 @@ function reportsPage() {
   const capacityCounts = {};
   sales.forEach(s => {
     brandCounts[s.brand] = (brandCounts[s.brand] || 0) + 1;
-    const p = prods.find(item => item.id === s.productId);
+    const p = prods.find(item => item.id === (s.productId || s.pid));
     const cap = (p && p.capacity) ? p.capacity : '1.5 Ton';
     capacityCounts[cap] = (capacityCounts[cap] || 0) + 1;
   });
@@ -2942,122 +2949,124 @@ function reportsPage() {
   let s2Pending = 0;
 
   sales.forEach(s => {
-    if (s.s1Done) s1Completed++; else s1Pending++;
-    if (s.s2Done) s2Completed++; else s2Pending++;
+    if ((s.s1 && s.s1.status === 'Completed') || s.s1Done) s1Completed++; else s1Pending++;
+    if ((s.s2 && s.s2.status === 'Completed') || s.s2Done) s2Completed++; else s2Pending++;
   });
 
   return `
-    <div class="ph">
-      <div class="ph-left">
-        <h2>Reports & Sales Analytics</h2>
-        <p class="sub">AC brand performance, service schedule tracking and customer distribution</p>
-      </div>
-    </div>
-
-    <div class="kpi-grid">
-      <div class="kpi-c">
-        <div class="kpi-t">Total Units Sold</div>
-        <div class="kpi-v" style="color:var(--pri)">${sales.length}</div>
-        <div class="kpi-s">AC installations recorded</div>
-      </div>
-      <div class="kpi-c">
-        <div class="kpi-t">Customer Base</div>
-        <div class="kpi-v" style="color:var(--suc)">${custs.length}</div>
-        <div class="kpi-s">Active AC buyers</div>
-      </div>
-      <div class="kpi-c">
-        <div class="kpi-t">1st Service Completion</div>
-        <div class="kpi-v" style="color:var(--inf)">${sales.length ? Math.round((s1Completed / sales.length) * 100) : 0}%</div>
-        <div class="kpi-s">${s1Completed} done / ${s1Pending} pending</div>
-      </div>
-      <div class="kpi-c">
-        <div class="kpi-t">2nd Service Completion</div>
-        <div class="kpi-v" style="color:var(--warn)">${sales.length ? Math.round((s2Completed / sales.length) * 100) : 0}%</div>
-        <div class="kpi-s">${s2Completed} done / ${s2Pending} pending</div>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:20px;margin-bottom:24px">
-      <div class="card">
-        <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">${ic('tag')} AC Sales by Brand</h3>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          ${Object.keys(brandCounts).sort((a,b) => brandCounts[b] - brandCounts[a]).map(b => {
-            const count = brandCounts[b];
-            const pct = Math.round((count / (sales.length || 1)) * 100);
-            return `
-              <div>
-                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-                  <span style="font-weight:600">${esc(b)}</span>
-                  <span>${count} units (${pct}%)</span>
-                </div>
-                <div style="height:8px;background:var(--bg-app);border-radius:4px;overflow:hidden">
-                  <div style="height:100%;width:${pct}%;background:var(--pri);border-radius:4px"></div>
-                </div>
-              </div>
-            `;
-          }).join('')}
+    <div class="pg">
+      <div class="ph">
+        <div>
+          <h1>Reports & Sales Analytics</h1>
+          <p>AC brand performance, service schedule tracking and customer locality distribution</p>
         </div>
       </div>
 
-      <div class="card">
-        <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">${ic('zap')} AC Sales by Capacity / Tonnage</h3>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          ${Object.keys(capacityCounts).map(cap => {
-            const count = capacityCounts[cap];
-            const pct = Math.round((count / (sales.length || 1)) * 100);
-            return `
-              <div>
-                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-                  <span style="font-weight:600">${esc(cap)}</span>
-                  <span>${count} units (${pct}%)</span>
-                </div>
-                <div style="height:8px;background:var(--bg-app);border-radius:4px;overflow:hidden">
-                  <div style="height:100%;width:${pct}%;background:var(--suc);border-radius:4px"></div>
-                </div>
-              </div>
-            `;
-          }).join('')}
+      <div class="kp">
+        <div class="k">
+          ${ic('cart')}
+          <b>${sales.length}</b>
+          <span>Total Units Sold</span>
+        </div>
+        <div class="k">
+          ${ic('users')}
+          <b>${custs.length}</b>
+          <span>Customer Base</span>
+        </div>
+        <div class="k hl">
+          ${ic('wrench')}
+          <b>${sales.length ? Math.round((s1Completed / sales.length) * 100) : 0}%</b>
+          <span>1st Service Done (${s1Completed}/${sales.length})</span>
+        </div>
+        <div class="k hl">
+          ${ic('cal')}
+          <b>${sales.length ? Math.round((s2Completed / sales.length) * 100) : 0}%</b>
+          <span>2nd Service Done (${s2Completed}/${sales.length})</span>
         </div>
       </div>
 
-      <div class="card">
-        <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">${ic('map')} Customers by Locality</h3>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          ${Object.keys(localityCounts).sort((a,b) => localityCounts[b] - localityCounts[a]).map(loc => {
-            const count = localityCounts[loc];
-            const pct = Math.round((count / (custs.length || 1)) * 100);
-            return `
-              <div>
-                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-                  <span style="font-weight:600">${esc(loc)}</span>
-                  <span>${count} customers (${pct}%)</span>
+      <div class="gr">
+        <div class="panel">
+          <div class="hd"><h2>${ic('tag')} AC Sales by Brand</h2></div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+            ${Object.keys(brandCounts).sort((a,b) => brandCounts[b] - brandCounts[a]).map(b => {
+              const count = brandCounts[b];
+              const pct = Math.round((count / (sales.length || 1)) * 100);
+              return `
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                    <span style="font-weight:600">${esc(b)}</span>
+                    <span>${count} units (${pct}%)</span>
+                  </div>
+                  <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden">
+                    <div style="height:100%;width:${pct}%;background:var(--ac);border-radius:4px"></div>
+                  </div>
                 </div>
-                <div style="height:8px;background:var(--bg-app);border-radius:4px;overflow:hidden">
-                  <div style="height:100%;width:${pct}%;background:var(--inf);border-radius:4px"></div>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-
-      <div class="card">
-        <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">${ic('shield')} Service Compliance Status</h3>
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <div style="background:var(--bg-app);padding:12px;border-radius:var(--r-md);border:1px solid var(--border)">
-            <div style="font-weight:700;font-size:13px;margin-bottom:4px;color:var(--text-1)">1st Free Service (3-5 Months)</div>
-            <div style="font-size:12px;color:var(--text-2);margin-bottom:8px">Target: within 120 days of AC installation</div>
-            <div style="display:flex;gap:12px">
-              <span class="badge badge-suc">Completed: ${s1Completed}</span>
-              <span class="badge badge-warn">Upcoming / Due: ${s1Pending}</span>
-            </div>
+              `;
+            }).join('')}
           </div>
-          <div style="background:var(--bg-app);padding:12px;border-radius:var(--r-md);border:1px solid var(--border)">
-            <div style="font-weight:700;font-size:13px;margin-bottom:4px;color:var(--text-1)">2nd Free Service (Before 11 Months)</div>
-            <div style="font-size:12px;color:var(--text-2);margin-bottom:8px">Target: within 330 days of AC installation</div>
-            <div style="display:flex;gap:12px">
-              <span class="badge badge-suc">Completed: ${s2Completed}</span>
-              <span class="badge badge-warn">Upcoming / Due: ${s2Pending}</span>
+        </div>
+
+        <div class="panel">
+          <div class="hd"><h2>${ic('zap')} AC Sales by Capacity / Tonnage</h2></div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+            ${Object.keys(capacityCounts).map(cap => {
+              const count = capacityCounts[cap];
+              const pct = Math.round((count / (sales.length || 1)) * 100);
+              return `
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                    <span style="font-weight:600">${esc(cap)}</span>
+                    <span>${count} units (${pct}%)</span>
+                  </div>
+                  <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden">
+                    <div style="height:100%;width:${pct}%;background:var(--ok);border-radius:4px"></div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="hd"><h2>${ic('home')} Customers by Locality</h2></div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+            ${Object.keys(localityCounts).sort((a,b) => localityCounts[b] - localityCounts[a]).map(loc => {
+              const count = localityCounts[loc];
+              const pct = Math.round((count / (custs.length || 1)) * 100);
+              return `
+                <div>
+                  <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                    <span style="font-weight:600">${esc(loc)}</span>
+                    <span>${count} customers (${pct}%)</span>
+                  </div>
+                  <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden">
+                    <div style="height:100%;width:${pct}%;background:var(--ac);border-radius:4px"></div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="hd"><h2>${ic('wrench')} Service Compliance Tracker</h2></div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:14px">
+            <div style="background:var(--bg);padding:12px;border-radius:8px;border:1px solid var(--bd)">
+              <div style="font-weight:700;font-size:13px;margin-bottom:4px">1st Free Service (3-5 Months)</div>
+              <div style="font-size:12px;color:var(--mu);margin-bottom:8px">Target: within 120 days of installation</div>
+              <div style="display:flex;gap:10px">
+                <span class="b ok">Completed: ${s1Completed}</span>
+                <span class="b wa">Pending / Due: ${s1Pending}</span>
+              </div>
+            </div>
+            <div style="background:var(--bg);padding:12px;border-radius:8px;border:1px solid var(--bd)">
+              <div style="font-weight:700;font-size:13px;margin-bottom:4px">2nd Free Service (Before 11 Months)</div>
+              <div style="font-size:12px;color:var(--mu);margin-bottom:8px">Target: within 330 days of installation</div>
+              <div style="display:flex;gap:10px">
+                <span class="b ok">Completed: ${s2Completed}</span>
+                <span class="b wa">Pending / Due: ${s2Pending}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -3069,54 +3078,49 @@ function reportsPage() {
 function usersPage() {
   const S = SS();
   const users = S.users || [
-    { id: 'u1', name: 'Admin Store Manager', email: 'admin@mobilepoint.com', role: 'Administrator', status: 'active', perms: ['all'] },
-    { id: 'u2', name: 'Sales Executive', email: 'sales@mobilepoint.com', role: 'Sales Officer', status: 'active', perms: ['sales', 'customers', 'products', 'calendar'] },
-    { id: 'u3', name: 'Service Coordinator', email: 'support@mobilepoint.com', role: 'Service Desk', status: 'active', perms: ['calendar', 'engagements', 'customers'] }
+    { id: 'u1', name: 'Admin Store Manager', email: 'admin@mobilepoint.com', role: 'Administrator', status: 'Active', perms: ['all'] },
+    { id: 'u2', name: 'Sales Executive', email: 'sales@mobilepoint.com', role: 'Sales Officer', status: 'Active', perms: ['sales', 'customers', 'products', 'calendar'] },
+    { id: 'u3', name: 'Service Coordinator', email: 'support@mobilepoint.com', role: 'Service Desk', status: 'Active', perms: ['calendar', 'engagements', 'customers'] }
   ];
 
   return `
-    <div class="ph">
-      <div class="ph-left">
-        <h2>User Management & Permissions</h2>
-        <p class="sub">Configure staff logins, CRM roles and system access controls</p>
+    <div class="pg">
+      <div class="ph">
+        <div>
+          <h1>User Management & Permissions</h1>
+          <p>Configure staff logins, CRM roles and system module access</p>
+        </div>
       </div>
-      <div class="ph-right">
-        <button class="btn btn-primary" data-act="add-user-modal">${ic('plus')} Add User Account</button>
-      </div>
-    </div>
 
-    <div class="card" style="padding:0">
-      <div class="table-wrap">
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Access Permissions</th>
-              <th>Status</th>
-              <th style="text-align:right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${users.map(u => `
+      <div class="panel">
+        <div class="tb-wrap">
+          <table class="tb">
+            <thead>
               <tr>
-                <td><strong>${esc(u.name)}</strong></td>
-                <td><span style="font-family:monospace;font-size:13px">${esc(u.email)}</span></td>
-                <td><span class="badge badge-pri">${esc(u.role)}</span></td>
-                <td>
-                  <div style="display:flex;flex-wrap:wrap;gap:4px">
-                    ${(u.perms || ['all']).map(p => `<span class="badge badge-sec" style="font-size:11px">${esc(p)}</span>`).join('')}
-                  </div>
-                </td>
-                <td><span class="badge ${u.status === 'active' ? 'badge-suc' : 'badge-warn'}">${esc(u.status)}</span></td>
-                <td style="text-align:right">
-                  <button class="btn btn-sm btn-sec" data-act="edit-user" data-id="${u.id}">${ic('edit')} Edit</button>
-                </td>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Access Permissions</th>
+                <th>Status</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${users.map(u => `
+                <tr>
+                  <td><strong>${esc(u.name)}</strong></td>
+                  <td><span style="font-family:monospace;font-size:13px">${esc(u.email)}</span></td>
+                  <td><span class="b">${esc(u.role)}</span></td>
+                  <td>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px">
+                      ${(u.perms || ['all']).map(p => `<span class="b" style="font-size:11px">${esc(p)}</span>`).join('')}
+                    </div>
+                  </td>
+                  <td><span class="b ok">${esc(u.status || 'Active')}</span></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   `;
@@ -3124,78 +3128,83 @@ function usersPage() {
 
 function settingsPage() {
   const S = SS();
-  const set = S.settings || {};
+  const set = S.set || S.settings || {};
 
   return `
-    <div class="ph">
-      <div class="ph-left">
-        <h2>System Settings & Shop Configuration</h2>
-        <p class="sub">Customize store credentials, service interval rules and WhatsApp branding</p>
-      </div>
-      <div class="ph-right">
-        <button class="btn btn-primary" data-act="save-settings">${ic('check')} Save Changes</button>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1000px">
-      <div class="card">
-        <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">${ic('settings')} Shop & Store Profile</h3>
-        <div class="form-group" style="margin-bottom:14px">
-          <label class="form-lbl">Shop Business Name *</label>
-          <input type="text" class="form-ctrl" id="set-shop-name" value="${esc(set.shopName || 'Mobile Point AC Care')}">
+    <div class="pg">
+      <div class="ph">
+        <div>
+          <h1>System Settings & Store Profile</h1>
+          <p>Customize store branding, invoice headers, and automatic service calculation rules</p>
         </div>
-        <div class="form-group" style="margin-bottom:14px">
-          <label class="form-lbl">Complete Shop Address *</label>
-          <textarea class="form-ctrl" id="set-shop-address" rows="3">${esc(set.address || 'Shop No. 12, Main Market, City Center')}</textarea>
-        </div>
-        <div class="form-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
-          <div class="form-group">
-            <label class="form-lbl">Official Phone</label>
-            <input type="tel" class="form-ctrl" id="set-phone" value="${esc(set.phone || '9876543210')}">
-          </div>
-          <div class="form-group">
-            <label class="form-lbl">WhatsApp Business Number *</label>
-            <input type="tel" class="form-ctrl" id="set-wa-phone" value="${esc(set.waPhone || '9876543210')}">
-          </div>
-        </div>
-        <div class="form-grid" style="grid-template-columns:1fr 1fr">
-          <div class="form-group">
-            <label class="form-lbl">GSTIN</label>
-            <input type="text" class="form-ctrl" id="set-gstin" value="${esc(set.gstin || '07AAAAA0000A1Z5')}">
-          </div>
-          <div class="form-group">
-            <label class="form-lbl">Support Email</label>
-            <input type="email" class="form-ctrl" id="set-email" value="${esc(set.email || 'support@mobilepoint.com')}">
-          </div>
+        <div>
+          <button class="btn pri" data-act="save-settings">${ic('check')} Save Changes</button>
         </div>
       </div>
 
-      <div class="card">
-        <h3 style="margin-bottom:14px;display:flex;align-items:center;gap:8px">${ic('tool')} AC Service Schedule Calculation Rules</h3>
-        <p class="sub" style="margin-bottom:16px">Define days from purchase date to auto-schedule routine brand free services</p>
-
-        <div class="form-group" style="margin-bottom:16px">
-          <label class="form-lbl">1st Free Service Due (Days from Purchase)</label>
-          <div style="display:flex;gap:10px;align-items:center">
-            <input type="number" class="form-ctrl" id="set-s1-days" value="${set.s1Days || 120}" min="30" max="180" style="width:120px">
-            <span style="font-size:13px;color:var(--text-2)">days (Default: 120 days / 4 months)</span>
+      <div class="gr">
+        <div class="panel">
+          <div class="hd"><h2>${ic('gear')} Shop & Business Profile</h2></div>
+          <div class="pad">
+            <div class="form-group">
+              <label class="form-lbl">Shop Business Name *</label>
+              <input type="text" class="form-ctrl" id="set-shop-name" value="${esc(set.store || set.shopName || 'Mobile Point AC Care')}">
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">Complete Shop Address *</label>
+              <textarea class="form-ctrl" id="set-shop-address" rows="3">${esc(set.addr || set.address || 'Alkapuri, Vadodara, Gujarat 390007')}</textarea>
+            </div>
+            <div class="fgrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+              <div class="form-group">
+                <label class="form-lbl">Official Phone</label>
+                <input type="tel" class="form-ctrl" id="set-phone" value="${esc(set.phone || '+91 98250 00000')}">
+              </div>
+              <div class="form-group">
+                <label class="form-lbl">WhatsApp Business Number *</label>
+                <input type="tel" class="form-ctrl" id="set-wa-phone" value="${esc(set.waPhone || set.phone || '+91 98250 00000')}">
+              </div>
+            </div>
+            <div class="fgrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="form-group">
+                <label class="form-lbl">GSTIN</label>
+                <input type="text" class="form-ctrl" id="set-gstin" value="${esc(set.gstin || '24ABCDE1234F1Z5')}">
+              </div>
+              <div class="form-group">
+                <label class="form-lbl">Support Email</label>
+                <input type="email" class="form-ctrl" id="set-email" value="${esc(set.email || 'support@mobilepoint.in')}">
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="form-group" style="margin-bottom:20px">
-          <label class="form-lbl">2nd Free Service Due (Days from Purchase)</label>
-          <div style="display:flex;gap:10px;align-items:center">
-            <input type="number" class="form-ctrl" id="set-s2-days" value="${set.s2Days || 330}" min="180" max="365" style="width:120px">
-            <span style="font-size:13px;color:var(--text-2)">days (Default: 330 days / 11 months)</span>
-          </div>
-        </div>
+        <div class="panel">
+          <div class="hd"><h2>${ic('wrench')} AC Free Service Schedule Intervals</h2></div>
+          <div class="pad">
+            <p style="font-size:13px;color:var(--mu);margin-bottom:16px">Define days from purchase date to auto-schedule routine brand free services</p>
 
-        <div style="border-top:1px solid var(--border-light);padding-top:16px;margin-top:16px">
-          <h4 style="margin-bottom:8px;font-size:14px">Data Backup & Reset</h4>
-          <p class="sub" style="margin-bottom:12px">Export full CRM database or reset to fresh seed demo data</p>
-          <div style="display:flex;gap:10px">
-            <button class="btn btn-sec" data-act="export-data">${ic('download')} Export JSON Backup</button>
-            <button class="btn btn-sec" data-act="reset-data" style="color:var(--err)">${ic('trash')} Reset Demo Data</button>
+            <div class="form-group">
+              <label class="form-lbl">1st Free Service Due (Days from Purchase)</label>
+              <div style="display:flex;gap:10px;align-items:center">
+                <input type="number" class="form-ctrl" id="set-s1-days" value="${set.s1Days || 120}" min="30" max="180" style="width:120px">
+                <span style="font-size:13px;color:var(--mu)">days (Default: 120 days / 4 months)</span>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:24px">
+              <label class="form-lbl">2nd Free Service Due (Days from Purchase)</label>
+              <div style="display:flex;gap:10px;align-items:center">
+                <input type="number" class="form-ctrl" id="set-s2-days" value="${set.s2Days || 330}" min="180" max="365" style="width:120px">
+                <span style="font-size:13px;color:var(--mu)">days (Default: 330 days / 11 months)</span>
+              </div>
+            </div>
+
+            <div style="border-top:1px solid var(--bd);padding-top:16px">
+              <h3 style="font-size:14px;margin-bottom:8px">Data Backup & Demo Reset</h3>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn" data-act="export-data">${ic('file')} Export JSON Backup</button>
+                <button class="btn" data-act="reset-data" style="color:var(--er)">${ic('trash')} Reset Demo Data</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -3205,39 +3214,43 @@ function settingsPage() {
 
 function notificationsPage() {
   const S = SS();
-  const notifs = S.notifications || [];
+  const notifs = S.notifs || S.notifications || [];
 
   return `
-    <div class="ph">
-      <div class="ph-left">
-        <h2>System Notifications</h2>
-        <p class="sub">Service due alerts, WhatsApp delivery updates and sales activity</p>
-      </div>
-      <div class="ph-right">
-        <button class="btn btn-sec" data-act="mark-all-read">${ic('check')} Mark All as Read</button>
-      </div>
-    </div>
-
-    <div class="card" style="max-width:800px;margin:0 auto">
-      ${notifs.length === 0 ? `
-        <div style="text-align:center;padding:36px;color:var(--text-3)">No notifications right now</div>
-      ` : `
-        <div style="display:flex;flex-direction:column;gap:12px">
-          ${notifs.map(n => `
-            <div style="display:flex;gap:12px;padding:12px;border-radius:var(--r-md);background:${n.read ? 'var(--bg-app)' : 'var(--pri-light)'};border:1px solid var(--border)">
-              <div style="color:var(--pri);padding-top:2px">${ic(n.icon || 'bell')}</div>
-              <div style="flex:1">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start">
-                  <div style="font-weight:700;font-size:14px;color:var(--text-1)">${esc(n.title)}</div>
-                  <div style="font-size:11px;color:var(--text-3)">${fds(n.time)}</div>
-                </div>
-                <div style="font-size:13px;color:var(--text-2);margin-top:3px">${esc(n.desc)}</div>
-                ${n.link ? `<button class="btn btn-sm btn-sec" style="margin-top:8px" data-act="go-sub" data-page="${n.link.page}" data-id="${n.link.id || ''}">${esc(n.link.text || 'View Details')}</button>` : ''}
-              </div>
-            </div>
-          `).join('')}
+    <div class="pg">
+      <div class="ph">
+        <div>
+          <h1>System Notifications</h1>
+          <p>Service due alerts, WhatsApp delivery updates and installation reminders</p>
         </div>
-      `}
+        <div>
+          <button class="btn" data-act="mark-all-read">${ic('check')} Mark All as Read</button>
+        </div>
+      </div>
+
+      <div class="panel" style="max-width:800px;margin:0 auto">
+        <div class="pad">
+          ${notifs.length === 0 ? `
+            <div style="text-align:center;padding:36px;color:var(--mu)">No notifications right now</div>
+          ` : `
+            <div style="display:flex;flex-direction:column;gap:12px">
+              ${notifs.map(n => `
+                <div style="display:flex;gap:12px;padding:12px;border-radius:8px;background:${n.unread ? 'var(--acs)' : 'var(--bg)'};border:1px solid var(--bd)">
+                  <div style="color:var(--ac);padding-top:2px">${ic('bell')}</div>
+                  <div style="flex:1">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                      <div style="font-weight:700;font-size:14px;color:var(--tx)">${esc(n.title)}</div>
+                      <div style="font-size:11px;color:var(--mu)">${fd(n.time)}</div>
+                    </div>
+                    <div style="font-size:13px;color:var(--mu);margin-top:3px">${esc(n.desc)}</div>
+                    ${n.link ? `<button class="btn sm" style="margin-top:8px" data-act="go" data-p="${n.link}">View Details</button>` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `}
+        </div>
+      </div>
     </div>
   `;
 }
@@ -3247,35 +3260,37 @@ function activityPage() {
   const acts = S.activity || [];
 
   return `
-    <div class="ph">
-      <div class="ph-left">
-        <h2>Activity Audit Trail</h2>
-        <p class="sub">Chronological event log of sales, customers and service reminders</p>
+    <div class="pg">
+      <div class="ph">
+        <div>
+          <h1>Activity Audit Log</h1>
+          <p>Chronological history of AC sales, service milestones, and WhatsApp automations</p>
+        </div>
       </div>
-    </div>
 
-    <div class="card" style="max-width:800px;margin:0 auto;padding:0">
-      <div class="table-wrap">
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>Action</th>
-              <th>Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${acts.length === 0 ? `
-              <tr><td colspan="3" style="text-align:center;padding:32px;color:var(--text-3)">No activity logged yet</td></tr>
-            ` : acts.map(a => `
+      <div class="panel" style="max-width:800px;margin:0 auto">
+        <div class="tb-wrap">
+          <table class="tb">
+            <thead>
               <tr>
-                <td style="white-space:nowrap;font-size:12px;color:var(--text-3)">${fds(a.time)}</td>
-                <td><span class="badge badge-sec">${esc(a.action)}</span></td>
-                <td style="font-size:13px;color:var(--text-1)">${esc(a.details)}</td>
+                <th>Time</th>
+                <th>Action</th>
+                <th>Details</th>
               </tr>
-            `).join('')}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              ${acts.length === 0 ? `
+                <tr><td colspan="3" style="text-align:center;padding:32px;color:var(--mu)">No activity logged yet</td></tr>
+              ` : acts.map(a => `
+                <tr>
+                  <td style="white-space:nowrap;font-size:12px;color:var(--mu)">${esc(a.time)}</td>
+                  <td><span class="b">${esc(a.title || a.action || 'Event')}</span></td>
+                  <td style="font-size:13px;color:var(--tx)">${esc(a.desc || a.details || '')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   `;
@@ -3284,28 +3299,28 @@ function activityPage() {
 function quickNewModal() {
   const content = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-      <div class="card" style="cursor:pointer;border:2px solid var(--border);transition:border-color .2s;text-align:center;padding:20px" data-act="quick-go" data-page="sale-new">
-        <div style="color:var(--pri);margin-bottom:8px">${ic('plus')}</div>
-        <div style="font-weight:700;font-size:15px;color:var(--text-1)">Record AC Sale</div>
-        <div style="font-size:12px;color:var(--text-3);margin-top:4px">New sale with auto customer/product creation</div>
+      <div class="panel" style="cursor:pointer;border:2px solid var(--bd);text-align:center;padding:20px" data-act="go" data-p="sales/new">
+        <div style="color:var(--ac);margin-bottom:8px">${ic('plus')}</div>
+        <div style="font-weight:700;font-size:15px;color:var(--tx)">Record AC Sale</div>
+        <div style="font-size:12px;color:var(--mu);margin-top:4px">New sale with auto customer/product creation</div>
       </div>
 
-      <div class="card" style="cursor:pointer;border:2px solid var(--border);transition:border-color .2s;text-align:center;padding:20px" data-act="quick-go" data-page="cust-new">
-        <div style="color:var(--suc);margin-bottom:8px">${ic('user')}</div>
-        <div style="font-weight:700;font-size:15px;color:var(--text-1)">Add Customer</div>
-        <div style="font-size:12px;color:var(--text-3);margin-top:4px">Save address, landmark, locality & WhatsApp</div>
+      <div class="panel" style="cursor:pointer;border:2px solid var(--bd);text-align:center;padding:20px" data-act="go" data-p="customers/new">
+        <div style="color:var(--ok);margin-bottom:8px">${ic('users')}</div>
+        <div style="font-weight:700;font-size:15px;color:var(--tx)">Add Customer</div>
+        <div style="font-size:12px;color:var(--mu);margin-top:4px">Save address, landmark, locality & WhatsApp</div>
       </div>
 
-      <div class="card" style="cursor:pointer;border:2px solid var(--border);transition:border-color .2s;text-align:center;padding:20px" data-act="quick-go" data-page="prod-new">
-        <div style="color:var(--inf);margin-bottom:8px">${ic('box')}</div>
-        <div style="font-weight:700;font-size:15px;color:var(--text-1)">Add AC Model</div>
-        <div style="font-size:12px;color:var(--text-3);margin-top:4px">Brand, model & specifications catalog</div>
+      <div class="panel" style="cursor:pointer;border:2px solid var(--bd);text-align:center;padding:20px" data-act="go" data-p="products/new">
+        <div style="color:var(--ac);margin-bottom:8px">${ic('wind')}</div>
+        <div style="font-weight:700;font-size:15px;color:var(--tx)">Add AC Model</div>
+        <div style="font-size:12px;color:var(--mu);margin-top:4px">Brand, model & specifications catalog</div>
       </div>
 
-      <div class="card" style="cursor:pointer;border:2px solid var(--border);transition:border-color .2s;text-align:center;padding:20px" data-act="quick-go" data-page="engagements">
-        <div style="color:var(--warn);margin-bottom:8px">${ic('send')}</div>
-        <div style="font-weight:700;font-size:15px;color:var(--text-1)">Send WhatsApp</div>
-        <div style="font-size:12px;color:var(--text-3);margin-top:4px">Broadcast offer or service reminder trigger</div>
+      <div class="panel" style="cursor:pointer;border:2px solid var(--bd);text-align:center;padding:20px" data-act="go" data-p="engagements">
+        <div style="color:var(--wa);margin-bottom:8px">${ic('send')}</div>
+        <div style="font-weight:700;font-size:15px;color:var(--tx)">WhatsApp Broadcast</div>
+        <div style="font-size:12px;color:var(--mu);margin-top:4px">Promotional offer or service reminder trigger</div>
       </div>
     </div>
   `;
@@ -3313,7 +3328,7 @@ function quickNewModal() {
   modal({
     title: 'Quick Create / Action',
     content: content,
-    actions: `<button class="btn btn-sec" data-act="close-modal">Cancel</button>`
+    actions: `<button class="btn" data-act="close">Cancel</button>`
   });
 }
 
@@ -3323,34 +3338,34 @@ function globalSearchModal(query) {
   if (!q) return;
 
   const mCusts = (S.customers || []).filter(c => 
-    c.name.toLowerCase().includes(q) ||
-    c.waPhone.includes(q) ||
+    (c.name || '').toLowerCase().includes(q) ||
+    (c.phone || '').includes(q) ||
     (c.locality && c.locality.toLowerCase().includes(q))
   );
 
   const mProds = (S.products || []).filter(p =>
-    p.brand.toLowerCase().includes(q) ||
-    p.model.toLowerCase().includes(q)
+    (p.brand || '').toLowerCase().includes(q) ||
+    (p.model || '').toLowerCase().includes(q)
   );
 
   const mSales = (S.sales || []).filter(s =>
-    (s.invoiceNo && s.invoiceNo.toLowerCase().includes(q)) ||
-    (s.serialNumber && s.serialNumber.toLowerCase().includes(q)) ||
-    s.customerName.toLowerCase().includes(q)
+    (s.id && s.id.toLowerCase().includes(q)) ||
+    (s.sn && s.sn.toLowerCase().includes(q)) ||
+    (s.cname && s.cname.toLowerCase().includes(q))
   );
 
   const content = `
     <div style="display:flex;flex-direction:column;gap:16px">
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;margin-bottom:6px">Customers (${mCusts.length})</div>
-        ${mCusts.length === 0 ? '<div style="font-size:13px;color:var(--text-3)">No customers match</div>' : `
+        <div style="font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:6px">Customers (${mCusts.length})</div>
+        ${mCusts.length === 0 ? '<div style="font-size:13px;color:var(--mu)">No customers match</div>' : `
           <div style="display:flex;flex-direction:column;gap:6px">
             ${mCusts.slice(0, 5).map(c => `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-app);border-radius:var(--r-md);cursor:pointer" data-act="go-cust-modal" data-id="${c.id}">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:6px;cursor:pointer" data-act="cust-view" data-id="${c.id}">
                 <div>
-                  <strong>${esc(c.name)}</strong> - <span style="font-size:12px;color:var(--text-3)">${esc(c.waPhone)} (${esc(c.locality || '')})</span>
+                  <strong>${esc(c.name)}</strong> - <span style="font-size:12px;color:var(--mu)">${esc(c.phone)} (${esc(c.locality || '')})</span>
                 </div>
-                <button class="btn btn-sm btn-sec">View</button>
+                <button class="btn sm">View</button>
               </div>
             `).join('')}
           </div>
@@ -3358,15 +3373,15 @@ function globalSearchModal(query) {
       </div>
 
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;margin-bottom:6px">AC Products (${mProds.length})</div>
-        ${mProds.length === 0 ? '<div style="font-size:13px;color:var(--text-3)">No AC products match</div>' : `
+        <div style="font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:6px">AC Products (${mProds.length})</div>
+        ${mProds.length === 0 ? '<div style="font-size:13px;color:var(--mu)">No AC products match</div>' : `
           <div style="display:flex;flex-direction:column;gap:6px">
             ${mProds.slice(0, 5).map(p => `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-app);border-radius:var(--r-md);cursor:pointer" data-act="go-sub" data-page="prod-detail" data-id="${p.id}">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:6px;cursor:pointer" data-act="go" data-p="products/${p.id}">
                 <div>
-                  <span class="badge badge-sec">${esc(p.brand)}</span> <strong>${esc(p.model)}</strong>
+                  <span class="b">${esc(p.brand)}</span> <strong>${esc(p.model)}</strong>
                 </div>
-                <button class="btn btn-sm btn-sec">Details</button>
+                <button class="btn sm">Details</button>
               </div>
             `).join('')}
           </div>
@@ -3374,15 +3389,15 @@ function globalSearchModal(query) {
       </div>
 
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;margin-bottom:6px">Sales & Invoices (${mSales.length})</div>
-        ${mSales.length === 0 ? '<div style="font-size:13px;color:var(--text-3)">No sales match</div>' : `
+        <div style="font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;margin-bottom:6px">Sales Records (${mSales.length})</div>
+        ${mSales.length === 0 ? '<div style="font-size:13px;color:var(--mu)">No sales match</div>' : `
           <div style="display:flex;flex-direction:column;gap:6px">
             ${mSales.slice(0, 5).map(s => `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg-app);border-radius:var(--r-md);cursor:pointer" data-act="go-sub" data-page="sale-detail" data-id="${s.id}">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg);border-radius:6px;cursor:pointer" data-act="go" data-p="sales/${s.id}">
                 <div>
-                  <strong>${esc(s.invoiceNo || 'INV-' + s.id)}</strong> - ${esc(s.customerName)} (${esc(s.brand)} ${esc(s.model)})
+                  <strong>${esc(s.id)}</strong> - ${esc(s.cname)} (${esc(s.brand)} ${esc(s.model)})
                 </div>
-                <button class="btn btn-sm btn-sec">Open</button>
+                <button class="btn sm">Open</button>
               </div>
             `).join('')}
           </div>
@@ -3394,18 +3409,51 @@ function globalSearchModal(query) {
   modal({
     title: `Search Results for "${esc(query)}"`,
     content: content,
-    actions: `<button class="btn btn-sec" data-act="close-modal">Close</button>`
+    actions: `<button class="btn" data-act="close">Close</button>`
   });
 }
 
 function subPage(p) {
-  SUB = p;
-  render();
+  if (!p) return;
+  if (p.page === 'sale-new') go('sales/new');
+  else if (p.page === 'sale-edit') go('sales/edit/' + p.id);
+  else if (p.page === 'sale-detail') go('sales/' + p.id);
+  else if (p.page === 'cust-new') go('customers/new');
+  else if (p.page === 'cust-edit') go('customers/edit/' + p.id);
+  else if (p.page === 'prod-new') go('products/new');
+  else if (p.page === 'prod-edit') go('products/edit/' + p.id);
+  else if (p.page === 'prod-detail') go('products/' + p.id);
+  else if (p.page === 'inv-detail') go('invoices/' + p.id);
+  else go(p.page);
 }
 
 function go(p) {
+  if (!p) p = 'overview';
+  V.page = p;
   PAGE = p;
   SUB = null;
+  const parts = p.split('/');
+  const mainP = parts[0];
+  const subP = parts[1];
+  const subId = parts[2];
+
+  if (mainP === 'sales') {
+    if (subP === 'new') SUB = { page: 'sale-new' };
+    else if (subP === 'edit') SUB = { page: 'sale-edit', id: subId };
+    else if (subP) SUB = { page: 'sale-detail', id: subP };
+  } else if (mainP === 'customers') {
+    if (subP === 'new') SUB = { page: 'cust-new' };
+    else if (subP === 'edit') SUB = { page: 'cust-edit', id: subId };
+  } else if (mainP === 'products') {
+    if (subP === 'new') SUB = { page: 'prod-new' };
+    else if (subP === 'edit') SUB = { page: 'prod-edit', id: subId };
+    else if (subP === 'detail') SUB = { page: 'prod-detail', id: subId };
+    else if (subP) SUB = { page: 'prod-detail', id: subP };
+  } else if (mainP === 'invoices') {
+    if (subP) SUB = { page: 'inv-detail', id: subP };
+  }
+
+  PAGE = mainP;
   if (window.history && window.history.pushState) {
     window.history.pushState(null, '', '#' + p);
   }
@@ -3414,11 +3462,12 @@ function go(p) {
 
 function render(keepScroll) {
   const scr = keepScroll ? window.scrollY : 0;
-  
+  const basePage = (V.page || 'overview').split('/')[0];
+
   const nv = $('#nv');
   if (nv) {
     nv.innerHTML = NAV.map(p => `
-      <button class="ni ${PAGE === p[0] && !SUB ? 'on' : ''}" data-act="go-nav" data-page="${p[0]}">
+      <button class="ni ${basePage === p[0] ? 'on' : ''}" data-act="go" data-p="${p[0]}">
         ${ic(p[2])}<span>${p[1]}</span>
       </button>
     `).join('');
@@ -3434,7 +3483,7 @@ function render(keepScroll) {
       ['engagements', 'WhatsApp', 'zap']
     ];
     bn.innerHTML = mobileNav.map(p => `
-      <button class="${PAGE === p[0] && !SUB ? 'on' : ''}" data-act="go-nav" data-page="${p[0]}">
+      <button class="${basePage === p[0] ? 'on' : ''}" data-act="go" data-p="${p[0]}">
         ${ic(p[2])}<span>${p[1]}</span>
       </button>
     `).join('');
@@ -3452,49 +3501,61 @@ function render(keepScroll) {
   if (ab && !ab.innerHTML) ab.innerHTML = ic('list');
   const bl = $('#bl');
   if (bl) {
-    const un = (SS().notifications || []).filter(n => !n.read).length;
-    bl.innerHTML = ic('bell') + (un > 0 ? `<span class="badge" style="position:absolute;top:4px;right:4px;background:var(--err);color:#fff;border-radius:10px;padding:1px 5px;font-size:10px">${un}</span>` : '');
+    const un = (S.notifs || S.notifications || []).filter(n => n.unread || !n.read).length;
+    bl.innerHTML = ic('bell') + (un > 0 ? `<span class="badge" style="position:absolute;top:4px;right:4px;background:var(--er);color:#fff;border-radius:10px;padding:1px 5px;font-size:10px">${un}</span>` : '');
     bl.style.position = 'relative';
   }
   const th = $('#th');
   if (th) {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    th.innerHTML = ic(isDark ? 'moon' : 'moon');
+    th.innerHTML = ic('moon');
   }
 
   const app = $('#main') || $('#app');
   if (!app) return;
 
   let html = '';
-  if (SUB) {
-    if (SUB.page === 'sale-new') html = saleFormPage(null);
-    else if (SUB.page === 'sale-edit') html = saleFormPage(SUB.id);
-    else if (SUB.page === 'sale-detail') html = saleDetailPage(SUB.id);
-    else if (SUB.page === 'cust-new') html = customerFormPage(null);
-    else if (SUB.page === 'cust-edit') html = customerFormPage(SUB.id);
-    else if (SUB.page === 'prod-new') html = productFormPage(null);
-    else if (SUB.page === 'prod-edit') html = productFormPage(SUB.id);
-    else if (SUB.page === 'prod-detail') html = productDetailPage(SUB.id);
-    else if (SUB.page === 'inv-detail') html = invoiceDetailPage(SUB.id);
-    else if (SUB.page === 'notifications') html = notificationsPage();
-    else if (SUB.page === 'activity') html = activityPage();
-    else html = overview();
+  const parts = (V.page || 'overview').split('/');
+  const page = parts[0];
+  const sub = parts[1];
+  const subId = parts[2];
+
+  if (page === 'overview') {
+    html = overview();
+  } else if (page === 'customers') {
+    if (sub === 'new') html = customerFormPage(null);
+    else if (sub === 'edit') html = customerFormPage(subId);
+    else html = customersPage();
+  } else if (page === 'products') {
+    if (sub === 'new') html = productFormPage(null);
+    else if (sub === 'edit') html = productFormPage(subId);
+    else if (sub === 'detail') html = productDetailPage(subId);
+    else if (sub) html = productDetailPage(sub);
+    else html = productsPage();
+  } else if (page === 'sales') {
+    if (sub === 'new') html = saleFormPage(null);
+    else if (sub === 'edit') html = saleFormPage(subId);
+    else if (sub) html = saleDetailPage(sub);
+    else html = salesPage();
+  } else if (page === 'calendar') {
+    html = calendar();
+  } else if (page === 'engagements') {
+    html = engagementsPage();
+  } else if (page === 'invoices') {
+    if (sub) html = invoiceDetailPage(sub);
+    else html = invoicesPage();
+  } else if (page === 'reports') {
+    html = reportsPage();
+  } else if (page === 'users') {
+    html = usersPage();
+  } else if (page === 'settings') {
+    html = settingsPage();
+  } else if (page === 'notifications') {
+    html = notificationsPage();
+  } else if (page === 'activity') {
+    html = activityPage();
   } else {
-    switch (PAGE) {
-      case 'overview': html = overview(); break;
-      case 'sales': html = salesPage(); break;
-      case 'customers': html = customersPage(); break;
-      case 'products': html = productsPage(); break;
-      case 'calendar': html = calendar(); break;
-      case 'engagements': html = engagementsPage(); break;
-      case 'invoices': html = invoicesPage(); break;
-      case 'reports': html = reportsPage(); break;
-      case 'users': html = usersPage(); break;
-      case 'settings': html = settingsPage(); break;
-      case 'notifications': html = notificationsPage(); break;
-      case 'activity': html = activityPage(); break;
-      default: html = overview(); break;
-    }
+    html = overview();
   }
 
   app.innerHTML = html;
@@ -3506,11 +3567,20 @@ document.addEventListener('click', e => {
   if (!t) return;
   const act = t.getAttribute('data-act');
 
-  if (act === 'go-nav') {
+  if (act === 'go') {
+    const p = t.getAttribute('data-p') || t.getAttribute('data-page');
     const sd = $('#sd');
     if (sd) sd.classList.remove('open');
+    go(p);
+  } else if (act === 'go-nav') {
+    const p = t.getAttribute('data-page') || t.getAttribute('data-p');
+    const sd = $('#sd');
+    if (sd) sd.classList.remove('open');
+    go(p);
+  } else if (act === 'go-sub') {
     const page = t.getAttribute('data-page');
-    go(page);
+    const id = t.getAttribute('data-id');
+    subPage({ page: page, id: id });
   } else if (act === 'menu') {
     const sd = $('#sd');
     if (sd) sd.classList.toggle('open');
@@ -3526,64 +3596,148 @@ document.addEventListener('click', e => {
     const next = cur === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('mp-theme', next);
+    SS().theme = next;
+    save();
     render(true);
   } else if (act === 'new') {
     quickNewModal();
   } else if (act === 'logout') {
-    toast('Demo mode: User session persistent');
-  } else if (act === 'go-sub') {
-    const page = t.getAttribute('data-page');
-    const id = t.getAttribute('data-id');
-    subPage({ page: page, id: id });
+    toast('Demo session is permanent');
   } else if (act === 'close' || act === 'close-modal') {
     closeM();
-  } else if (act === 'cust-chip') {
-    CUST_FILTER = t.getAttribute('data-val');
+  } else if (act === 'chip') {
+    V.f = t.getAttribute('data-v');
     render(true);
-  } else if (act === 'cust-modal') {
+  } else if (act === 'pview') {
+    SS().view = t.getAttribute('data-v');
+    save();
+    render(true);
+  } else if (act === 'cust-view') {
     const id = t.getAttribute('data-id');
     custModal(id);
-  } else if (act === 'prod-brand-chip') {
-    PROD_BRAND = t.getAttribute('data-val');
+  } else if (act === 'sale-for-cust') {
+    const cid = t.getAttribute('data-cid');
+    V.prefillCust = cid;
+    closeM();
+    go('sales/new');
+  } else if (act === 'sale-with-prod') {
+    const pid = t.getAttribute('data-pid');
+    V.prefillProd = pid;
+    go('sales/new');
+  } else if (act === 'sale-cust-mode') {
+    SALE_CUST_MODE = t.getAttribute('data-v');
+    const boxNew = $('#sale-new-cust-fields');
+    const boxExt = $('#sale-ext-cust-field');
+    if (boxNew && boxExt) {
+      boxNew.style.display = SALE_CUST_MODE === 'new' ? 'block' : 'none';
+      boxExt.style.display = SALE_CUST_MODE === 'existing' ? 'block' : 'none';
+    }
+    $$('.cust-toggle-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-v') === SALE_CUST_MODE));
+  } else if (act === 'sale-prod-mode') {
+    SALE_PROD_MODE = t.getAttribute('data-v');
+    const boxNew = $('#sale-new-prod-fields');
+    const boxExt = $('#sale-ext-prod-field');
+    if (boxNew && boxExt) {
+      boxNew.style.display = SALE_PROD_MODE === 'new' ? 'block' : 'none';
+      boxExt.style.display = SALE_PROD_MODE === 'existing' ? 'block' : 'none';
+    }
+    $$('.prod-toggle-btn').forEach(btn => btn.classList.toggle('active', btn.getAttribute('data-v') === SALE_PROD_MODE));
+  } else if (act === 'del-sale-img') {
+    const idx = parseInt(t.getAttribute('data-idx'), 10);
+    if (!isNaN(idx) && SALE_IMAGES[idx]) {
+      SALE_IMAGES.splice(idx, 1);
+      renderSaleImagesThumbnails();
+    }
+  } else if (act === 'lightbox' || act === 'view-lightbox') {
+    const src = t.getAttribute('data-src');
+    lightboxModal(src);
+  } else if (act === 'cust-save') {
+    const id = t.getAttribute('data-id');
+    custSave(id);
+  } else if (act === 'prod-save') {
+    const id = t.getAttribute('data-id');
+    prodSave(id);
+  } else if (act === 'sale-save') {
+    const id = t.getAttribute('data-id');
+    saleSave(id);
+  } else if (act === 'sale-delete') {
+    const id = t.getAttribute('data-id');
+    if (confirm('Delete this sale record?')) {
+      S.sales = S.sales.filter(s => s.id !== id);
+      save();
+      toast('Sale record deleted');
+      go('sales');
+    }
+  } else if (act === 'mark-serv-done') {
+    const saleId = t.getAttribute('data-sale') || t.getAttribute('data-id');
+    const servKey = t.getAttribute('data-serv') || t.getAttribute('data-key');
+    const sl = S.sales.find(s => s.id === saleId);
+    if (sl) {
+      if (sl[servKey]) {
+        sl[servKey].status = 'Completed';
+        sl[servKey].completedDate = D(0);
+        sl[servKey].done = true;
+      }
+      sl[servKey + 'Done'] = true;
+      sl[servKey + 'DoneDate'] = D(0);
+      logActivity('wrench', 'Service Completed', `${servKey === 's2' ? '2nd' : '1st'} AC service marked completed for ${sl.cname || sl.customerName} (${sl.brand} ${sl.model})`);
+      save();
+      toast(`${servKey === 's2' ? '2nd' : '1st'} Service marked completed`, 'ok');
+      closeM();
+      render(true);
+    }
+  } else if (act === 'quick-wa-serv') {
+    const saleId = t.getAttribute('data-sale') || t.getAttribute('data-id');
+    const servKey = t.getAttribute('data-serv') || t.getAttribute('data-key');
+    const sl = S.sales.find(s => s.id === saleId);
+    if (sl) {
+      const isS2 = servKey === 's2';
+      const tmpl = (S.templates || []).find(tpl => tpl.id === (isS2 ? 'TP4' : 'TP3') || tpl.id === (isS2 ? 'service_reminder_2' : 'service_reminder_1')) || {};
+      const textTmpl = tmpl.body || tmpl.text || 'Dear {{name}}, your AC service is due.';
+      const msg = renderMessageTemplate(textTmpl, {
+        name: sl.cname || sl.customerName,
+        phone: sl.cphone || sl.customerWaPhone,
+        brand: sl.brand,
+        model: sl.model,
+        sn: sl.sn || sl.serialNumber,
+        shop: SS().store || 'Mobile Point AC Care',
+        instDate: fd(sl.idate || sl.installationDate),
+        servDate: fd(sl[servKey] ? sl[servKey].date : (isS2 ? sl.s2Due : sl.s1Due)),
+        servType: isS2 ? '2nd' : '1st',
+        daysLeft: '5'
+      });
+      if (sl[servKey]) sl[servKey].remSent = true;
+      sl[servKey + 'RemSent'] = true;
+      save();
+      closeM();
+      sendWhatsAppWA(sl.cphone || sl.customerWaPhone, msg, isS2 ? 'service_reminder_2' : 'service_reminder_1', sl.cname || sl.customerName);
+      render(true);
+    }
+  } else if (act === 'cal') {
+    calNav(t.getAttribute('data-v'));
+  } else if (act === 'cal-day-select') {
+    CAL_DATE = t.getAttribute('data-d');
+    CAL_VIEW = 'day';
     render(true);
-  } else if (act === 'prod-view-toggle') {
-    PROD_VIEW = t.getAttribute('data-val');
-    render(true);
-  } else if (act === 'sale-filter-chip') {
-    SALE_FILTER = t.getAttribute('data-val');
-    render(true);
-  } else if (act === 'cal-view') {
-    CAL_VIEW = t.getAttribute('data-view');
-    render(true);
-  } else if (act === 'cal-nav') {
-    const dir = parseInt(t.getAttribute('data-dir') || '0', 10);
-    const d = new Date(CAL_DATE);
-    if (CAL_VIEW === 'month') d.setMonth(d.getMonth() + dir);
-    else if (CAL_VIEW === 'week') d.setDate(d.getDate() + (dir * 7));
-    else d.setDate(d.getDate() + dir);
-    CAL_DATE = d.toISOString().slice(0, 10);
-    render(true);
-  } else if (act === 'cal-today') {
-    CAL_DATE = new Date().toISOString().slice(0, 10);
-    render(true);
-  } else if (act === 'cal-filter-chip') {
-    CAL_FILTER = t.getAttribute('data-val');
-    render(true);
-  } else if (act === 'service-action') {
-    const sId = t.getAttribute('data-sale');
-    const sKey = t.getAttribute('data-key');
-    serviceActionModal(sId, sKey);
+  } else if (act === 'send-wa-trigger') {
+    const type = t.getAttribute('data-type');
+    const cid = t.getAttribute('data-cid');
+    const c = cust(cid);
+    const msg = `Hello ${c.name}, greetings from ${SS().store || 'Mobile Point AC Care'}!`;
+    sendWhatsAppWA(c.phone || c.waPhone, msg, type, c.name);
+  } else if (act === 'test-flow') {
+    const key = t.getAttribute('data-key');
+    testWaModal(key);
   } else if (act === 'eng-tab') {
     ENG_TAB = t.getAttribute('data-tab');
     render(true);
   } else if (act === 'toggle-auto') {
     const aId = t.getAttribute('data-id');
-    const S = SS();
-    const auto = (S.automations || []).find(a => a.id === aId);
+    const auto = (S.automations || S.flows || []).find(a => a.id === aId || a.key === aId);
     if (auto) {
       auto.active = t.checked;
-      save(S);
-      toast(`Automation ${auto.name} ${auto.active ? 'activated' : 'paused'}`, 'suc');
+      save();
+      toast(`Automation ${auto.name} ${auto.active ? 'activated' : 'paused'}`);
     }
   } else if (act === 'test-auto' || act === 'test-wa-modal') {
     const aId = t.getAttribute('data-id') || 'welcome';
@@ -3596,14 +3750,14 @@ document.addEventListener('click', e => {
     logViewModal(lId);
   } else if (act === 'save-tmpl') {
     const tId = t.getAttribute('data-id');
-    const S = SS();
     const tmpl = (S.templates || []).find(item => item.id === tId);
     if (tmpl) {
       tmpl.name = $('#edit-tmpl-name').value.trim();
       tmpl.text = $('#edit-tmpl-text').value.trim();
-      save(S);
+      tmpl.body = tmpl.text;
+      save();
       closeM();
-      toast('Message template updated', 'suc');
+      toast('Message template updated');
       render(true);
     }
   } else if (act === 'send-test-wa') {
@@ -3613,25 +3767,24 @@ document.addEventListener('click', e => {
     const phone = phoneInput ? phoneInput.value.trim() : '9876543210';
     const custId = cSel ? cSel.value : null;
 
-    const S = SS();
-    const cust = (S.customers || []).find(c => c.id === custId) || { name: 'Customer' };
-    const auto = (S.automations || []).find(a => a.id === autoId) || {};
+    const custObj = (S.customers || []).find(c => c.id === custId) || { name: 'Customer' };
+    const auto = (S.automations || S.flows || []).find(a => a.id === autoId || a.key === autoId) || {};
     const tmpl = (S.templates || []).find(tmplItem => tmplItem.id === (auto.templateId || 'welcome')) || {};
     
-    const rendered = renderMessageTemplate(tmpl.text || '', {
-      name: cust.name || 'Customer',
+    const rendered = renderMessageTemplate(tmpl.text || tmpl.body || '', {
+      name: custObj.name || 'Customer',
       phone: phone,
       brand: 'Daikin',
-      model: 'FTKF50TV',
-      sn: 'DAIK-98214',
-      shop: S.settings.shopName || 'Mobile Point AC Care',
+      model: 'FTKF35',
+      sn: 'DK-89211',
+      shop: SS().store || 'Mobile Point AC Care',
       instDate: '16 Jun 2026',
       servDate: '15 Oct 2026',
       servType: '1st',
       daysLeft: '5'
     });
 
-    sendWhatsAppWA(phone, rendered, autoId, cust.name);
+    sendWhatsAppWA(phone, rendered, autoId, custObj.name);
     closeM();
   } else if (act === 'insert-promo-var') {
     const v = t.getAttribute('data-var');
@@ -3651,177 +3804,134 @@ document.addEventListener('click', e => {
     const aud = $('#promo-audience').value;
     const body = $('#promo-body').value.trim();
     if (!body) {
-      toast('Please enter promotional message text', 'warn');
+      toast('Please enter promotional message text', 'wa');
       return;
     }
-    const S = SS();
     let targets = S.customers || [];
     if (aud.startsWith('loc:')) {
       const loc = aud.slice(4);
       targets = targets.filter(c => c.locality === loc);
     }
+    if (!S.msgs) S.msgs = [];
+    if (!S.waLogs) S.waLogs = S.msgs;
     targets.forEach(c => {
       const rendered = renderMessageTemplate(body, {
         name: c.name,
-        phone: c.waPhone,
-        shop: S.settings.shopName || 'Mobile Point AC Care'
+        phone: c.phone || c.waPhone,
+        shop: SS().store || 'Mobile Point AC Care'
       });
-      S.waLogs.unshift({
-        id: 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+      S.msgs.unshift({
+        id: 'M' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+        cid: c.id,
+        cname: c.name,
+        phone: c.phone || c.waPhone,
+        ch: 'WhatsApp',
+        tpl: 'Promotional Broadcast',
         type: 'promo',
-        customerName: c.name,
-        phone: c.waPhone,
         message: rendered,
+        time: D(0),
         timestamp: new Date().toISOString(),
-        status: 'delivered'
+        status: 'Delivered'
       });
     });
-    save(S);
-    toast(`Broadcast queued to ${targets.length} customers!`, 'suc');
+    save();
+    toast(`Broadcast queued to ${targets.length} customers!`);
     ENG_TAB = 'logs';
     render(true);
   } else if (act === 'send-inv-wa') {
     const sId = t.getAttribute('data-id');
-    const S = SS();
     const s = (S.sales || []).find(item => item.id === sId);
     if (!s) return;
-    const msg = `Dear ${s.customerName},\nHere is your purchase confirmation & complimentary service certificate from ${S.settings.shopName || 'Mobile Point AC Care'}.\n\nInvoice: ${s.invoiceNo}\nAC: ${s.brand} ${s.model}\nSerial No: ${s.serialNumber}\nPurchase Date: ${fd(s.purchaseDate)}\n\n1st Service Due: ${fd(s.s1Due)}\n2nd Service Due: ${fd(s.s2Due)}\n\nThank you for choosing us!`;
-    sendWhatsAppWA(s.customerWaPhone, msg, 'invoice_share', s.customerName);
-  } else if (act === 'send-service-rem') {
-    const sId = t.getAttribute('data-id');
-    const key = t.getAttribute('data-key');
-    const S = SS();
-    const s = (S.sales || []).find(item => item.id === sId);
-    if (!s) return;
-    const isS2 = key === 's2';
-    const tmplId = isS2 ? 'service_reminder_2' : 'service_reminder_1';
-    const tmpl = (S.templates || []).find(tmplItem => tmplItem.id === tmplId) || {};
-    const rendered = renderMessageTemplate(tmpl.text || '', {
-      name: s.customerName,
-      phone: s.customerWaPhone,
-      brand: s.brand,
-      model: s.model,
-      sn: s.serialNumber,
-      shop: S.settings.shopName || 'Mobile Point AC Care',
-      instDate: fd(s.installationDate),
-      servDate: fd(isS2 ? s.s2Due : s.s1Due),
-      servType: isS2 ? '2nd' : '1st',
-      daysLeft: '5'
-    });
-    s[key + 'RemSent'] = true;
-    save(S);
-    closeM();
-    sendWhatsAppWA(s.customerWaPhone, rendered, tmplId, s.customerName);
-    render(true);
-  } else if (act === 'mark-service-completed') {
-    const sId = t.getAttribute('data-id');
-    const key = t.getAttribute('data-key');
-    const S = SS();
-    const s = (S.sales || []).find(item => item.id === sId);
-    if (!s) return;
-    s[key + 'Done'] = true;
-    s[key + 'DoneDate'] = new Date().toISOString().slice(0, 10);
-    logActivity('Service Completed', `${key === 's2' ? '2nd' : '1st'} AC service marked completed for ${s.customerName} (${s.brand} ${s.model})`);
-    save(S);
-    closeM();
-    toast(`${key === 's2' ? '2nd' : '1st'} Service marked completed`, 'suc');
-    render(true);
+    const msg = `Dear ${s.cname || s.customerName},\nHere is your purchase confirmation & complimentary service certificate from ${SS().store || 'Mobile Point AC Care'}.\n\nInvoice: ${s.invoiceNo || s.id}\nAC: ${s.brand} ${s.model}\nSerial No: ${s.sn || s.serialNumber}\nPurchase Date: ${fd(s.purDate || s.purchaseDate)}\n\n1st Service Due: ${fd(s.s1 ? s.s1.date : s.s1Due)}\n2nd Service Due: ${fd(s.s2 ? s.s2.date : s.s2Due)}\n\nThank you for choosing us!`;
+    sendWhatsAppWA(s.cphone || s.customerWaPhone, msg, 'invoice_share', s.cname || s.customerName);
   } else if (act === 'save-settings') {
-    const S = SS();
-    S.settings = S.settings || {};
-    S.settings.shopName = $('#set-shop-name').value.trim() || 'Mobile Point AC Care';
-    S.settings.address = $('#set-shop-address').value.trim();
-    S.settings.phone = $('#set-phone').value.trim();
-    S.settings.waPhone = $('#set-wa-phone').value.trim();
-    S.settings.gstin = $('#set-gstin').value.trim();
-    S.settings.email = $('#set-email').value.trim();
-    S.settings.s1Days = parseInt($('#set-s1-days').value || '120', 10);
-    S.settings.s2Days = parseInt($('#set-s2-days').value || '330', 10);
-    save(S);
-    toast('Settings successfully saved', 'suc');
+    const set = S.set || (S.set = {});
+    set.store = $('#set-shop-name').value.trim() || 'Mobile Point AC Care';
+    set.shopName = set.store;
+    set.addr = $('#set-shop-address').value.trim();
+    set.address = set.addr;
+    set.phone = $('#set-phone').value.trim();
+    set.waPhone = $('#set-wa-phone').value.trim();
+    set.gstin = $('#set-gstin').value.trim();
+    set.email = $('#set-email').value.trim();
+    set.s1Days = parseInt($('#set-s1-days').value || '120', 10);
+    set.s2Days = parseInt($('#set-s2-days').value || '330', 10);
+    S.settings = set;
+    save();
+    toast('Settings successfully saved');
     render(true);
   } else if (act === 'export-data') {
-    const S = SS();
     const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mobile-point-ac-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `mobile-point-ac-backup-${D(0)}.json`;
     a.click();
-    toast('Database exported successfully', 'suc');
+    toast('Database exported successfully');
   } else if (act === 'reset-data') {
     if (confirm('Reset database to default sample AC CRM data? All custom entries will be restored to seed state.')) {
       localStorage.removeItem(KEY);
       window.location.reload();
     }
   } else if (act === 'mark-all-read') {
-    const S = SS();
-    (S.notifications || []).forEach(n => n.read = true);
-    save(S);
-    toast('All notifications marked as read', 'suc');
+    (S.notifs || S.notifications || []).forEach(n => { n.unread = false; n.read = true; });
+    save();
+    toast('All notifications marked as read');
     render(true);
-  } else if (act === 'quick-new') {
-    quickNewModal();
-  } else if (act === 'quick-go') {
-    const page = t.getAttribute('data-page');
-    closeM();
-    if (['sale-new', 'cust-new', 'prod-new'].includes(page)) {
-      subPage({ page: page });
-    } else {
-      go(page);
-    }
-  } else if (act === 'view-lightbox') {
-    const src = t.getAttribute('data-src');
-    lightboxModal(src);
-  } else if (act === 'go-cust-modal') {
-    const cId = t.getAttribute('data-id');
-    closeM();
-    custModal(cId);
   }
 });
 
 document.addEventListener('input', e => {
   const t = e.target;
-  const act = t.getAttribute('data-act');
-  if (act === 'cust-search') {
-    CUST_SEARCH = t.value;
+  if (!t) return;
+  if (t.id === 'cust-q' || t.id === 'prod-q' || t.id === 'sale-q') {
+    V.q = t.value;
     render(true);
-  } else if (act === 'prod-search') {
-    PROD_SEARCH = t.value;
-    render(true);
-  } else if (act === 'sale-search') {
-    SALE_SEARCH = t.value;
-    render(true);
-  } else if (act === 'inv-search') {
-    INV_SEARCH = t.value;
-    render(true);
-  } else if (act === 'eng-log-search') {
-    ENG_SEARCH = t.value;
-    render(true);
+  } else {
+    const act = t.getAttribute('data-act');
+    if (act === 'inv-search') {
+      INV_SEARCH = t.value;
+      render(true);
+    } else if (act === 'eng-log-search') {
+      ENG_SEARCH = t.value;
+      render(true);
+    }
   }
 });
 
 document.addEventListener('change', e => {
   const t = e.target;
-  const act = t.getAttribute('data-act');
-  if (act === 'inv-filter') {
-    INV_FILTER = t.value;
-    render(true);
-  } else if (act === 'eng-log-filter') {
-    ENG_FILTER = t.value;
-    render(true);
-  } else if (act === 'test-cust-change') {
-    updateTestWaPreview();
-  } else if (act === 'promo-audience-change') {
-    const S = SS();
-    const v = t.value;
-    const cEl = $('#promo-recip-count');
-    if (cEl) {
-      if (v === 'all') {
-        cEl.textContent = (S.customers || []).length;
-      } else if (v.startsWith('loc:')) {
-        const loc = v.slice(4);
-        cEl.textContent = (S.customers || []).filter(c => c.locality === loc).length;
+  if (!t) return;
+  if (t.id === 'sale-multi-files') {
+    const files = Array.from(t.files || []);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        SALE_IMAGES.push(ev.target.result);
+        renderSaleImagesThumbnails();
+      };
+      reader.readAsDataURL(file);
+    });
+  } else {
+    const act = t.getAttribute('data-act');
+    if (act === 'inv-filter') {
+      INV_FILTER = t.value;
+      render(true);
+    } else if (act === 'eng-log-filter') {
+      ENG_FILTER = t.value;
+      render(true);
+    } else if (act === 'test-cust-change') {
+      updateTestWaPreview();
+    } else if (act === 'promo-audience-change') {
+      const v = t.value;
+      const cEl = $('#promo-recip-count');
+      if (cEl) {
+        if (v === 'all') {
+          cEl.textContent = (S.customers || []).length;
+        } else if (v.startsWith('loc:')) {
+          const loc = v.slice(4);
+          cEl.textContent = (S.customers || []).filter(c => c.locality === loc).length;
+        }
       }
     }
   }
@@ -3829,52 +3939,24 @@ document.addEventListener('change', e => {
 
 window.addEventListener('popstate', () => {
   const hash = (window.location && window.location.hash) ? window.location.hash.replace('#', '') : 'overview';
-  PAGE = hash || 'overview';
-  SUB = null;
-  render();
+  go(hash || 'overview');
 });
 
-const topSearch = $('#gq');
-if (topSearch) {
-  topSearch.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const q = topSearch.value.trim();
-      if (q) {
-        globalSearchModal(q);
-        topSearch.value = '';
-      }
-    }
-  });
-}
-
 document.addEventListener('keydown', e => {
-  if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+  if (e.target && e.target.id === 'gq' && e.key === 'Enter') {
+    const q = e.target.value.trim();
+    if (q) {
+      globalSearchModal(q);
+      e.target.value = '';
+    }
+  } else if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
     e.preventDefault();
-    if (topSearch) topSearch.focus();
+    const gq = $('#gq');
+    if (gq) gq.focus();
   }
 });
 
-const nb = $('#nb');
-if (nb) {
-  nb.addEventListener('click', () => quickNewModal());
-}
-
-const themeToggle = $('#tb');
-if (themeToggle) {
-  themeToggle.addEventListener('click', () => {
-    const cur = document.documentElement.getAttribute('data-theme') || 'light';
-    const next = cur === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('mp-theme', next);
-  });
-}
-
 const initHash = (window.location && window.location.hash) ? window.location.hash.replace('#', '') : '';
-if (['overview', 'sales', 'customers', 'products', 'calendar', 'engagements', 'invoices', 'reports', 'users', 'settings'].includes(initHash)) {
-  PAGE = initHash;
-} else {
-  PAGE = 'overview';
-}
-render();
+go(initHash || 'overview');
 
 
