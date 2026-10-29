@@ -408,16 +408,17 @@ function seed() {
         sales,
         invoices,
         automations,
-        wati: {
+        whatsapp: {
             connected: true,
-            endpoint: 'https://live-server-wati.wati.io',
-            apiKey: 'wati_live_sec_9942a7b8e10d48f6820c7e2b144fae93',
+            endpoint: 'https://graph.facebook.com/v19.0',
+            apiKey: 'wa_cloud_sec_9942a7b8e10d48f6820c7e2b144fae93',
             wabaId: 'WABA-919825012345',
             phone: '+91 98250 12345',
             displayName: 'Mobile Point AC Care',
             verified: true,
             qualityRating: 'HIGH',
             dailyLimit: '10,000 / day (Tier 2)',
+            status: 'Active',
             lastSync: 'Just now'
         },
         templates: [
@@ -579,18 +580,20 @@ if (!S.set.gstin) S.set.gstin = '24ABCDE1234F1Z5';
 if (S.set.theme === 'system' || !S.set.theme) S.set.theme = 'light';
 if (!S.users || !S.users.length) S.users = JSON.parse(JSON.stringify(defaultUsers));
 if (!S.read) S.read = [];
-if (!S.wati) S.wati = {
-            connected: true,
-            endpoint: 'https://live-server-wati.wati.io',
-            apiKey: 'wati_live_sec_9942a7b8e10d48f6820c7e2b144fae93',
-            wabaId: 'WABA-919825012345',
-            phone: '+91 98250 12345',
-            displayName: 'Mobile Point AC Care',
-            verified: true,
-            qualityRating: 'HIGH',
-            dailyLimit: '10,000 / day (Tier 2)',
-            lastSync: 'Just now'
-        };
+if (!S.whatsapp) S.whatsapp = {
+    connected: true,
+    endpoint: 'https://graph.facebook.com/v19.0',
+    apiKey: 'wa_cloud_sec_9942a7b8e10d48f6820c7e2b144fae93',
+    wabaId: 'WABA-919825012345',
+    phone: '+91 98250 12345',
+    displayName: 'Mobile Point AC Care',
+    verified: true,
+    qualityRating: 'HIGH',
+    dailyLimit: '10,000 / day (Tier 2)',
+    status: 'Active',
+    lastSync: 'Just now'
+};
+
 if (!S.templates || !S.templates.length) S.templates = [
         {
             id: 'tpl_welcome',
@@ -927,6 +930,11 @@ function subPage(p) {
     if (p === 'notifications') return notifPage();
     if (p === 'activity') return actPage();
     const a = p.split('/');
+    if (a[0] === 'automations') {
+        if (a[1] === 'templates' && a[2] === 'new') return newTemplatePage();
+        if (a[1] === 'broadcasts' && a[2] === 'new') return newBroadcastPage(a[3]);
+        if (a[1] === 'account') return waAccountPage();
+    }
     if (a[0] === 'users' && a[1]) return userPermissionsPage(a[1]);
     if (a[0] === 'customers') {
         if (a[1] === 'new') return custFormPage();
@@ -2961,7 +2969,7 @@ function listPage(k) {
 }
 
 
-function renderWABubble(tpl, customVars) {
+function renderWABubble(tpl, customVars, inPhone) {
     if (!customVars) customVars = {};
     const store = S.set.store || 'Mobile Point AC Care';
     const phone = S.set.phone || '+91 98250 00000';
@@ -3009,18 +3017,338 @@ function renderWABubble(tpl, customVars) {
         return `<div class="wa-btn-pill">${iconSvg}<span>${esc(b.text)}</span></div>`;
     }).join('');
 
-    return `<div class="wa-chat-wrap">
-        <div class="wa-bubble">
-            ${tpl.header ? `<div class="wa-bubble-h">${esc(tpl.header)}</div>` : ''}
-            <div>${htmlBody}</div>
-            ${tpl.footer ? `<div style="font-size:11px;color:rgba(0,0,0,.5);margin-top:6px">${esc(tpl.footer)}</div>` : ''}
-            <div class="wa-bubble-meta">
-                <span>10:42 AM</span>
-                <svg width="15" height="10" viewBox="0 0 16 11" fill="none"><path d="M11.05 1L5.5 6.55L4.45 5.5" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L9.45 6.55L8.4 5.5" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 5.5L4.45 9L9.5 3.95" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    const bubbleInner = `<div class="wa-bubble">
+        ${tpl.header ? `<div class="wa-bubble-h">${esc(tpl.header)}</div>` : ''}
+        <div>${htmlBody}</div>
+        ${tpl.footer ? `<div style="font-size:11px;color:rgba(0,0,0,.5);margin-top:6px">${esc(tpl.footer)}</div>` : ''}
+        <div class="wa-bubble-meta">
+            <span>10:42 AM</span>
+            <svg width="15" height="10" viewBox="0 0 16 11" fill="none"><path d="M11.05 1L5.5 6.55L4.45 5.5" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L9.45 6.55L8.4 5.5" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 5.5L4.45 9L9.5 3.95" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+    </div>
+    ${btns}`;
+
+    if (inPhone) {
+        return `<div class="wa-phone-mockup">
+            <div class="wa-phone-h">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    <div style="width:34px;height:34px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">MP</div>
+                    <div>
+                        <div style="font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:4px">
+                            ${esc(store)}
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="#10b981"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                        </div>
+                        <div style="font-size:11px;opacity:.85">Official Business Account · Online</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:12px;opacity:.9">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </div>
+            </div>
+            <div class="wa-chat-wrap" style="border-radius:0;border:none;max-width:100%;min-height:360px">
+                <div style="text-align:center;margin-bottom:8px">
+                    <span style="background:rgba(0,0,0,.08);padding:3px 10px;border-radius:6px;font-size:10.5px;font-weight:600;color:var(--mu)">TODAY</span>
+                </div>
+                ${bubbleInner}
+            </div>
+        </div>`;
+    }
+
+    return `<div class="wa-chat-wrap">${bubbleInner}</div>`;
+}
+
+function newTemplatePage() {
+    const dummy = {
+        header: 'Special AC Care Alert ❄️',
+        body: 'Hello {{customer_name}}, gentle reminder from {{store_name}}: Ensure your {{brand}} AC (S/N: {{serial_number}}) is ready for optimal cooling. Call {{shop_phone}} to book your OEM technician visit!',
+        footer: 'Mobile Point AC Care • Authorized Sales & Support',
+        buttons: [
+            { type: 'QUICK_REPLY', text: 'Confirm Service' },
+            { type: 'PHONE_NUMBER', text: 'Call Support' }
+        ]
+    };
+
+    return `<div class="ph">
+        <div>
+            <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
+            <h1>Create Message Template</h1>
+            <p class="mu">Design an official WhatsApp Business template for automated service alerts, purchase greetings, or customer care.</p>
+        </div>
+    </div>
+    <div class="wa-creator-grid">
+        <div class="panel pad">
+            <div class="fg">
+                <label>Template Identifier (Unique name in lowercase and underscores)
+                    <input id="tpl-name" placeholder="e.g. ac_service_reminder_drive" value="ac_service_special_offer">
+                </label>
+                <div class="g g2">
+                    <label>Category
+                        <select id="tpl-cat" class="shadcn-select">
+                            <option value="UTILITY" selected>Service Reminders &amp; Care (UTILITY)</option>
+                            <option value="MARKETING">Promotions &amp; Offers (MARKETING)</option>
+                            <option value="AUTHENTICATION">Security &amp; OTP (AUTHENTICATION)</option>
+                        </select>
+                    </label>
+                    <label>Language
+                        <select id="tpl-lang" class="shadcn-select">
+                            <option value="en_US" selected>English (en_US)</option>
+                            <option value="hi_IN">Hindi (hi_IN)</option>
+                            <option value="gu_IN">Gujarati (gu_IN)</option>
+                        </select>
+                    </label>
+                </div>
+                <label>Header Text (Optional)
+                    <input id="tpl-hdr" placeholder="e.g. AC Maintenance Alert ❄️" value="Special AC Care Alert ❄️">
+                </label>
+                <label>Message Body Text
+                    <textarea id="tpl-body" rows="6">Hello {{customer_name}}, gentle reminder from {{store_name}}: Ensure your {{brand}} AC (S/N: {{serial_number}}) is ready for optimal cooling. Call {{shop_phone}} to book your OEM technician visit!</textarea>
+                </label>
+                <div>
+                    <span class="mu" style="font-size:12px;display:block;margin-bottom:6px;font-weight:600">Quick-Insert Variable Placeholders:</span>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px">
+                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{customer_name}}">+ Customer Name</button>
+                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{brand}}">+ AC Brand</button>
+                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{model}}">+ Model</button>
+                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{serial_number}}">+ Serial Number</button>
+                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{due_date}}">+ Due Date</button>
+                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{store_name}}">+ Store Name</button>
+                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{shop_phone}}">+ Store Phone</button>
+                    </div>
+                </div>
+                <label>Footer Note (Optional)
+                    <input id="tpl-ftr" placeholder="e.g. Mobile Point AC Care • Authorized Partner" value="Mobile Point AC Care • Authorized Sales &amp; Support">
+                </label>
+                <div class="g g2">
+                    <label>Action Button 1 (Text)
+                        <input id="tpl-btn1" placeholder="e.g. Confirm Service" value="Confirm Service">
+                    </label>
+                    <label>Action Button 2 (Text)
+                        <input id="tpl-btn2" placeholder="e.g. Call Support" value="Call Support">
+                    </label>
+                </div>
+            </div>
+            <div class="sticky-form-acts">
+                <button class="btn" data-act="nav" data-p="automations">Cancel</button>
+                <button class="btn pri" data-act="wa-submit-tpl">${ic('check')} Save &amp; Submit Template</button>
             </div>
         </div>
-        ${btns}
+        <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span class="mu" style="font-size:12px;font-weight:600">Live Phone Simulation</span>
+                <span class="tag-pill" style="color:#10b981;font-weight:600">Real-time Reactive Preview</span>
+            </div>
+            <div id="tpl-live-phone-preview">${renderWABubble(dummy, {}, true)}</div>
+        </div>
     </div>`;
+}
+
+function newBroadcastPage(preselectedTplId) {
+    const tpls = (S.templates || []).filter(t => t.status === 'APPROVED');
+    const selectedTplId = preselectedTplId || (tpls[0] ? tpls[0].id : '');
+    const currentTpl = tpls.find(t => t.id === selectedTplId) || tpls[0] || { header: 'AC Service Alert', body: 'Service reminder' };
+
+    return `<div class="ph">
+        <div>
+            <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
+            <h1>Launch Broadcast Campaign</h1>
+            <p class="mu">Dispatch approved WhatsApp templates to targeted AC customer segments.</p>
+        </div>
+    </div>
+    <div class="wa-creator-grid">
+        <div class="panel pad">
+            <div class="fg">
+                <label>Campaign Name
+                    <input id="camp-name" placeholder="e.g. Summer Free Service Drive 2026" value="AC Service Drive ${fd(D(0))}">
+                </label>
+                <label>Select Approved Template
+                    <select id="camp-tpl" class="shadcn-select">
+                        ${tpls.map(t => `<option value="${t.id}" ${t.id === selectedTplId ? 'selected' : ''}>${esc(t.name)} (${esc(t.cat)})</option>`).join('')}
+                    </select>
+                </label>
+                <label>Target Audience Segment
+                    <select id="camp-aud" class="shadcn-select">
+                        <option value="all">All Registered Customers (${S.customers.length} total)</option>
+                        <option value="srv1_due">1st AC Service Due in Next 30 Days</option>
+                        <option value="srv2_due">2nd AC Service Due in Next 30 Days</option>
+                        <option value="brand_daikin">Daikin AC Owners Only</option>
+                        <option value="brand_voltas">Voltas AC Owners Only</option>
+                        <option value="brand_hitachi">Hitachi AC Owners Only</option>
+                        <option value="alkapuri">Alkapuri Locality Customers</option>
+                    </select>
+                </label>
+                <div id="camp-matched-info" class="panel pad" style="background:var(--bg)">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                        <b>Matched Recipients: ${S.customers.length} Customers</b>
+                        <span class="tag-pill" style="color:#10b981;font-weight:600">✓ Official WhatsApp API Compliant</span>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px">
+                        ${S.customers.map(c => `<span class="tag-pill" style="font-size:11px">${esc(c.name)}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="g g2">
+                    <label>Dispatch Timing
+                        <select id="camp-sched" class="shadcn-select">
+                            <option value="now" selected>Send Immediately</option>
+                            <option value="sched">Schedule for Tomorrow 10:00 AM</option>
+                        </select>
+                    </label>
+                    <label>Throttle Rate
+                        <select id="camp-throttle" class="shadcn-select">
+                            <option value="fast">Maximum Speed (100 msgs / min)</option>
+                            <option value="safe" selected>Safe Standard (30 msgs / min)</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="sticky-form-acts">
+                <button class="btn" data-act="nav" data-p="automations">Cancel</button>
+                <button class="btn pri" data-act="wa-launch-camp-page">${ic('send')} Launch Broadcast Campaign</button>
+            </div>
+        </div>
+        <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <span class="mu" style="font-size:12px;font-weight:600">Message Broadcast Preview</span>
+                <span class="tag-pill" style="color:#0284c7;font-weight:600">Recipient Phone View</span>
+            </div>
+            <div id="camp-live-phone-preview">${renderWABubble(currentTpl, {}, true)}</div>
+        </div>
+    </div>`;
+}
+
+function waAccountPage() {
+    const wa = S.whatsapp || { connected: true, phone: '+91 98250 12345', displayName: S.set.store, qualityRating: 'HIGH', dailyLimit: '10,000 / day (Tier 2)', lastSync: 'Just now' };
+
+    return `<div class="ph">
+        <div>
+            <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
+            <h1>WhatsApp Business Connection</h1>
+            <p class="mu">Simple and direct connection for your shop's official WhatsApp Business number.</p>
+        </div>
+    </div>
+    <div class="g g2" style="max-width:960px">
+        <div class="panel pad">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                <div style="width:44px;height:44px;border-radius:12px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,211,102,.25);flex:none">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div>
+                    <b>Connect Your WhatsApp Business Number</b>
+                    <div class="mu" style="font-size:12px">Enter your shop's WhatsApp number to send automatic service alerts &amp; greetings</div>
+                </div>
+            </div>
+            <div class="fg">
+                <label>Business Display Name
+                    <input id="wa-acc-name" value="${esc(wa.displayName || S.set.store)}" placeholder="Mobile Point AC Care">
+                </label>
+                <label>WhatsApp Business Mobile Number
+                    <input id="wa-acc-phone" value="${esc(wa.phone)}" placeholder="+91 98250 12345">
+                </label>
+                <label>Shop Location / Locality
+                    <input id="wa-acc-loc" value="Alkapuri Arcade, Vadodara" placeholder="Locality, City">
+                </label>
+            </div>
+            <div class="acts" style="margin-top:20px">
+                <button class="btn" data-act="wa-acc-ping">${ic('refresh')} Ping Test</button>
+                <button class="btn pri" data-act="wa-acc-save">${ic('check')} Save &amp; Connect Number</button>
+            </div>
+        </div>
+
+        <div class="panel pad">
+            <b>Connection Status &amp; Limits</b>
+            <div class="mu" style="font-size:12px;margin-bottom:14px">Official WhatsApp Business Account Health</div>
+            <div class="panel pad" style="background:var(--bg);margin-bottom:16px">
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                    <span class="mu" style="font-size:12px">Connection Status:</span>
+                    <span style="color:#10b981;font-weight:600;display:inline-flex;align-items:center;gap:6px">
+                        <span class="wa-pulse"></span> Active &amp; Verified
+                    </span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                    <span class="mu" style="font-size:12px">Meta Quality Rating:</span>
+                    <b style="color:#10b981">${esc(wa.qualityRating)} (GREEN)</b>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                    <span class="mu" style="font-size:12px">Daily Sending Limit:</span>
+                    <b>${esc(wa.dailyLimit)}</b>
+                </div>
+                <div style="display:flex;justify-content:space-between">
+                    <span class="mu" style="font-size:12px">Last Verified Sync:</span>
+                    <b>${esc(wa.lastSync)}</b>
+                </div>
+            </div>
+            <div style="margin-top:14px">
+                <button class="btn sm" data-act="wa-acc-disc" style="color:#ef4444">${ic('logout')} Disconnect WhatsApp Number</button>
+            </div>
+        </div>
+    </div>`;
+}
+
+function updateTplPageLivePreview() {
+    const prevWrap = $('#tpl-live-phone-preview');
+    if (!prevWrap) return;
+    const hdr = ($('#tpl-hdr') ? $('#tpl-hdr').value : '').trim();
+    const body = ($('#tpl-body') ? $('#tpl-body').value : '').trim();
+    const ftr = ($('#tpl-ftr') ? $('#tpl-ftr').value : '').trim();
+    const btn1 = ($('#tpl-btn1') ? $('#tpl-btn1').value : '').trim();
+    const btn2 = ($('#tpl-btn2') ? $('#tpl-btn2').value : '').trim();
+
+    const btns = [];
+    if (btn1) btns.push({ type: 'QUICK_REPLY', text: btn1 });
+    if (btn2) btns.push({ type: 'PHONE_NUMBER', text: btn2 });
+
+    const dummy = {
+        header: hdr,
+        body: body || 'Hello {{customer_name}}, this is a preview template.',
+        footer: ftr,
+        buttons: btns
+    };
+    prevWrap.innerHTML = renderWABubble(dummy, {}, true);
+}
+
+function updateCampPageAudience() {
+    const sel = $('#camp-aud');
+    const info = $('#camp-matched-info');
+    if (!sel || !info) return;
+    const v = sel.value;
+
+    let matched = [];
+    if (v === 'all') {
+        matched = S.customers.map(c => c.name);
+    } else if (v === 'srv1_due') {
+        const sales = S.sales.filter(s => s.srv1Status !== 'Completed');
+        matched = sales.map(s => s.custName);
+    } else if (v === 'srv2_due') {
+        const sales = S.sales.filter(s => s.srv2Status !== 'Completed');
+        matched = sales.map(s => s.custName);
+    } else if (v === 'brand_daikin') {
+        matched = S.sales.filter(s => s.brand === 'Daikin').map(s => s.custName);
+    } else if (v === 'brand_voltas') {
+        matched = S.sales.filter(s => s.brand === 'Voltas').map(s => s.custName);
+    } else if (v === 'brand_hitachi') {
+        matched = S.sales.filter(s => s.brand === 'Hitachi').map(s => s.custName);
+    } else if (v === 'alkapuri') {
+        matched = S.customers.filter(c => (c.locality || '').toLowerCase().includes('alkapuri') || (c.address || '').toLowerCase().includes('alkapuri')).map(c => c.name);
+    }
+
+    const unique = [...new Set(matched.filter(Boolean))];
+    info.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <b>Matched Recipients: ${unique.length} Customers</b>
+        <span class="tag-pill" style="color:#10b981;font-weight:600">✓ Official WhatsApp API Compliant</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${unique.map(n => `<span class="tag-pill" style="font-size:11px">${esc(n)}</span>`).join('') || '<span class="mu" style="font-size:12px">No customer records currently match this filter.</span>'}
+    </div>`;
+}
+
+function updateCampPagePreview() {
+    const sel = $('#camp-tpl');
+    const prevWrap = $('#camp-live-phone-preview');
+    if (!sel || !prevWrap) return;
+    const tpl = (S.templates || []).find(t => t.id === sel.value);
+    if (tpl) {
+        prevWrap.innerHTML = renderWABubble(tpl, {}, true);
+    }
 }
 
 function automationsPage() {
@@ -3034,7 +3362,7 @@ function automationsPage() {
     const delPct = totalMsgsSent ? Math.round((totalDelivered / totalMsgsSent) * 100) : 98;
     const readPct = totalDelivered ? Math.round((totalRead / totalDelivered) * 100) : 94;
 
-    const wati = S.wati || { connected: true, phone: '+91 98250 12345', wabaId: 'WABA-919825012345', qualityRating: 'HIGH', dailyLimit: '10,000 / day (Tier 2)', lastSync: 'Just now' };
+    const wa = S.whatsapp || { connected: true, phone: '+91 98250 12345', wabaId: 'WABA-919825012345', qualityRating: 'HIGH', dailyLimit: '10,000 / day (Tier 2)', lastSync: 'Just now' };
 
     const topBanner = `<div class="panel pad" style="margin-bottom:20px;border-left:4px solid #10b981;background:var(--sf)">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
@@ -3044,26 +3372,25 @@ function automationsPage() {
                 </div>
                 <div>
                     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                        <b style="font-size:16px">${esc(wati.displayName || S.set.store)}</b>
-                        <span class="wa-badge-verified"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> WATI Verified</span>
-                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:${wati.connected ? '#10b981' : '#ef4444'};font-weight:600">
-                            <span class="${wati.connected ? 'wa-pulse' : ''}" style="${wati.connected ? '' : 'width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block'}"></span>
-                            ${wati.connected ? 'Connected' : 'Offline'}
+                        <b style="font-size:16px">${esc(wa.displayName || S.set.store)}</b>
+                        <span class="wa-badge-verified"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> WhatsApp Verified</span>
+                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:${wa.connected ? '#10b981' : '#ef4444'};font-weight:600">
+                            <span class="${wa.connected ? 'wa-pulse' : ''}" style="${wa.connected ? '' : 'width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block'}"></span>
+                            ${wa.connected ? 'Connected' : 'Offline'}
                         </span>
                     </div>
                     <div class="mu" style="font-size:12px;display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">
-                        <span><b>Phone:</b> ${esc(wati.phone)}</span>
-                        <span><b>WABA ID:</b> ${esc(wati.wabaId)}</span>
-                        <span><b>Tier:</b> ${esc(wati.dailyLimit)}</span>
-                        <span><b>Quality:</b> <span style="color:#10b981;font-weight:600">${esc(wati.qualityRating)}</span></span>
+                        <span><b>Phone:</b> ${esc(wa.phone)}</span>
+                        <span><b>Tier:</b> ${esc(wa.dailyLimit)}</span>
+                        <span><b>Quality:</b> <span style="color:#10b981;font-weight:600">${esc(wa.qualityRating)}</span></span>
                     </div>
                 </div>
             </div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <button class="btn sm" data-act="wati-sync" title="Sync templates and status with WATI">${ic('refresh')} Sync WATI</button>
-                <button class="btn sm" data-act="wati-login-m">${ic('gear')} WATI Setup</button>
-                <button class="btn sm" data-act="wati-new-tpl">${ic('plus')} Create Template</button>
-                <button class="btn sm pri" data-act="wati-new-camp">${ic('send')} New Campaign</button>
+                <button class="btn sm" data-act="wa-sync" title="Sync templates and status">${ic('refresh')} Sync</button>
+                <button class="btn sm" data-act="nav" data-p="automations/account">${ic('gear')} WhatsApp Setup</button>
+                <button class="btn sm" data-act="nav" data-p="automations/templates/new">${ic('plus')} Create Template</button>
+                <button class="btn sm pri" data-act="nav" data-p="automations/broadcasts/new">${ic('send')} New Campaign</button>
             </div>
         </div>
     </div>`;
@@ -3072,7 +3399,7 @@ function automationsPage() {
         <button class="ch ${V.waTab === 'campaigns' ? 'on' : ''}" data-act="wa-tab" data-tab="campaigns">📢 Broadcast Campaigns <span class="tag-pill" style="margin-left:4px">${totalCamps}</span></button>
         <button class="ch ${V.waTab === 'templates' ? 'on' : ''}" data-act="wa-tab" data-tab="templates">📑 Templates Library <span class="tag-pill" style="margin-left:4px">${(S.templates || []).length}</span></button>
         <button class="ch ${V.waTab === 'workflows' ? 'on' : ''}" data-act="wa-tab" data-tab="workflows">⚡ Automated Triggers <span class="tag-pill" style="margin-left:4px">${(S.automations || []).length}</span></button>
-        <button class="ch ${V.waTab === 'gateway' ? 'on' : ''}" data-act="wa-tab" data-tab="gateway">🔌 WATI API & Gateway</button>
+        <button class="ch ${V.waTab === 'gateway' ? 'on' : ''}" data-act="wa-tab" data-tab="gateway">🔌 WhatsApp Gateway</button>
     </div>`;
 
     let content = '';
@@ -3082,7 +3409,7 @@ function automationsPage() {
             <div class="wa-stat-card">
                 <span class="mu" style="font-size:12px">Total Broadcasts</span>
                 <b>${totalCamps}</b>
-                <span style="font-size:11px;color:#10b981">Meta API Official Broadcasts</span>
+                <span style="font-size:11px;color:#10b981">Official WhatsApp Broadcasts</span>
             </div>
             <div class="wa-stat-card">
                 <span class="mu" style="font-size:12px">Messages Dispatched</span>
@@ -3092,7 +3419,7 @@ function automationsPage() {
             <div class="wa-stat-card">
                 <span class="mu" style="font-size:12px">Delivery Success Rate</span>
                 <b>${delPct}%</b>
-                <span style="font-size:11px;color:#10b981">Optimal Meta SLA</span>
+                <span style="font-size:11px;color:#10b981">Optimal Delivery SLA</span>
             </div>
             <div class="wa-stat-card">
                 <span class="mu" style="font-size:12px">Read / Open Rate</span>
@@ -3131,8 +3458,8 @@ function automationsPage() {
                 <td><span class="b ok">${esc(c.status || 'Completed')}</span></td>
                 <td>
                     <div style="display:flex;gap:6px">
-                        <button class="btn sm" data-act="wati-preview-tpl" data-id="${tpl.id || ''}" title="Preview Template">${ic('send')} Preview</button>
-                        <button class="btn sm" data-act="wati-del-camp" data-id="${c.id}" title="Delete Record" style="color:#ef4444">${ic('trash')}</button>
+                        <button class="btn sm" data-act="wa-preview-tpl" data-id="${tpl.id || ''}" title="Preview Template">${ic('send')} Preview</button>
+                        <button class="btn sm" data-act="wa-del-camp" data-id="${c.id}" title="Delete Record" style="color:#ef4444">${ic('trash')}</button>
                     </div>
                 </td>
             </tr>`;
@@ -3158,8 +3485,8 @@ function automationsPage() {
                     <div><span class="mu" style="font-size:11px">Read</span><b style="display:block;font-size:14px;color:#53bdeb">${c.readCount}</b></div>
                 </div>
                 <div style="display:flex;gap:8px;justify-content:flex-end">
-                    <button class="btn sm" data-act="wati-preview-tpl" data-id="${tpl.id || ''}">Preview</button>
-                    <button class="btn sm" data-act="wati-del-camp" data-id="${c.id}" style="color:#ef4444">Remove</button>
+                    <button class="btn sm" data-act="wa-preview-tpl" data-id="${tpl.id || ''}">Preview</button>
+                    <button class="btn sm" data-act="wa-del-camp" data-id="${c.id}" style="color:#ef4444">Remove</button>
                 </div>
             </div>`;
         }).join('');
@@ -3169,9 +3496,9 @@ function automationsPage() {
             <div class="panel pad" style="border:none;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
                 <div>
                     <b>Broadcast Campaigns History</b>
-                    <div class="mu" style="font-size:12px">All mass outreach campaigns sent through official WATI WhatsApp Gateway</div>
+                    <div class="mu" style="font-size:12px">All mass outreach campaigns sent through official WhatsApp Business Gateway</div>
                 </div>
-                <button class="btn pri sm" data-act="wati-new-camp">${ic('send')} Launch New Broadcast</button>
+                <button class="btn pri sm" data-act="nav" data-p="automations/broadcasts/new">${ic('send')} Launch New Broadcast</button>
             </div>
             <div class="tw desktop-only">
                 <table class="tbl">
@@ -3220,16 +3547,16 @@ function automationsPage() {
                     <div style="margin:12px 0">${renderWABubble(t)}</div>
                 </div>
                 <div style="display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--bd);padding-top:10px;flex-wrap:wrap">
-                    <button class="btn sm" data-act="wati-test-tpl" data-id="${t.id}" title="Send test WhatsApp to your phone">${ic('phone')} Test Send</button>
-                    <button class="btn sm pri" data-act="wati-new-camp" data-id="${t.id}" title="Launch broadcast with this template">${ic('send')} Broadcast</button>
-                    <button class="btn sm" data-act="wati-del-tpl" data-id="${t.id}" style="color:#ef4444" title="Delete Template">${ic('trash')}</button>
+                    <button class="btn sm" data-act="wa-test-tpl" data-id="${t.id}" title="Send test WhatsApp to your phone">${ic('phone')} Test Send</button>
+                    <button class="btn sm pri" data-act="nav" data-p="automations/broadcasts/new/${t.id}" title="Launch broadcast with this template">${ic('send')} Broadcast</button>
+                    <button class="btn sm" data-act="wa-del-tpl" data-id="${t.id}" style="color:#ef4444" title="Delete Template">${ic('trash')}</button>
                 </div>
             </div>`;
         }).join('');
 
         content = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px">
             <div class="ch-bar">${filterChips}</div>
-            <button class="btn pri sm" data-act="wati-new-tpl">${ic('plus')} Create New Template</button>
+            <button class="btn pri sm" data-act="nav" data-p="automations/templates/new">${ic('plus')} Create New Template</button>
         </div>
         <div class="g g2">${tplCards || '<div class="panel pad mu" style="grid-column:1/-1;text-align:center">No templates found matching current filter.</div>'}</div>`;
     } else if (V.waTab === 'workflows') {
@@ -3240,7 +3567,7 @@ function automationsPage() {
                     <div style="flex:1;min-width:280px">
                         <div style="display:flex;align-items:center;gap:8px">
                             <b style="font-size:15px">${esc(a.name)}</b>
-                            <span class="tag-pill" style="font-family:monospace;font-size:11px">WATI Template: ${esc(matchedTpl ? matchedTpl.name : 'default')}</span>
+                            <span class="tag-pill" style="font-family:monospace;font-size:11px">Template: ${esc(matchedTpl ? matchedTpl.name : 'default')}</span>
                         </div>
                         <div class="mu" style="font-size:12px;margin-top:4px">Trigger Condition: <b style="color:var(--fg)">${esc(a.trig)}</b> · Lead: ${a.lead ? a.lead + ' days prior' : 'Instant on action'}</div>
                         <div style="margin-top:10px;background:var(--bg);padding:10px;border-radius:8px;font-size:12.5px;line-height:1.45;color:var(--fg);border:1px solid var(--bd)">
@@ -3264,7 +3591,7 @@ function automationsPage() {
 
         content = `<div class="panel pad" style="margin-bottom:16px;background:var(--sf)">
             <b>Automated AC Lifecycle Triggers</b>
-            <div class="mu" style="font-size:12px;margin-top:2px">When events occur (new customer recorded, new AC sale saved, or service dates approaching), Mobile Point AC Care automatically triggers approved WATI templates directly to the customer's WhatsApp number.</div>
+            <div class="mu" style="font-size:12px;margin-top:2px">When events occur (new customer recorded, new AC sale saved, or service dates approaching), Mobile Point AC Care automatically triggers approved templates directly to the customer's WhatsApp number.</div>
         </div>
         <div>${workflowsList}</div>`;
     } else if (V.waTab === 'gateway') {
@@ -3275,64 +3602,50 @@ function automationsPage() {
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     </div>
                     <div>
-                        <b>WATI API Connection Settings</b>
-                        <div class="mu" style="font-size:12px">Meta WhatsApp Business API Endpoint and Credentials</div>
+                        <b>WhatsApp Business Connection Settings</b>
+                        <div class="mu" style="font-size:12px">Official Cloud Messaging Gateway for Mobile Point AC Care</div>
                     </div>
                 </div>
                 <div class="fg">
-                    <label>WATI API Endpoint URL
-                        <input id="wati-gw-endpoint" value="${esc(wati.endpoint)}" placeholder="https://live-server-wati.wati.io">
+                    <label>Business Display Name
+                        <input id="wa-gw-name" value="${esc(wa.displayName || S.set.store)}">
                     </label>
-                    <label>API Access Token (Bearer Token)
-                        <input id="wati-gw-key" type="password" value="${esc(wati.apiKey)}" placeholder="wati_live_sec_...">
+                    <label>WhatsApp Business Phone Number
+                        <input id="wa-gw-phone" value="${esc(wa.phone)}" placeholder="+91 98250 12345">
                     </label>
-                    <label>WhatsApp Business Account (WABA) ID
-                        <input id="wati-gw-waba" value="${esc(wati.wabaId)}" placeholder="WABA-...">
-                    </label>
-                    <label>Registered WhatsApp Phone Number
-                        <input id="wati-gw-phone" value="${esc(wati.phone)}" placeholder="+91 98250 12345">
-                    </label>
-                    <label>Display Name (Meta Approved)
-                        <input id="wati-gw-name" value="${esc(wati.displayName || S.set.store)}">
+                    <label>WhatsApp Cloud Endpoint
+                        <input id="wa-gw-endpoint" value="${esc(wa.endpoint || 'https://graph.facebook.com/v19.0')}" readonly style="background:var(--bg)">
                     </label>
                 </div>
                 <div class="acts" style="margin-top:16px">
-                    <button class="btn" data-act="wati-ping">${ic('refresh')} Ping API Test</button>
-                    <button class="btn pri" data-act="wati-save-conn">${ic('check')} Save Credentials</button>
+                    <button class="btn" data-act="wa-acc-ping">${ic('refresh')} Ping API Test</button>
+                    <button class="btn pri" data-act="wa-save-conn">${ic('check')} Save Settings</button>
                 </div>
             </div>
 
             <div class="panel pad">
-                <b>Live Gateway Health & Webhooks</b>
-                <div class="mu" style="font-size:12px;margin-bottom:14px">Webhook callbacks for delivery reports and incoming customer responses</div>
+                <b>Account Health &amp; Limits</b>
+                <div class="mu" style="font-size:12px;margin-bottom:14px">Live connection health &amp; messaging tier</div>
                 <div class="panel pad" style="background:var(--bg);margin-bottom:14px">
                     <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-                        <span class="mu" style="font-size:12px">Meta Quality Rating:</span>
-                        <b style="color:#10b981">${esc(wati.qualityRating)} (GREEN)</b>
+                        <span class="mu" style="font-size:12px">Account Status:</span>
+                        <b style="color:#10b981">Verified &amp; Active</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                        <span class="mu" style="font-size:12px">Quality Rating:</span>
+                        <b style="color:#10b981">${esc(wa.qualityRating)} (GREEN)</b>
                     </div>
                     <div style="display:flex;justify-content:space-between;margin-bottom:8px">
                         <span class="mu" style="font-size:12px">Messaging Tier:</span>
-                        <b>${esc(wati.dailyLimit)}</b>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-                        <span class="mu" style="font-size:12px">Account Status:</span>
-                        <b style="color:#10b981">Verified & Active</b>
+                        <b>${esc(wa.dailyLimit)}</b>
                     </div>
                     <div style="display:flex;justify-content:space-between">
                         <span class="mu" style="font-size:12px">Last Health Ping:</span>
-                        <b>${esc(wati.lastSync)}</b>
+                        <b>${esc(wa.lastSync)}</b>
                     </div>
                 </div>
-                <div class="fg">
-                    <label>Inbound Webhook Callback URL
-                        <input value="https://mobilepoint.in/api/wati/webhook" readonly style="background:var(--bg);font-family:monospace;font-size:12px">
-                    </label>
-                    <label>Webhook Verify Token
-                        <input value="mp_wati_token_2026_live_sec" readonly style="background:var(--bg);font-family:monospace;font-size:12px">
-                    </label>
-                </div>
                 <div style="margin-top:14px">
-                    <button class="btn sm" data-act="wati-disc" style="color:#ef4444">${ic('logout')} Disconnect Gateway</button>
+                    <button class="btn sm" data-act="wa-acc-disc" style="color:#ef4444">${ic('logout')} Disconnect Gateway</button>
                 </div>
             </div>
         </div>`;
@@ -3340,8 +3653,8 @@ function automationsPage() {
 
     return `<div class="ph">
         <div>
-            <h1>WhatsApp Automation & Broadcasts</h1>
-            <p class="mu">WATI-powered WhatsApp Business suite with official template approvals, mass broadcast campaigns, and automated AC service reminders.</p>
+            <h1>WhatsApp Automation &amp; Broadcasts</h1>
+            <p class="mu">Official WhatsApp Business suite with approved message templates, mass broadcast campaigns, and automated AC service reminders.</p>
         </div>
     </div>
     ${topBanner}
@@ -3349,226 +3662,7 @@ function automationsPage() {
     ${content}`;
 }
 
-function watiLoginM() {
-    const wati = S.wati || { endpoint: 'https://live-server-wati.wati.io', apiKey: 'wati_live_sec_9942a7b8e10d48f6820c7e2b144fae93', wabaId: 'WABA-919825012345', phone: '+91 98250 12345', displayName: S.set.store };
-    modal(`<h1>WATI WhatsApp Business API Setup</h1>
-    <p class="mu" style="margin-bottom:14px">Connect your official WATI account to sync templates, send broadcasts, and automate service reminders via Meta WhatsApp API.</p>
-    <div class="fg">
-        <label>WATI API Endpoint URL
-            <input id="wati-m-endpoint" value="${esc(wati.endpoint)}" placeholder="https://live-server-wati.wati.io">
-        </label>
-        <label>API Access Token / Key
-            <input id="wati-m-key" type="password" value="${esc(wati.apiKey)}" placeholder="wati_live_sec_...">
-        </label>
-        <label>Meta WABA ID
-            <input id="wati-m-waba" value="${esc(wati.wabaId)}" placeholder="WABA-919825012345">
-        </label>
-        <label>WhatsApp Business Phone Number
-            <input id="wati-m-phone" value="${esc(wati.phone)}" placeholder="+91 98250 12345">
-        </label>
-        <label>Display Name (Meta Verified)
-            <input id="wati-m-name" value="${esc(wati.displayName || S.set.store)}">
-        </label>
-    </div>
-    <div id="wati-ping-status" style="display:none;margin-top:12px" class="panel pad"></div>
-    <div class="acts" style="margin-top:18px">
-        <button class="btn" data-act="close">Cancel</button>
-        <button class="btn" data-act="wati-ping">${ic('refresh')} Test Connection</button>
-        <button class="btn pri" data-act="wati-save-conn">${ic('check')} Save & Connect</button>
-    </div>`);
-}
-
-function watiNewTplM() {
-    modal(`<h1>Create WhatsApp Message Template</h1>
-    <p class="mu" style="margin-bottom:14px">Design and submit a new template to WATI & Meta. Use variable chips to insert customer-specific information.</p>
-    <div class="g g2" style="align-items:start">
-        <div class="fg">
-            <label>Template Name (Lowercase letters, numbers, underscores only)
-                <input id="tpl-name" placeholder="e.g. ac_monsoon_discount_2026" value="ac_service_special_offer">
-            </label>
-            <div class="g g2">
-                <label>Category
-                    <select id="tpl-cat">
-                        <option value="MARKETING">MARKETING (Promotions & Offers)</option>
-                        <option value="UTILITY" selected>UTILITY (Service Reminders & Updates)</option>
-                        <option value="AUTHENTICATION">AUTHENTICATION (OTP & Security)</option>
-                    </select>
-                </label>
-                <label>Language
-                    <select id="tpl-lang">
-                        <option value="en_US" selected>English (en_US)</option>
-                        <option value="hi_IN">Hindi (hi_IN)</option>
-                        <option value="gu_IN">Gujarati (gu_IN)</option>
-                    </select>
-                </label>
-            </div>
-            <label>Header Text (Optional)
-                <input id="tpl-hdr" placeholder="e.g. AC Maintenance Alert ❄️" value="Special AC Care Alert ❄️">
-            </label>
-            <label>Message Body Text
-                <textarea id="tpl-body" rows="6">Hello {{customer_name}}, gentle reminder from {{store_name}}: Ensure your {{brand}} AC (S/N: {{serial_number}}) is ready for optimal cooling. Call {{shop_phone}} to book your OEM technician visit!</textarea>
-            </label>
-            <div>
-                <span class="mu" style="font-size:11.5px;display:block;margin-bottom:4px">Insert Variable Placeholder:</span>
-                <div style="display:flex;flex-wrap:wrap;gap:4px">
-                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{customer_name}}">+ {{customer_name}}</button>
-                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{brand}}">+ {{brand}}</button>
-                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{model}}">+ {{model}}</button>
-                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{serial_number}}">+ {{serial_number}}</button>
-                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{due_date}}">+ {{due_date}}</button>
-                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{store_name}}">+ {{store_name}}</button>
-                    <button type="button" class="btn sm" data-act="wati-var-tag" data-tag="{{shop_phone}}">+ {{shop_phone}}</button>
-                </div>
-            </div>
-            <label>Footer Text (Optional)
-                <input id="tpl-ftr" placeholder="e.g. Mobile Point AC Care • Authorized Partner" value="Mobile Point AC Care • Authorized Sales & Support">
-            </label>
-            <div class="g g2">
-                <label>Action Button 1 (Text)
-                    <input id="tpl-btn1" placeholder="e.g. Book Slot" value="Confirm Service">
-                </label>
-                <label>Action Button 2 (Text)
-                    <input id="tpl-btn2" placeholder="e.g. Call Store" value="Call Support">
-                </label>
-            </div>
-        </div>
-        <div>
-            <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--mu)">Real-time WhatsApp Bubble Preview:</div>
-            <div id="tpl-live-preview"></div>
-        </div>
-    </div>
-    <div class="acts" style="margin-top:18px">
-        <button class="btn" data-act="close">Cancel</button>
-        <button class="btn pri" data-act="wati-save-tpl">${ic('check')} Submit Template to WATI</button>
-    </div>`);
-    updateTplLivePreview();
-}
-
-function updateTplLivePreview() {
-    const prevWrap = $('#tpl-live-preview');
-    if (!prevWrap) return;
-    const hdr = ($('#tpl-hdr') ? $('#tpl-hdr').value : '').trim();
-    const body = ($('#tpl-body') ? $('#tpl-body').value : '').trim();
-    const ftr = ($('#tpl-ftr') ? $('#tpl-ftr').value : '').trim();
-    const btn1 = ($('#tpl-btn1') ? $('#tpl-btn1').value : '').trim();
-    const btn2 = ($('#tpl-btn2') ? $('#tpl-btn2').value : '').trim();
-
-    const btns = [];
-    if (btn1) btns.push({ type: 'QUICK_REPLY', text: btn1 });
-    if (btn2) btns.push({ type: 'PHONE_NUMBER', text: btn2 });
-
-    const dummyTpl = {
-        header: hdr,
-        body: body || 'Hello {{customer_name}}, this is a preview template.',
-        footer: ftr,
-        buttons: btns
-    };
-    prevWrap.innerHTML = renderWABubble(dummyTpl);
-}
-
-function watiNewCampM(preselectedTplId) {
-    const tpls = (S.templates || []).filter(t => t.status === 'APPROVED');
-    const selectedTplId = preselectedTplId || (tpls[0] ? tpls[0].id : '');
-
-    modal(`<h1>Launch WhatsApp Broadcast Campaign</h1>
-    <p class="mu" style="margin-bottom:14px">Dispatch an approved WATI template broadcast to segmented AC customers in one click.</p>
-    <div class="g g2" style="align-items:start">
-        <div class="fg">
-            <label>Campaign Name
-                <input id="camp-name" placeholder="e.g. Summer Free Service Drive 2026" value="AC Service Drive ${fd(D(0))}">
-            </label>
-            <label>Select Approved Template
-                <select id="camp-tpl">
-                    ${tpls.map(t => `<option value="${t.id}" ${t.id === selectedTplId ? 'selected' : ''}>${esc(t.name)} (${esc(t.cat)})</option>`).join('')}
-                </select>
-            </label>
-            <label>Target Audience Segment
-                <select id="camp-aud">
-                    <option value="all">All Registered Customers (${S.customers.length} total)</option>
-                    <option value="srv1_due">1st AC Service Due in Next 30 Days</option>
-                    <option value="srv2_due">2nd AC Service Due in Next 30 Days</option>
-                    <option value="brand_daikin">Daikin AC Owners Only</option>
-                    <option value="brand_voltas">Voltas AC Owners Only</option>
-                    <option value="brand_hitachi">Hitachi AC Owners Only</option>
-                    <option value="alkapuri">Alkapuri Locality Customers</option>
-                </select>
-            </label>
-            <div id="camp-matched-info" class="panel pad" style="background:var(--bg)"></div>
-            <div class="g g2">
-                <label>Dispatch Timing
-                    <select id="camp-sched">
-                        <option value="now" selected>Send Immediately</option>
-                        <option value="sched">Schedule for Tomorrow 10:00 AM</option>
-                    </select>
-                </label>
-                <label>Throttle Rate
-                    <select id="camp-throttle">
-                        <option value="fast">Maximum (100 msgs / min)</option>
-                        <option value="safe" selected>Safe (30 msgs / min)</option>
-                    </select>
-                </label>
-            </div>
-        </div>
-        <div>
-            <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--mu)">Template Broadcast Preview:</div>
-            <div id="camp-live-preview"></div>
-        </div>
-    </div>
-    <div class="acts" style="margin-top:18px">
-        <button class="btn" data-act="close">Cancel</button>
-        <button class="btn pri" data-act="wati-launch-camp">${ic('send')} Launch Broadcast Campaign</button>
-    </div>`);
-
-    updateCampAudience();
-    updateCampPreview();
-}
-
-function updateCampAudience() {
-    const sel = $('#camp-aud');
-    const info = $('#camp-matched-info');
-    if (!sel || !info) return;
-    const v = sel.value;
-
-    let matched = [];
-    if (v === 'all') {
-        matched = S.customers.map(c => c.name);
-    } else if (v === 'srv1_due') {
-        const sales = S.sales.filter(s => s.srv1Status !== 'Completed');
-        matched = sales.map(s => s.custName);
-    } else if (v === 'srv2_due') {
-        const sales = S.sales.filter(s => s.srv2Status !== 'Completed');
-        matched = sales.map(s => s.custName);
-    } else if (v === 'brand_daikin') {
-        matched = S.sales.filter(s => s.brand === 'Daikin').map(s => s.custName);
-    } else if (v === 'brand_voltas') {
-        matched = S.sales.filter(s => s.brand === 'Voltas').map(s => s.custName);
-    } else if (v === 'brand_hitachi') {
-        matched = S.sales.filter(s => s.brand === 'Hitachi').map(s => s.custName);
-    } else if (v === 'alkapuri') {
-        matched = S.customers.filter(c => (c.locality || '').toLowerCase().includes('alkapuri') || (c.address || '').toLowerCase().includes('alkapuri')).map(c => c.name);
-    }
-
-    const unique = [...new Set(matched.filter(Boolean))];
-    info.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <b>Matched Recipients: ${unique.length} Customers</b>
-        <span class="tag-pill" style="color:#10b981;font-weight:600">✓ Meta WABA Compliant</span>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:4px">
-        ${unique.map(n => `<span class="tag-pill" style="font-size:11px">${esc(n)}</span>`).join('') || '<span class="mu" style="font-size:12px">No customer records currently match this filter.</span>'}
-    </div>`;
-}
-
-function updateCampPreview() {
-    const sel = $('#camp-tpl');
-    const prevWrap = $('#camp-live-preview');
-    if (!sel || !prevWrap) return;
-    const tpl = (S.templates || []).find(t => t.id === sel.value);
-    if (tpl) {
-        prevWrap.innerHTML = renderWABubble(tpl);
-    }
-}
-
-function watiPreviewM(tplId) {
+function waPreviewM(tplId) {
     const tpl = (S.templates || []).find(t => t.id === tplId || t.name === tplId) || (S.templates || [])[0];
     if (!tpl) return;
     modal(`<h1>WhatsApp Chat Preview: ${esc(tpl.name)}</h1>
@@ -3577,25 +3671,25 @@ function watiPreviewM(tplId) {
     </div>
     <div class="acts">
         <button class="btn" data-act="close">Close</button>
-        <button class="btn" data-act="wati-test-tpl" data-id="${tpl.id}">${ic('phone')} Test Send to Phone</button>
-        <button class="btn pri" data-act="wati-new-camp" data-id="${tpl.id}">${ic('send')} Use in Broadcast</button>
+        <button class="btn" data-act="wa-test-tpl" data-id="${tpl.id}">${ic('phone')} Test Send to Phone</button>
+        <button class="btn pri" data-act="nav" data-p="automations/broadcasts/new/${tpl.id}">${ic('send')} Use in Broadcast</button>
     </div>`);
 }
 
-function watiTestM(tplId) {
+function waTestM(tplId) {
     const tpl = (S.templates || []).find(t => t.id === tplId) || (S.templates || [])[0];
     if (!tpl) return;
     modal(`<h1>Send WhatsApp Test Message</h1>
     <p class="mu" style="margin-bottom:12px">Send an instant live simulation to test how this template looks in the recipient's WhatsApp app.</p>
     <div class="fg">
         <label>Recipient WhatsApp Mobile Number
-            <input id="wati-test-num" value="+91 98250 12345" placeholder="+91 9XXXXXXXXX">
+            <input id="wa-test-num" value="+91 98250 12345" placeholder="+91 9XXXXXXXXX">
         </label>
     </div>
     <div style="margin:14px 0">${renderWABubble(tpl)}</div>
     <div class="acts">
         <button class="btn" data-act="close">Cancel</button>
-        <button class="btn pri" data-act="wati-send-test-msg" data-id="${tpl.id}">${ic('send')} Send Test Message Now</button>
+        <button class="btn pri" data-act="wa-send-test-msg" data-id="${tpl.id}">${ic('send')} Send Test Message Now</button>
     </div>`);
 }
 
@@ -3729,6 +3823,8 @@ function act(a, e) {
     const d = a.dataset;
     switch (d.act) {
         case 'ovl':
+            if (e && e.target !== a) return;
+            return closeM();
         case 'close':
             return closeM();
         case 'close-np':
@@ -3897,57 +3993,53 @@ function act(a, e) {
             render(true);
             return;
         }
-        case 'wati-sync': {
-            S.wati.lastSync = 'Just now';
+        case 'wa-sync': {
+            if (S.whatsapp) S.whatsapp.lastSync = 'Just now';
             save();
-            toast('WATI templates and account sync complete', 'ok');
+            toast('WhatsApp templates & connection synced', 'ok');
             render(true);
             return;
         }
-        case 'wati-login-m': {
-            watiLoginM();
-            return;
-        }
-        case 'wati-save-conn': {
-            const ep = $('#wati-m-endpoint') || $('#wati-gw-endpoint');
-            const key = $('#wati-m-key') || $('#wati-gw-key');
-            const waba = $('#wati-m-waba') || $('#wati-gw-waba');
-            const phone = $('#wati-m-phone') || $('#wati-gw-phone');
-            const name = $('#wati-m-name') || $('#wati-gw-name');
-            if (ep && ep.value) S.wati.endpoint = ep.value.trim();
-            if (key && key.value) S.wati.apiKey = key.value.trim();
-            if (waba && waba.value) S.wati.wabaId = waba.value.trim();
-            if (phone && phone.value) S.wati.phone = phone.value.trim();
-            if (name && name.value) S.wati.displayName = name.value.trim();
-            S.wati.connected = true;
-            S.wati.lastSync = 'Just now';
-            save();
-            closeM();
-            toast('WATI API credentials saved and connected', 'ok');
-            render(true);
-            return;
-        }
-        case 'wati-ping': {
-            const statusDiv = $('#wati-ping-status');
-            if (statusDiv) {
-                statusDiv.style.display = 'block';
-                statusDiv.innerHTML = '<div style="color:#10b981;display:flex;align-items:center;gap:6px;font-size:13px"><span class="wa-pulse"></span> <b>Connection Successful!</b> WATI API Endpoint returned HTTP 200 OK. WABA account in good standing (Quality: GREEN).</div>';
+        case 'wa-acc-save': {
+            const nameEl = $('#wa-acc-name');
+            const phoneEl = $('#wa-acc-phone');
+            if (S.whatsapp) {
+                if (nameEl && nameEl.value) S.whatsapp.displayName = nameEl.value.trim();
+                if (phoneEl && phoneEl.value) S.whatsapp.phone = phoneEl.value.trim();
+                S.whatsapp.connected = true;
+                S.whatsapp.lastSync = 'Just now';
             }
-            toast('WATI ping test successful (Latency: 48ms)', 'ok');
+            save();
+            toast('WhatsApp Business connection details saved', 'ok');
+            go('automations');
             return;
         }
-        case 'wati-disc': {
-            S.wati.connected = false;
+        case 'wa-acc-ping': {
+            toast('WhatsApp Business API ping test successful (42ms, Status 200 OK)', 'ok');
+            return;
+        }
+        case 'wa-acc-disc': {
+            if (S.whatsapp) S.whatsapp.connected = false;
             save();
-            toast('WATI gateway disconnected');
+            toast('WhatsApp Business number disconnected');
             render(true);
             return;
         }
-        case 'wati-new-tpl': {
-            watiNewTplM();
+        case 'wa-save-conn': {
+            const nameEl = $('#wa-gw-name');
+            const phoneEl = $('#wa-gw-phone');
+            if (S.whatsapp) {
+                if (nameEl && nameEl.value) S.whatsapp.displayName = nameEl.value.trim();
+                if (phoneEl && phoneEl.value) S.whatsapp.phone = phoneEl.value.trim();
+                S.whatsapp.connected = true;
+                S.whatsapp.lastSync = 'Just now';
+            }
+            save();
+            toast('Gateway settings saved successfully', 'ok');
+            render(true);
             return;
         }
-        case 'wati-var-tag': {
+        case 'wa-var-pill': {
             const tag = d.tag;
             const tb = $('#tpl-body');
             if (tb && tag) {
@@ -3956,11 +4048,11 @@ function act(a, e) {
                 tb.value = tb.value.substring(0, start) + tag + tb.value.substring(end);
                 tb.focus();
                 tb.selectionStart = tb.selectionEnd = start + tag.length;
-                updateTplLivePreview();
+                updateTplPageLivePreview();
             }
             return;
         }
-        case 'wati-save-tpl': {
+        case 'wa-submit-tpl': {
             const nameEl = $('#tpl-name');
             const catEl = $('#tpl-cat');
             const langEl = $('#tpl-lang');
@@ -3971,8 +4063,8 @@ function act(a, e) {
             const btn2El = $('#tpl-btn2');
             if (!nameEl || !bodyEl) return;
             let tName = nameEl.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
-            if (!tName) return toast('Template name is required', 'er');
-            if (!bodyEl.value.trim()) return toast('Template body cannot be empty', 'er');
+            if (!tName) return toast('Template identifier is required', 'er');
+            if (!bodyEl.value.trim()) return toast('Message body text cannot be empty', 'er');
             const btns = [];
             if (btn1El && btn1El.value.trim()) btns.push({ type: 'QUICK_REPLY', text: btn1El.value.trim() });
             if (btn2El && btn2El.value.trim()) btns.push({ type: 'PHONE_NUMBER', text: btn2El.value.trim(), val: S.set.phone });
@@ -3989,13 +4081,12 @@ function act(a, e) {
             };
             S.templates.unshift(newTpl);
             save();
-            closeM();
-            toast('Template ' + tName + ' submitted and approved by WATI Meta API', 'ok');
+            toast('Template "' + tName + '" saved & submitted successfully', 'ok');
             V.waTab = 'templates';
-            render(true);
+            go('automations');
             return;
         }
-        case 'wati-del-tpl': {
+        case 'wa-del-tpl': {
             const tplIdx = S.templates.findIndex(t => t.id === d.id);
             if (tplIdx !== -1) {
                 const removed = S.templates.splice(tplIdx, 1)[0];
@@ -4005,11 +4096,7 @@ function act(a, e) {
             }
             return;
         }
-        case 'wati-new-camp': {
-            watiNewCampM(d.id);
-            return;
-        }
-        case 'wati-launch-camp': {
+        case 'wa-launch-camp-page': {
             const cNameEl = $('#camp-name');
             const cTplEl = $('#camp-tpl');
             const cAudEl = $('#camp-aud');
@@ -4053,19 +4140,18 @@ function act(a, e) {
             S.campaigns.unshift(newCamp);
             S.feed.unshift({
                 id: 'EV' + Date.now(),
-                t: 'WATI Broadcast launched: ' + cName + ' (' + count + ' recipients)',
+                t: 'WhatsApp Broadcast launched: ' + cName + ' (' + count + ' recipients)',
                 time: 'Just now',
                 k: 'messages',
                 p: 'automations'
             });
             save();
-            closeM();
-            toast('Broadcast campaign "' + cName + '" dispatched to ' + count + ' customers via WATI!', 'ok');
+            toast('Broadcast campaign "' + cName + '" dispatched to ' + count + ' customers!', 'ok');
             V.waTab = 'campaigns';
-            render(true);
+            go('automations');
             return;
         }
-        case 'wati-del-camp': {
+        case 'wa-del-camp': {
             const campIdx = S.campaigns.findIndex(c => c.id === d.id);
             if (campIdx !== -1) {
                 const removed = S.campaigns.splice(campIdx, 1)[0];
@@ -4075,28 +4161,28 @@ function act(a, e) {
             }
             return;
         }
-        case 'wati-preview-tpl': {
-            watiPreviewM(d.id);
+        case 'wa-preview-tpl': {
+            waPreviewM(d.id);
             return;
         }
-        case 'wati-test-tpl': {
-            watiTestM(d.id);
+        case 'wa-test-tpl': {
+            waTestM(d.id);
             return;
         }
-        case 'wati-send-test-msg': {
-            const numInput = $('#wati-test-num');
+        case 'wa-send-test-msg': {
+            const numInput = $('#wa-test-num');
             const testNum = numInput ? numInput.value.trim() : '+91 98250 12345';
             const tpl = S.templates.find(t => t.id === d.id) || S.templates[0];
             S.feed.unshift({
                 id: 'EV' + Date.now(),
-                t: 'Simulated WhatsApp test message sent (' + (tpl ? tpl.name : 'Template') + ') to ' + testNum,
+                t: 'WhatsApp test message sent (' + (tpl ? tpl.name : 'Template') + ') to ' + testNum,
                 time: 'Just now',
                 k: 'messages',
                 p: 'automations'
             });
             save();
             closeM();
-            toast('Test message sent via WATI to ' + testNum + ' (Delivered)', 'ok');
+            toast('Test message dispatched to ' + testNum + ' (Delivered)', 'ok');
             render(true);
             return;
         }
@@ -4627,15 +4713,15 @@ document.addEventListener('change', e => {
             if (p2) p2.textContent = fd(cdd(d, S.set.srv2Days || 330));
         }
     } else if (t.id === 'camp-tpl') {
-        updateCampPreview();
+        updateCampPagePreview();
     } else if (t.id === 'camp-aud') {
-        updateCampAudience();
+        updateCampPageAudience();
     }
 });
 
 document.addEventListener('input', e => {
-    if (['tpl-hdr', 'tpl-body', 'tpl-ftr', 'tpl-btn1', 'tpl-btn2'].includes(e.target.id)) {
-        updateTplLivePreview();
+    if (['tpl-hdr', 'tpl-body', 'tpl-ftr', 'tpl-btn1', 'tpl-btn2', 'tpl-name'].includes(e.target.id)) {
+        updateTplPageLivePreview();
     } else if (e.target.id === 'sq') {
         SQ = e.target.value;
         const main = $('#main');
