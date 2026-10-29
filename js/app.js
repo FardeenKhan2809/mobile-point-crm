@@ -3069,76 +3069,78 @@ function newTemplatePage() {
         ]
     };
 
-    return `<div class="ph">
-        <div>
-            <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
-            <h1>Create Message Template</h1>
-            <p class="mu">Design an official WhatsApp Business template for automated service alerts, purchase greetings, or customer care.</p>
+    return `<div class="pg">
+        <div class="ph">
+            <div>
+                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
+                <h1>Create Message Template</h1>
+                <p class="mu">Design an official WhatsApp Business template for automated service alerts, purchase greetings, or customer care.</p>
+            </div>
         </div>
-    </div>
-    <div class="wa-creator-grid">
-        <div class="panel pad">
-            <div class="fg">
-                <label>Template Identifier (Unique name in lowercase and underscores)
-                    <input id="tpl-name" placeholder="e.g. ac_service_reminder_drive" value="ac_service_special_offer">
-                </label>
-                <div class="g g2">
-                    <label>Category
-                        <select id="tpl-cat" class="shadcn-select">
-                            <option value="UTILITY" selected>Service Reminders &amp; Care (UTILITY)</option>
-                            <option value="MARKETING">Promotions &amp; Offers (MARKETING)</option>
-                            <option value="AUTHENTICATION">Security &amp; OTP (AUTHENTICATION)</option>
-                        </select>
+        <div class="wa-creator-grid">
+            <div class="panel pad">
+                <div class="fg">
+                    <label>Template Identifier (Unique name in lowercase and underscores)
+                        <input id="tpl-name" placeholder="e.g. ac_service_reminder_drive" value="ac_service_special_offer">
                     </label>
-                    <label>Language
-                        <select id="tpl-lang" class="shadcn-select">
-                            <option value="en_US" selected>English (en_US)</option>
-                            <option value="hi_IN">Hindi (hi_IN)</option>
-                            <option value="gu_IN">Gujarati (gu_IN)</option>
-                        </select>
+                    <div class="g g2">
+                        <label>Category
+                            <select id="tpl-cat" class="shadcn-select">
+                                <option value="UTILITY" selected>Service Reminders &amp; Care (UTILITY)</option>
+                                <option value="MARKETING">Promotions &amp; Offers (MARKETING)</option>
+                                <option value="AUTHENTICATION">Security &amp; OTP (AUTHENTICATION)</option>
+                            </select>
+                        </label>
+                        <label>Language
+                            <select id="tpl-lang" class="shadcn-select">
+                                <option value="en_US" selected>English (en_US)</option>
+                                <option value="hi_IN">Hindi (hi_IN)</option>
+                                <option value="gu_IN">Gujarati (gu_IN)</option>
+                            </select>
+                        </label>
+                    </div>
+                    <label>Header Text (Optional)
+                        <input id="tpl-hdr" placeholder="e.g. AC Maintenance Alert ❄️" value="Special AC Care Alert ❄️">
                     </label>
-                </div>
-                <label>Header Text (Optional)
-                    <input id="tpl-hdr" placeholder="e.g. AC Maintenance Alert ❄️" value="Special AC Care Alert ❄️">
-                </label>
-                <label>Message Body Text
-                    <textarea id="tpl-body" rows="6">Hello {{customer_name}}, gentle reminder from {{store_name}}: Ensure your {{brand}} AC (S/N: {{serial_number}}) is ready for optimal cooling. Call {{shop_phone}} to book your OEM technician visit!</textarea>
-                </label>
-                <div>
-                    <span class="mu" style="font-size:12px;display:block;margin-bottom:6px;font-weight:600">Quick-Insert Variable Placeholders:</span>
-                    <div style="display:flex;flex-wrap:wrap;gap:6px">
-                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{customer_name}}">+ Customer Name</button>
-                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{brand}}">+ AC Brand</button>
-                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{model}}">+ Model</button>
-                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{serial_number}}">+ Serial Number</button>
-                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{due_date}}">+ Due Date</button>
-                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{store_name}}">+ Store Name</button>
-                        <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{shop_phone}}">+ Store Phone</button>
+                    <label>Message Body Text
+                        <textarea id="tpl-body" rows="6">Hello {{customer_name}}, gentle reminder from {{store_name}}: Ensure your {{brand}} AC (S/N: {{serial_number}}) is ready for optimal cooling. Call {{shop_phone}} to book your OEM technician visit!</textarea>
+                    </label>
+                    <div>
+                        <span class="mu" style="font-size:12px;display:block;margin-bottom:6px;font-weight:600">Quick-Insert Variable Placeholders:</span>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px">
+                            <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{customer_name}}">+ Customer Name</button>
+                            <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{brand}}">+ AC Brand</button>
+                            <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{model}}">+ Model</button>
+                            <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{serial_number}}">+ Serial Number</button>
+                            <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{due_date}}">+ Due Date</button>
+                            <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{store_name}}">+ Store Name</button>
+                            <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{shop_phone}}">+ Store Phone</button>
+                        </div>
+                    </div>
+                    <label>Footer Note (Optional)
+                        <input id="tpl-ftr" placeholder="e.g. Mobile Point AC Care • Authorized Partner" value="Mobile Point AC Care • Authorized Sales &amp; Support">
+                    </label>
+                    <div class="g g2">
+                        <label>Action Button 1 (Text)
+                            <input id="tpl-btn1" placeholder="e.g. Confirm Service" value="Confirm Service">
+                        </label>
+                        <label>Action Button 2 (Text)
+                            <input id="tpl-btn2" placeholder="e.g. Call Support" value="Call Support">
+                        </label>
                     </div>
                 </div>
-                <label>Footer Note (Optional)
-                    <input id="tpl-ftr" placeholder="e.g. Mobile Point AC Care • Authorized Partner" value="Mobile Point AC Care • Authorized Sales &amp; Support">
-                </label>
-                <div class="g g2">
-                    <label>Action Button 1 (Text)
-                        <input id="tpl-btn1" placeholder="e.g. Confirm Service" value="Confirm Service">
-                    </label>
-                    <label>Action Button 2 (Text)
-                        <input id="tpl-btn2" placeholder="e.g. Call Support" value="Call Support">
-                    </label>
+                <div class="sticky-form-acts">
+                    <button class="btn" data-act="nav" data-p="automations">Cancel</button>
+                    <button class="btn pri" data-act="wa-submit-tpl">${ic('check')} Save &amp; Submit Template</button>
                 </div>
             </div>
-            <div class="sticky-form-acts">
-                <button class="btn" data-act="nav" data-p="automations">Cancel</button>
-                <button class="btn pri" data-act="wa-submit-tpl">${ic('check')} Save &amp; Submit Template</button>
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span class="mu" style="font-size:12px;font-weight:600">Live Phone Simulation</span>
+                    <span class="tag-pill" style="color:#10b981;font-weight:600">Real-time Reactive Preview</span>
+                </div>
+                <div id="tpl-live-phone-preview">${renderWABubble(dummy, {}, true)}</div>
             </div>
-        </div>
-        <div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <span class="mu" style="font-size:12px;font-weight:600">Live Phone Simulation</span>
-                <span class="tag-pill" style="color:#10b981;font-weight:600">Real-time Reactive Preview</span>
-            </div>
-            <div id="tpl-live-phone-preview">${renderWABubble(dummy, {}, true)}</div>
         </div>
     </div>`;
 }
@@ -3148,70 +3150,72 @@ function newBroadcastPage(preselectedTplId) {
     const selectedTplId = preselectedTplId || (tpls[0] ? tpls[0].id : '');
     const currentTpl = tpls.find(t => t.id === selectedTplId) || tpls[0] || { header: 'AC Service Alert', body: 'Service reminder' };
 
-    return `<div class="ph">
-        <div>
-            <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
-            <h1>Launch Broadcast Campaign</h1>
-            <p class="mu">Dispatch approved WhatsApp templates to targeted AC customer segments.</p>
-        </div>
-    </div>
-    <div class="wa-creator-grid">
-        <div class="panel pad">
-            <div class="fg">
-                <label>Campaign Name
-                    <input id="camp-name" placeholder="e.g. Summer Free Service Drive 2026" value="AC Service Drive ${fd(D(0))}">
-                </label>
-                <label>Select Approved Template
-                    <select id="camp-tpl" class="shadcn-select">
-                        ${tpls.map(t => `<option value="${t.id}" ${t.id === selectedTplId ? 'selected' : ''}>${esc(t.name)} (${esc(t.cat)})</option>`).join('')}
-                    </select>
-                </label>
-                <label>Target Audience Segment
-                    <select id="camp-aud" class="shadcn-select">
-                        <option value="all">All Registered Customers (${S.customers.length} total)</option>
-                        <option value="srv1_due">1st AC Service Due in Next 30 Days</option>
-                        <option value="srv2_due">2nd AC Service Due in Next 30 Days</option>
-                        <option value="brand_daikin">Daikin AC Owners Only</option>
-                        <option value="brand_voltas">Voltas AC Owners Only</option>
-                        <option value="brand_hitachi">Hitachi AC Owners Only</option>
-                        <option value="alkapuri">Alkapuri Locality Customers</option>
-                    </select>
-                </label>
-                <div id="camp-matched-info" class="panel pad" style="background:var(--bg)">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                        <b>Matched Recipients: ${S.customers.length} Customers</b>
-                        <span class="tag-pill" style="color:#10b981;font-weight:600">✓ Official WhatsApp API Compliant</span>
-                    </div>
-                    <div style="display:flex;flex-wrap:wrap;gap:4px">
-                        ${S.customers.map(c => `<span class="tag-pill" style="font-size:11px">${esc(c.name)}</span>`).join('')}
-                    </div>
-                </div>
-                <div class="g g2">
-                    <label>Dispatch Timing
-                        <select id="camp-sched" class="shadcn-select">
-                            <option value="now" selected>Send Immediately</option>
-                            <option value="sched">Schedule for Tomorrow 10:00 AM</option>
-                        </select>
-                    </label>
-                    <label>Throttle Rate
-                        <select id="camp-throttle" class="shadcn-select">
-                            <option value="fast">Maximum Speed (100 msgs / min)</option>
-                            <option value="safe" selected>Safe Standard (30 msgs / min)</option>
-                        </select>
-                    </label>
-                </div>
-            </div>
-            <div class="sticky-form-acts">
-                <button class="btn" data-act="nav" data-p="automations">Cancel</button>
-                <button class="btn pri" data-act="wa-launch-camp-page">${ic('send')} Launch Broadcast Campaign</button>
+    return `<div class="pg">
+        <div class="ph">
+            <div>
+                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
+                <h1>Launch Broadcast Campaign</h1>
+                <p class="mu">Dispatch approved WhatsApp templates to targeted AC customer segments.</p>
             </div>
         </div>
-        <div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                <span class="mu" style="font-size:12px;font-weight:600">Message Broadcast Preview</span>
-                <span class="tag-pill" style="color:#0284c7;font-weight:600">Recipient Phone View</span>
+        <div class="wa-creator-grid">
+            <div class="panel pad">
+                <div class="fg">
+                    <label>Campaign Name
+                        <input id="camp-name" placeholder="e.g. Summer Free Service Drive 2026" value="AC Service Drive ${fd(D(0))}">
+                    </label>
+                    <label>Select Approved Template
+                        <select id="camp-tpl" class="shadcn-select">
+                            ${tpls.map(t => `<option value="${t.id}" ${t.id === selectedTplId ? 'selected' : ''}>${esc(t.name)} (${esc(t.cat)})</option>`).join('')}
+                        </select>
+                    </label>
+                    <label>Target Audience Segment
+                        <select id="camp-aud" class="shadcn-select">
+                            <option value="all">All Registered Customers (${S.customers.length} total)</option>
+                            <option value="srv1_due">1st AC Service Due in Next 30 Days</option>
+                            <option value="srv2_due">2nd AC Service Due in Next 30 Days</option>
+                            <option value="brand_daikin">Daikin AC Owners Only</option>
+                            <option value="brand_voltas">Voltas AC Owners Only</option>
+                            <option value="brand_hitachi">Hitachi AC Owners Only</option>
+                            <option value="alkapuri">Alkapuri Locality Customers</option>
+                        </select>
+                    </label>
+                    <div id="camp-matched-info" class="panel pad" style="background:var(--bg)">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                            <b>Matched Recipients: ${S.customers.length} Customers</b>
+                            <span class="tag-pill" style="color:#10b981;font-weight:600">✓ Official WhatsApp API Compliant</span>
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;gap:4px">
+                            ${S.customers.map(c => `<span class="tag-pill" style="font-size:11px">${esc(c.name)}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="g g2">
+                        <label>Dispatch Timing
+                            <select id="camp-sched" class="shadcn-select">
+                                <option value="now" selected>Send Immediately</option>
+                                <option value="sched">Schedule for Tomorrow 10:00 AM</option>
+                            </select>
+                        </label>
+                        <label>Throttle Rate
+                            <select id="camp-throttle" class="shadcn-select">
+                                <option value="fast">Maximum Speed (100 msgs / min)</option>
+                                <option value="safe" selected>Safe Standard (30 msgs / min)</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <div class="sticky-form-acts">
+                    <button class="btn" data-act="nav" data-p="automations">Cancel</button>
+                    <button class="btn pri" data-act="wa-launch-camp-page">${ic('send')} Launch Broadcast Campaign</button>
+                </div>
             </div>
-            <div id="camp-live-phone-preview">${renderWABubble(currentTpl, {}, true)}</div>
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                    <span class="mu" style="font-size:12px;font-weight:600">Message Broadcast Preview</span>
+                    <span class="tag-pill" style="color:#0284c7;font-weight:600">Recipient Phone View</span>
+                </div>
+                <div id="camp-live-phone-preview">${renderWABubble(currentTpl, {}, true)}</div>
+            </div>
         </div>
     </div>`;
 }
@@ -3219,66 +3223,68 @@ function newBroadcastPage(preselectedTplId) {
 function waAccountPage() {
     const wa = S.whatsapp || { connected: true, phone: '+91 98250 12345', displayName: S.set.store, qualityRating: 'HIGH', dailyLimit: '10,000 / day (Tier 2)', lastSync: 'Just now' };
 
-    return `<div class="ph">
-        <div>
-            <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
-            <h1>WhatsApp Business Connection</h1>
-            <p class="mu">Simple and direct connection for your shop's official WhatsApp Business number.</p>
-        </div>
-    </div>
-    <div class="g g2" style="max-width:960px">
-        <div class="panel pad">
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-                <div style="width:44px;height:44px;border-radius:12px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,211,102,.25);flex:none">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                </div>
-                <div>
-                    <b>Connect Your WhatsApp Business Number</b>
-                    <div class="mu" style="font-size:12px">Enter your shop's WhatsApp number to send automatic service alerts &amp; greetings</div>
-                </div>
-            </div>
-            <div class="fg">
-                <label>Business Display Name
-                    <input id="wa-acc-name" value="${esc(wa.displayName || S.set.store)}" placeholder="Mobile Point AC Care">
-                </label>
-                <label>WhatsApp Business Mobile Number
-                    <input id="wa-acc-phone" value="${esc(wa.phone)}" placeholder="+91 98250 12345">
-                </label>
-                <label>Shop Location / Locality
-                    <input id="wa-acc-loc" value="Alkapuri Arcade, Vadodara" placeholder="Locality, City">
-                </label>
-            </div>
-            <div class="acts" style="margin-top:20px">
-                <button class="btn" data-act="wa-acc-ping">${ic('refresh')} Ping Test</button>
-                <button class="btn pri" data-act="wa-acc-save">${ic('check')} Save &amp; Connect Number</button>
+    return `<div class="pg">
+        <div class="ph">
+            <div>
+                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
+                <h1>WhatsApp Business Connection</h1>
+                <p class="mu">Simple and direct connection for your shop's official WhatsApp Business number.</p>
             </div>
         </div>
+        <div class="g g2" style="max-width:960px">
+            <div class="panel pad">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                    <div style="width:44px;height:44px;border-radius:12px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,211,102,.25);flex:none">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div>
+                        <b>Connect Your WhatsApp Business Number</b>
+                        <div class="mu" style="font-size:12px">Enter your shop's WhatsApp number to send automatic service alerts &amp; greetings</div>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label>Business Display Name
+                        <input id="wa-acc-name" value="${esc(wa.displayName || S.set.store)}" placeholder="Mobile Point AC Care">
+                    </label>
+                    <label>WhatsApp Business Mobile Number
+                        <input id="wa-acc-phone" value="${esc(wa.phone)}" placeholder="+91 98250 12345">
+                    </label>
+                    <label>Shop Location / Locality
+                        <input id="wa-acc-loc" value="Alkapuri Arcade, Vadodara" placeholder="Locality, City">
+                    </label>
+                </div>
+                <div class="acts" style="margin-top:20px">
+                    <button class="btn" data-act="wa-acc-ping">${ic('refresh')} Ping Test</button>
+                    <button class="btn pri" data-act="wa-acc-save">${ic('check')} Save &amp; Connect Number</button>
+                </div>
+            </div>
 
-        <div class="panel pad">
-            <b>Connection Status &amp; Limits</b>
-            <div class="mu" style="font-size:12px;margin-bottom:14px">Official WhatsApp Business Account Health</div>
-            <div class="panel pad" style="background:var(--bg);margin-bottom:16px">
-                <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-                    <span class="mu" style="font-size:12px">Connection Status:</span>
-                    <span style="color:#10b981;font-weight:600;display:inline-flex;align-items:center;gap:6px">
-                        <span class="wa-pulse"></span> Active &amp; Verified
-                    </span>
+            <div class="panel pad">
+                <b>Connection Status &amp; Limits</b>
+                <div class="mu" style="font-size:12px;margin-bottom:14px">Official WhatsApp Business Account Health</div>
+                <div class="panel pad" style="background:var(--bg);margin-bottom:16px">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                        <span class="mu" style="font-size:12px">Connection Status:</span>
+                        <span style="color:#10b981;font-weight:600;display:inline-flex;align-items:center;gap:6px">
+                            <span class="wa-pulse"></span> Active &amp; Verified
+                        </span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                        <span class="mu" style="font-size:12px">Meta Quality Rating:</span>
+                        <b style="color:#10b981">${esc(wa.qualityRating)} (GREEN)</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                        <span class="mu" style="font-size:12px">Daily Sending Limit:</span>
+                        <b>${esc(wa.dailyLimit)}</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between">
+                        <span class="mu" style="font-size:12px">Last Verified Sync:</span>
+                        <b>${esc(wa.lastSync)}</b>
+                    </div>
                 </div>
-                <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-                    <span class="mu" style="font-size:12px">Meta Quality Rating:</span>
-                    <b style="color:#10b981">${esc(wa.qualityRating)} (GREEN)</b>
+                <div style="margin-top:14px">
+                    <button class="btn sm" data-act="wa-acc-disc" style="color:#ef4444">${ic('logout')} Disconnect WhatsApp Number</button>
                 </div>
-                <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-                    <span class="mu" style="font-size:12px">Daily Sending Limit:</span>
-                    <b>${esc(wa.dailyLimit)}</b>
-                </div>
-                <div style="display:flex;justify-content:space-between">
-                    <span class="mu" style="font-size:12px">Last Verified Sync:</span>
-                    <b>${esc(wa.lastSync)}</b>
-                </div>
-            </div>
-            <div style="margin-top:14px">
-                <button class="btn sm" data-act="wa-acc-disc" style="color:#ef4444">${ic('logout')} Disconnect WhatsApp Number</button>
             </div>
         </div>
     </div>`;
@@ -3389,17 +3395,15 @@ function automationsPage() {
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
                 <button class="btn sm" data-act="wa-sync" title="Sync templates and status">${ic('refresh')} Sync</button>
                 <button class="btn sm" data-act="nav" data-p="automations/account">${ic('gear')} WhatsApp Setup</button>
-                <button class="btn sm" data-act="nav" data-p="automations/templates/new">${ic('plus')} Create Template</button>
-                <button class="btn sm pri" data-act="nav" data-p="automations/broadcasts/new">${ic('send')} New Campaign</button>
             </div>
         </div>
     </div>`;
 
-    const tabsBar = `<div class="ch-bar" style="margin-bottom:20px;border-bottom:1px solid var(--bd);padding-bottom:8px">
-        <button class="ch ${V.waTab === 'campaigns' ? 'on' : ''}" data-act="wa-tab" data-tab="campaigns">📢 Broadcast Campaigns <span class="tag-pill" style="margin-left:4px">${totalCamps}</span></button>
-        <button class="ch ${V.waTab === 'templates' ? 'on' : ''}" data-act="wa-tab" data-tab="templates">📑 Templates Library <span class="tag-pill" style="margin-left:4px">${(S.templates || []).length}</span></button>
-        <button class="ch ${V.waTab === 'workflows' ? 'on' : ''}" data-act="wa-tab" data-tab="workflows">⚡ Automated Triggers <span class="tag-pill" style="margin-left:4px">${(S.automations || []).length}</span></button>
-        <button class="ch ${V.waTab === 'gateway' ? 'on' : ''}" data-act="wa-tab" data-tab="gateway">🔌 WhatsApp Gateway</button>
+    const tabsBar = `<div class="chips" style="margin-bottom:20px;padding-bottom:4px">
+        <button class="chip ${V.waTab === 'campaigns' ? 'on' : ''}" data-act="wa-tab" data-tab="campaigns">📢 Broadcast Campaigns <span class="tag-pill" style="margin-left:4px">${totalCamps}</span></button>
+        <button class="chip ${V.waTab === 'templates' ? 'on' : ''}" data-act="wa-tab" data-tab="templates">📑 Templates Library <span class="tag-pill" style="margin-left:4px">${(S.templates || []).length}</span></button>
+        <button class="chip ${V.waTab === 'workflows' ? 'on' : ''}" data-act="wa-tab" data-tab="workflows">⚡ Automated Triggers <span class="tag-pill" style="margin-left:4px">${(S.automations || []).length}</span></button>
+        <button class="chip ${V.waTab === 'gateway' ? 'on' : ''}" data-act="wa-tab" data-tab="gateway">🔌 WhatsApp Setup</button>
     </div>`;
 
     let content = '';
@@ -3436,59 +3440,33 @@ function automationsPage() {
             const pct = c.sentCount ? Math.round((c.deliveredCount / c.sentCount) * 100) : 100;
             const rPct = c.deliveredCount ? Math.round((c.readCount / c.deliveredCount) * 100) : 95;
             return `<tr>
-                <td>
+                <td data-label="Campaign Name">
                     <b>${esc(c.name)}</b>
                     <small class="mu" style="display:block;white-space:normal">${esc(c.createdAt)}</small>
                 </td>
-                <td><span class="tag-pill" style="font-family:monospace;font-size:11px">${esc(tpl.name)}</span></td>
-                <td><span class="tag-pill">${esc(c.audience || 'Target Segment')}</span></td>
-                <td><b>${c.sentCount || 0}</b></td>
-                <td>
+                <td data-label="Template"><span class="tag-pill" style="font-family:monospace;font-size:11px">${esc(tpl.name)}</span></td>
+                <td data-label="Target Segment"><span class="tag-pill">${esc(c.audience || 'Target Segment')}</span></td>
+                <td data-label="Dispatched"><b>${c.sentCount || 0}</b></td>
+                <td data-label="Delivered">
                     <div style="display:flex;align-items:center;gap:6px">
                         <b>${c.deliveredCount || 0}</b>
                         <small class="mu">(${pct}%)</small>
                     </div>
                 </td>
-                <td>
+                <td data-label="Read">
                     <div style="display:flex;align-items:center;gap:4px;color:#53bdeb">
                         <b>${c.readCount || 0}</b>
                         <small>(${rPct}%)</small>
                     </div>
                 </td>
-                <td><span class="b ok">${esc(c.status || 'Completed')}</span></td>
-                <td>
+                <td data-label="Status"><span class="b ok">${esc(c.status || 'Completed')}</span></td>
+                <td data-label="Actions">
                     <div style="display:flex;gap:6px">
                         <button class="btn sm" data-act="wa-preview-tpl" data-id="${tpl.id || ''}" title="Preview Template">${ic('send')} Preview</button>
                         <button class="btn sm" data-act="wa-del-camp" data-id="${c.id}" title="Delete Record" style="color:#ef4444">${ic('trash')}</button>
                     </div>
                 </td>
             </tr>`;
-        }).join('');
-
-        const campsMobile = (S.campaigns || []).map(c => {
-            const tpl = (S.templates || []).find(t => t.id === c.tplId || t.name === c.tplName) || { name: c.tplName || 'Template' };
-            return `<div class="panel pad" style="margin-bottom:12px;border-left:4px solid var(--pr)">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-                    <div>
-                        <b style="font-size:15px">${esc(c.name)}</b>
-                        <div class="mu" style="font-size:12px;margin-top:2px">${esc(c.createdAt)}</div>
-                    </div>
-                    <span class="b ok">${esc(c.status || 'Completed')}</span>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;font-size:12px">
-                    <span class="tag-pill" style="font-family:monospace">${esc(tpl.name)}</span>
-                    <span class="tag-pill">${esc(c.audience)}</span>
-                </div>
-                <div class="g g3" style="margin:10px 0;background:var(--sf);padding:10px;border-radius:8px;text-align:center">
-                    <div><span class="mu" style="font-size:11px">Sent</span><b style="display:block;font-size:14px">${c.sentCount}</b></div>
-                    <div><span class="mu" style="font-size:11px">Delivered</span><b style="display:block;font-size:14px;color:#10b981">${c.deliveredCount}</b></div>
-                    <div><span class="mu" style="font-size:11px">Read</span><b style="display:block;font-size:14px;color:#53bdeb">${c.readCount}</b></div>
-                </div>
-                <div style="display:flex;gap:8px;justify-content:flex-end">
-                    <button class="btn sm" data-act="wa-preview-tpl" data-id="${tpl.id || ''}">Preview</button>
-                    <button class="btn sm" data-act="wa-del-camp" data-id="${c.id}" style="color:#ef4444">Remove</button>
-                </div>
-            </div>`;
         }).join('');
 
         content = `${kpis}
@@ -3500,8 +3478,8 @@ function automationsPage() {
                 </div>
                 <button class="btn pri sm" data-act="nav" data-p="automations/broadcasts/new">${ic('send')} Launch New Broadcast</button>
             </div>
-            <div class="tw desktop-only">
-                <table class="tbl">
+            <div class="tw">
+                <table class="tbl rt">
                     <thead>
                         <tr>
                             <th>Campaign Name</th>
@@ -3517,7 +3495,6 @@ function automationsPage() {
                     <tbody>${campsList || '<tr><td colspan="8" style="text-align:center;padding:24px" class="mu">No campaigns launched yet. Click "+ Launch New Broadcast" to start.</td></tr>'}</tbody>
                 </table>
             </div>
-            <div class="mobile-only pad" style="padding-top:12px">${campsMobile || '<div class="mu" style="text-align:center;padding:20px">No campaigns launched yet.</div>'}</div>
         </div>`;
     } else if (V.waTab === 'templates') {
         const filter = V.tplFilter || 'All';
@@ -3531,7 +3508,7 @@ function automationsPage() {
         });
 
         const filterChips = ['All', 'UTILITY', 'MARKETING', 'Approved', 'Pending'].map(cat =>
-            `<button class="ch ${filter === cat ? 'on' : ''}" data-act="tpl-filter" data-cat="${cat}">${cat}</button>`
+            `<button class="chip ${filter === cat ? 'on' : ''}" data-act="tpl-filter" data-cat="${cat}">${cat}</button>`
         ).join('');
 
         const tplCards = filteredTpls.map(t => {
@@ -3554,8 +3531,8 @@ function automationsPage() {
             </div>`;
         }).join('');
 
-        content = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px">
-            <div class="ch-bar">${filterChips}</div>
+        content = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+            <div class="chips">${filterChips}</div>
             <button class="btn pri sm" data-act="nav" data-p="automations/templates/new">${ic('plus')} Create New Template</button>
         </div>
         <div class="g g2">${tplCards || '<div class="panel pad mu" style="grid-column:1/-1;text-align:center">No templates found matching current filter.</div>'}</div>`;
@@ -3626,7 +3603,7 @@ function automationsPage() {
             <div class="panel pad">
                 <b>Account Health &amp; Limits</b>
                 <div class="mu" style="font-size:12px;margin-bottom:14px">Live connection health &amp; messaging tier</div>
-                <div class="panel pad" style="background:var(--bg);margin-bottom:14px">
+                <div class="panel pad" style="background:var(--bg);margin-bottom:16px">
                     <div style="display:flex;justify-content:space-between;margin-bottom:8px">
                         <span class="mu" style="font-size:12px">Account Status:</span>
                         <b style="color:#10b981">Verified &amp; Active</b>
@@ -3651,15 +3628,21 @@ function automationsPage() {
         </div>`;
     }
 
-    return `<div class="ph">
-        <div>
-            <h1>WhatsApp Automation &amp; Broadcasts</h1>
-            <p class="mu">Official WhatsApp Business suite with approved message templates, mass broadcast campaigns, and automated AC service reminders.</p>
+    return `<div class="pg">
+        <div class="ph">
+            <div>
+                <h1>WhatsApp Automation &amp; Broadcasts</h1>
+                <p class="mu">Official WhatsApp Business suite with approved message templates, mass broadcast campaigns, and automated AC service reminders.</p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <button class="btn sm" data-act="nav" data-p="automations/templates/new">${ic('plus')} Create Template</button>
+                <button class="btn pri sm" data-act="nav" data-p="automations/broadcasts/new">${ic('send')} New Campaign</button>
+            </div>
         </div>
-    </div>
-    ${topBanner}
-    ${tabsBar}
-    ${content}`;
+        ${topBanner}
+        ${tabsBar}
+        ${content}
+    </div>`;
 }
 
 function waPreviewM(tplId) {
@@ -3949,6 +3932,8 @@ function act(a, e) {
             if (src) modal(`<div style="text-align:center"><img src="${src}" style="max-width:100%;max-height:80vh;border-radius:8px"><div class="acts" style="margin-top:12px"><button class="btn" data-act="close">Close</button></div></div>`);
             return;
         }
+        case 'auto-edit':
+            return autoEditM(d.id);
         case 'auto-toggle': {
             const auto = S.automations.find(x => x.id === d.id);
             if (auto) {
@@ -4821,7 +4806,7 @@ if (gsb) gsb.innerHTML = ic('search') + '<input id="gq" placeholder="Global sear
 
 V.page = location.hash.slice(1) || 'overview';
 if (!NAV.some(n => n[0] === V.page.split('/')[0])) V.page = 'overview';
-V.k = ['overview', 'calendar', 'reports', 'settings', 'sales', 'notifications', 'activity'].includes(V.page.split('/')[0]) ? '' : V.page.split('/')[0];
+V.k = ['overview', 'calendar', 'reports', 'settings', 'sales', 'notifications', 'activity', 'automations'].includes(V.page.split('/')[0]) ? '' : V.page.split('/')[0];
 render();
 
 document.addEventListener('mouseover', e => {
