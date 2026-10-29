@@ -1664,6 +1664,8 @@ function invPage(id) {
 let CV = 'month';
 let CD = D(0);
 
+let CAL_FILTER = 'all';
+
 function calendar() {
     const t0 = D(0);
     const B0 = new Date(CD + 'T00:00:00Z');
@@ -1676,46 +1678,119 @@ function calendar() {
     S.sales.forEach(s => {
         const c = cust(s.cid);
         if (s.installDate) {
-            allEvents.push({ id: s.id + '-inst', saleId: s.id, cid: s.cid, custName: c.name, title: 'AC Installation · ' + s.brand + ' ' + s.model, date: s.installDate, type: 'Installation', status: s.installDate <= t0 ? 'Completed' : 'Upcoming' });
+            allEvents.push({
+                id: s.id + '-inst',
+                saleId: s.id,
+                cid: s.cid,
+                custName: c.name,
+                title: 'AC Installation · ' + s.brand + ' ' + s.model,
+                brand: s.brand,
+                model: s.model,
+                sn: s.sn,
+                date: s.installDate,
+                type: 'Installation',
+                cat: 'install',
+                status: s.installDate <= t0 ? 'Completed' : 'Upcoming'
+            });
         }
-        allEvents.push({ id: s.id + '-srv1', saleId: s.id, cid: s.cid, custName: c.name, title: '1st Free Service · ' + s.brand + ' ' + s.model, date: s.srv1Date, type: '1st Service (3-5 Mo)', status: s.srv1Status });
-        allEvents.push({ id: s.id + '-srv2', saleId: s.id, cid: s.cid, custName: c.name, title: '2nd Free Service · ' + s.brand + ' ' + s.model, date: s.srv2Date, type: '2nd Service (<11 Mo)', status: s.srv2Status });
+        allEvents.push({
+            id: s.id + '-srv1',
+            saleId: s.id,
+            cid: s.cid,
+            custName: c.name,
+            title: '1st Free Service · ' + s.brand + ' ' + s.model,
+            brand: s.brand,
+            model: s.model,
+            sn: s.sn,
+            date: s.srv1Date,
+            type: '1st Free Service (3-5 Mo)',
+            cat: 'srv1',
+            status: s.srv1Status
+        });
+        allEvents.push({
+            id: s.id + '-srv2',
+            saleId: s.id,
+            cid: s.cid,
+            custName: c.name,
+            title: '2nd Free Service · ' + s.brand + ' ' + s.model,
+            brand: s.brand,
+            model: s.model,
+            sn: s.sn,
+            date: s.srv2Date,
+            type: '2nd Free Service (<11 Mo)',
+            cat: 'srv2',
+            status: s.srv2Status
+        });
     });
 
-    const evf = d => allEvents.filter(e => e.date === d);
+    let filteredEvents = allEvents;
+    if (CAL_FILTER === 'srv1') filteredEvents = allEvents.filter(e => e.cat === 'srv1');
+    else if (CAL_FILTER === 'srv2') filteredEvents = allEvents.filter(e => e.cat === 'srv2');
+    else if (CAL_FILTER === 'install') filteredEvents = allEvents.filter(e => e.cat === 'install');
+    else if (CAL_FILTER === 'pending') filteredEvents = allEvents.filter(e => e.status !== 'Completed');
+    else if (CAL_FILTER === 'completed') filteredEvents = allEvents.filter(e => e.status === 'Completed');
 
-    const evPill = e => `
-        <div class="cev ${e.status === 'Completed' ? 'ok' : e.date < t0 ? 'er' : 'ac'}" data-act="nav" data-p="sales/${e.saleId}" tabindex="0" title="${esc(e.title)} · ${esc(e.custName)}">
-            <b>${esc(e.custName)}</b>
-            <small>${esc(e.type)}</small>
-        </div>
-    `;
+    const evf = d => filteredEvents.filter(e => e.date === d);
+
+    const evPill = e => {
+        const isDone = e.status === 'Completed';
+        const isOd = !isDone && e.date < t0;
+        const isDueSoon = !isDone && !isOd && e.date <= cdd(t0, 30);
+        const cls = isDone ? 'ok' : isOd ? 'er' : isDueSoon ? 'wa' : 'ac';
+        const label = e.cat === 'install' ? 'Install' : e.cat === 'srv1' ? '1st Srv' : '2nd Srv';
+        return `<div class="ev ${cls}" data-act="nav" data-p="sales/${e.saleId}" tabindex="0" title="${esc(e.custName)} · ${esc(e.title)} (${fd(e.date)}) · OEM technician dispatched directly by brand">
+            <i></i>
+            <span>${esc(e.custName)}</span>
+            <em>${esc(label)} · ${esc(e.brand)}</em>
+        </div>`;
+    };
 
     const cell = (d, o = {}) => {
         const evs = evf(d);
-        return `<div class="cd${d === t0 ? ' today' : ''}${o.out ? ' out' : ''}" data-date="${d}" style="min-height:${o.min || 110}px">
-            <span class="dn">${+d.slice(8)}</span>
-            ${o.w ? `<span class="wl">${L(d, { weekday: 'long' })}</span>` : ''}
-            ${evs.slice(0, o.max || 99).map(evPill).join('')}
-            ${(o.max && evs.length > o.max) ? `<span class="mu" style="font-size:11px">+${evs.length - o.max} more</span>` : ''}
+        const isWe = dow(d) >= 5;
+        const isToday = d === t0;
+        const isOut = o.out;
+        const max = o.max || 99;
+
+        return `<div class="cd${isToday ? ' today' : ''}${isOut ? ' out' : ''}${isWe && !isOut ? ' we' : ''}" data-date="${d}" data-cday="${d}" style="min-height:${o.min || 110}px">
+            <div class="ch">
+                <button type="button" class="dn" data-act="cal-day" data-d="${d}" aria-label="Open ${L(d, { day: 'numeric', month: 'long' })}">${+d.slice(8)}</button>
+                ${o.w ? `<span class="wd">${L(d, { weekday: 'long' })}</span>` : ''}
+                ${evs.length ? `<span class="cn" title="${evs.length} milestone${evs.length === 1 ? '' : 's'}">${evs.length}</span>` : ''}
+            </div>
+            <div class="ev-list">
+                ${evs.slice(0, max).map(evPill).join('')}
+                ${evs.length > max ? `<button type="button" class="mr" data-act="cal-day" data-d="${d}">+${evs.length - max} more</button>` : ''}
+            </div>
+            ${evs.length ? `<div class="ev-dots">
+                ${evs.slice(0, 3).map(e => {
+                    const isDone = e.status === 'Completed';
+                    const isOd = !isDone && e.date < t0;
+                    const isDueSoon = !isDone && !isOd && e.date <= cdd(t0, 30);
+                    const dotCls = isDone ? 'ok' : isOd ? 'er' : isDueSoon ? 'wa' : '';
+                    return `<i class="${dotCls}"></i>`;
+                }).join('')}
+                ${evs.length > 3 ? `<small>+${evs.length - 3}</small>` : ''}
+            </div>` : ''}
         </div>`;
     };
 
     let title, cnt, body;
     const WK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const monthEvs = allEvents.filter(e => e.date.startsWith(ms));
+    const firstDay = `${y}-${String(mo + 1).padStart(2, '0')}-01`;
 
     if (CV === 'month') {
-        const firstDay = new Date(Date.UTC(y, mo, 1));
-        const s0 = cdd(`${y}-${String(mo + 1).padStart(2, '0')}-01`, -dow(`${y}-${String(mo + 1).padStart(2, '0')}-01`));
+        const s0 = cdd(firstDay, -dow(firstDay));
         const dim = new Date(Date.UTC(y, mo + 1, 0)).getUTCDate();
-        const wks = Math.ceil((dow(`${y}-${String(mo + 1).padStart(2, '0')}-01`) + dim) / 7);
-        title = L(`${y}-${String(mo + 1).padStart(2, '0')}-01`, { month: 'long', year: 'numeric' });
-        cnt = allEvents.filter(e => e.date.startsWith(ms)).length;
+        const wks = Math.ceil((dow(firstDay) + dim) / 7);
+        title = L(firstDay, { month: 'long', year: 'numeric' });
+        cnt = filteredEvents.filter(e => e.date.startsWith(ms)).length;
 
         let gridCells = '';
         for (let i = 0; i < wks * 7; i++) {
             const d = cdd(s0, i);
-            gridCells += cell(d, { min: 110, max: 3, out: !d.startsWith(ms) });
+            gridCells += cell(d, { min: 115, max: 3, out: !d.startsWith(ms) });
         }
         body = `<div class="cal-g">${WK.map(d => `<div class="cal-h">${d}</div>`).join('')}${gridCells}</div>`;
     } else if (CV === 'week') {
@@ -1737,19 +1812,22 @@ function calendar() {
                 <div class="li" data-act="nav" data-p="sales/${e.saleId}" tabindex="0" style="cursor:pointer;padding:12px 14px">
                     <div>
                         <b><span class="mu" style="font-weight:500">Customer: </span>${esc(e.custName)}</b>
-                        <small style="display:block;margin-top:2px">${esc(e.title)}</small>
+                        <small style="display:block;margin-top:2px">${esc(e.title)} · S/N: ${esc(e.sn)}</small>
                         <small class="mu">Service Date: ${fd(e.date)} · OEM technician dispatched directly by brand</small>
                     </div>
-                    ${srvBadge(e.status, e.date)}
+                    <div style="display:flex;align-items:center;gap:8px">
+                        ${srvBadge(e.status, e.date)}
+                        <button class="btn sm" data-act="wa-remind" data-id="${e.saleId}" data-type="${e.cat === 'srv2' ? '2' : '1'}">WhatsApp</button>
+                    </div>
                 </div>
             `).join('') || '<div class="empty">No AC service milestones scheduled on this date</div>'}
         </div>`;
     } else {
         title = L(CD, { month: 'long', year: 'numeric' });
-        const monthEvs = allEvents.filter(e => e.date.startsWith(ms)).sort((p, q) => p.date > q.date ? 1 : -1);
-        cnt = monthEvs.length;
+        const agEvs = filteredEvents.filter(e => e.date.startsWith(ms)).sort((p, q) => p.date > q.date ? 1 : -1);
+        cnt = agEvs.length;
         const g = {};
-        monthEvs.forEach(e => (g[e.date] = g[e.date] || []).push(e));
+        agEvs.forEach(e => (g[e.date] = g[e.date] || []).push(e));
 
         body = Object.keys(g).map(d => `
             <div class="ag">
@@ -1762,17 +1840,21 @@ function calendar() {
                         <div class="li" data-act="nav" data-p="sales/${e.saleId}" tabindex="0" style="cursor:pointer">
                             <div>
                                 <b><span class="mu" style="font-weight:500">Customer: </span>${esc(e.custName)}</b>
-                                <small>${esc(e.title)}</small>
+                                <small style="display:block">${esc(e.title)}</small>
+                                <small class="mu">${esc(e.type)}</small>
                             </div>
-                            ${srvBadge(e.status, e.date)}
+                            <div style="display:flex;align-items:center;gap:8px">
+                                ${srvBadge(e.status, e.date)}
+                                <button class="btn sm" data-act="wa-remind" data-id="${e.saleId}" data-type="${e.cat === 'srv2' ? '2' : '1'}">WhatsApp</button>
+                            </div>
                         </div>
                     `).join('')}
                 </div>
             </div>
-        `).join('') || '<div class="empty">No service milestones this month</div>';
+        `).join('') || '<div class="empty">No service milestones this month matching filter</div>';
     }
 
-    const todayEvs = evf(t0);
+    const todayEvs = allEvents.filter(e => e.date === t0);
 
     return `<div class="pg cal">
     <div class="ph">
@@ -1786,7 +1868,7 @@ function calendar() {
     <div class="calbar">
         <div class="cal-t">
             <h2 class="cal-title">${title}</h2>
-            <span class="mu">${cnt} service milestone${cnt === 1 ? '' : 's'}</span>
+            <span class="mu">${cnt} service milestone${cnt === 1 ? '' : 's'}${CAL_FILTER !== 'all' ? ' (filtered)' : ''}</span>
         </div>
         <div class="cal-ctl">
             <div class="seg-b">
@@ -1802,17 +1884,58 @@ function calendar() {
         </div>
     </div>
 
+    <div class="bar" style="margin-top:-6px;margin-bottom:14px">
+        <div class="chips">
+            ${[
+                ['all', 'All Milestones (' + monthEvs.length + ')'],
+                ['srv1', '1st Service (3-5 Mo)'],
+                ['srv2', '2nd Service (<11 Mo)'],
+                ['install', 'Installations'],
+                ['pending', 'Pending / Due'],
+                ['completed', 'Completed']
+            ].map(([k, label]) => `
+                <button class="chip${CAL_FILTER === k ? ' on' : ''}" data-act="cal-filter" data-v="${k}">${label}</button>
+            `).join('')}
+        </div>
+    </div>
+
     <div class="cw">
         <div class="panel">
             ${body}
             <div class="lg">
                 <span><i style="background:var(--ok)"></i>Completed</span>
                 <span><i style="background:var(--ac)"></i>Upcoming</span>
-                <span><i style="background:var(--wa)"></i>Due Soon (&lt;30d)</span>
+                <span><i style="background:var(--wa)"></i>Due Soon (&le;30d)</span>
                 <span><i style="background:var(--er)"></i>Overdue</span>
             </div>
         </div>
         <div class="cside">
+            <div class="panel pad">
+                <h2>${title} Overview</h2>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;font-size:13px">
+                    <div style="display:flex;justify-content:space-between">
+                        <span class="mu">Month Milestones</span>
+                        <b>${monthEvs.length}</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between">
+                        <span class="mu">1st Services (3-5 Mo)</span>
+                        <b style="color:var(--wa)">${monthEvs.filter(e => e.cat === 'srv1').length}</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between">
+                        <span class="mu">2nd Services (&lt;11 Mo)</span>
+                        <b style="color:var(--ac)">${monthEvs.filter(e => e.cat === 'srv2').length}</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between">
+                        <span class="mu">Pending Installations</span>
+                        <b>${monthEvs.filter(e => e.cat === 'install' && e.status !== 'Completed').length}</b>
+                    </div>
+                    <div style="display:flex;justify-content:space-between">
+                        <span class="mu">Completed</span>
+                        <b style="color:var(--ok)">${monthEvs.filter(e => e.status === 'Completed').length}</b>
+                    </div>
+                </div>
+            </div>
+
             <div class="panel">
                 <div class="hd">
                     <h2>Today's Milestones</h2>
@@ -1823,13 +1946,15 @@ function calendar() {
                         <div class="li" style="padding-left:0;cursor:pointer" data-act="nav" data-p="sales/${e.saleId}">
                             <div>
                                 <b>${esc(e.custName)}</b>
-                                <small>${esc(e.type)}</small>
+                                <small style="display:block">${esc(e.type)}</small>
+                                <small class="mu">${esc(e.brand)} ${esc(e.model)}</small>
                             </div>
                             ${srvBadge(e.status, e.date)}
                         </div>
                     `).join('') || '<span class="mu">No services scheduled today</span>'}
                 </div>
             </div>
+
             <div class="panel pad">
                 <h2>Third-Party Seller Note</h2>
                 <p class="mu" style="font-size:12px;line-height:1.5">Mobile Point AC Care arranges technician visits directly through company brands (Daikin, LG, Voltas, Hitachi, etc.). Milestones alert customers to claim their complimentary service before warranty deadlines.</p>
@@ -2730,10 +2855,40 @@ function act(a, e) {
             SF = d.v;
             return render(true);
         case 'cal':
-            if (d.v === 'prev') CD = cdd(CD, CV === 'month' ? -30 : CV === 'week' ? -7 : -1);
-            else if (d.v === 'next') CD = cdd(CD, CV === 'month' ? 30 : CV === 'week' ? 7 : 1);
-            else if (d.v === 'today') CD = D(0);
-            else CV = d.v;
+            if (d.v === 'prev') {
+                if (CV === 'month') {
+                    const dt = new Date(CD + 'T00:00:00Z');
+                    dt.setUTCDate(1);
+                    dt.setUTCMonth(dt.getUTCMonth() - 1);
+                    CD = dt.toISOString().slice(0, 10);
+                } else if (CV === 'week') {
+                    CD = cdd(CD, -7);
+                } else {
+                    CD = cdd(CD, -1);
+                }
+            } else if (d.v === 'next') {
+                if (CV === 'month') {
+                    const dt = new Date(CD + 'T00:00:00Z');
+                    dt.setUTCDate(1);
+                    dt.setUTCMonth(dt.getUTCMonth() + 1);
+                    CD = dt.toISOString().slice(0, 10);
+                } else if (CV === 'week') {
+                    CD = cdd(CD, 7);
+                } else {
+                    CD = cdd(CD, 1);
+                }
+            } else if (d.v === 'today') {
+                CD = D(0);
+            } else {
+                CV = d.v;
+            }
+            return render(true);
+        case 'cal-filter':
+            CAL_FILTER = d.v;
+            return render(true);
+        case 'cal-day':
+            CD = d.d;
+            CV = 'day';
             return render(true);
         case 'open-row':
             if (P[d.k] && P[d.k].open) return P[d.k].open(d.id);
