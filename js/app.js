@@ -1862,7 +1862,7 @@ function invPage(id) {
     </div>
 
     <div class="doc panel pad" style="max-width:850px;margin:0 auto;background:#fff;color:#111">
-        <div style="display:flex;justify-content:space-between;border-bottom:2px solid #e5e7eb;padding-bottom:18px;margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;border-bottom:2px solid #e5e7eb;padding-bottom:18px;margin-bottom:18px">
             <div>
                 <h2 style="font-size:24px;font-weight:700;color:#0284c7;margin:0 0 4px">${esc(S.set.store)}</h2>
                 <div style="font-size:13px;color:#4b5563;line-height:1.5">
@@ -1896,7 +1896,8 @@ function invPage(id) {
             </div>
         </div>
 
-        <table style="width:100%;border-collapse:collapse;margin-bottom:20px;font-size:13px">
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:20px">
+        <table style="width:100%;min-width:480px;border-collapse:collapse;font-size:13px">
             <thead>
                 <tr style="background:#f3f4f6;text-align:left">
                     <th style="padding:10px;border:1px solid #e5e7eb">#</th>
@@ -1919,6 +1920,7 @@ function invPage(id) {
                 </tr>
             </tbody>
         </table>
+        </div>
 
         <div style="border:2px dashed #0284c7;background:#f0f9ff;border-radius:8px;padding:16px;margin-bottom:20px">
             <h3 style="margin:0 0 8px;color:#0369a1;font-size:15px;display:flex;align-items:center;gap:6px">
@@ -1926,7 +1928,7 @@ function invPage(id) {
                 Complimentary 2-Free-Service Warranty Certificate
             </h3>
             <p style="font-size:12px;color:#0369a1;margin:0 0 10px;line-height:1.4">This invoice entitles the registered customer to 2 complimentary free services within the 1st year of purchase. Company OEM authorized service personnel will be arranged upon reminder confirmation.</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;font-size:12px">
                 <div style="background:#fff;padding:8px 12px;border-radius:6px;border:1px solid #bae6fd">
                     <b>1st Free Service Milestone:</b>
                     <div>Scheduled Due: <b>${fdt(inv.srv1Date)}</b> (3 to 5 Months)</div>
@@ -1938,7 +1940,7 @@ function invPage(id) {
             </div>
         </div>
 
-        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:30px;font-size:12px;color:#6b7280">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-top:30px;font-size:12px;color:#6b7280">
             <div>
                 <div>Goods once sold are covered under respective brand manufacturer warranty.</div>
                 <div>Authorized service &amp; installation handled directly by OEM brand centers.</div>
