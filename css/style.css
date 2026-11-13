@@ -5465,3 +5465,185 @@
                 grid-template-columns: 1fr
             }
         }
+
+        .db-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+            align-items: stretch;
+        }
+
+        @media (max-width: 1000px) {
+            .db-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .qa-card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .qa-card-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .qa-card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .qa-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--bg);
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: left;
+            transition: all .15s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .qa-item:hover {
+            background: color-mix(in srgb, var(--ac) 7%, var(--sf));
+            border-color: color-mix(in srgb, var(--ac) 45%, var(--bd));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .06);
+        }
+
+        .qa-item:active {
+            transform: scale(.98);
+        }
+
+        .qa-ico {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: color-mix(in srgb, var(--ac) 12%, var(--sf));
+            color: var(--ac);
+        }
+
+        .qa-ico.green {
+            background: color-mix(in srgb, var(--ok) 14%, var(--sf));
+            color: var(--ok);
+        }
+
+        .qa-ico.amber {
+            background: color-mix(in srgb, var(--wa) 14%, var(--sf));
+            color: var(--wa);
+        }
+
+        .qa-ico.purple {
+            background: color-mix(in srgb, #8b5cf6 14%, var(--sf));
+            color: #8b5cf6;
+        }
+
+        .qa-ico svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .qa-meta {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+            gap: 2px;
+        }
+
+        .qa-meta b {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--tx);
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .qa-meta small {
+            font-size: 11.5px;
+            color: var(--mu);
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .qa-arr {
+            color: var(--mu);
+            opacity: .4;
+            flex-shrink: 0;
+            transition: transform .15s, opacity .15s, color .15s;
+        }
+
+        .qa-item:hover .qa-arr {
+            opacity: 1;
+            transform: translateX(3px);
+            color: var(--ac);
+        }
+
+        .k.clickable {
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .k.clickable:hover {
+            border-color: var(--ac);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .05);
+        }
+
+        .k-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .k-top span {
+            font-size: 12px;
+            color: var(--mu);
+            font-weight: 500;
+        }
+
+        .k-ico {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            display: grid;
+            place-items: center;
+            background: color-mix(in srgb, var(--ac) 10%, var(--sf));
+            color: var(--ac);
+        }
+
+        .k-ico.amber {
+            background: color-mix(in srgb, var(--wa) 12%, var(--sf));
+            color: var(--wa);
+        }
+
+        .k-ico.green {
+            background: color-mix(in srgb, var(--ok) 12%, var(--sf));
+            color: var(--ok);
+        }
+
+        .k-ico svg {
+            width: 15px;
+            height: 15px;
+        }

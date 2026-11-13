@@ -971,6 +971,43 @@ function overview() {
         return diff <= 30;
     }).length;
 
+    const brandCounts = {};
+    S.sales.forEach(s => {
+        brandCounts[s.brand] = (brandCounts[s.brand] || 0) + 1;
+    });
+    const donutItems = Object.entries(brandCounts).map(([brand, count], idx) => ({
+        l: brand,
+        v: count,
+        c: rcol(idx)
+    })).sort((a, b) => b.v - a.v);
+
+    const monthBuckets = {};
+    const last6Months = [];
+    for (let i = 5; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const ym = d.toISOString().slice(0, 7);
+        const label = d.toLocaleDateString('en-IN', { month: 'short' });
+        last6Months.push({ ym, label });
+        monthBuckets[ym] = 0;
+    }
+    S.sales.forEach(s => {
+        const ym = (s.date || '').slice(0, 7);
+        if (monthBuckets[ym] !== undefined) monthBuckets[ym]++;
+    });
+    const trendItems = last6Months.map(m => ({
+        l: m.label,
+        fl: m.ym,
+        v: monthBuckets[m.ym] || 0,
+        t: m.label + ' Sales'
+    }));
+
+    const srv1Done = S.sales.filter(s => s.srv1Status === 'Completed').length;
+    const srv2Done = S.sales.filter(s => s.srv2Status === 'Completed').length;
+    const totalSrvDone = srv1Done + srv2Done;
+    const totalSrvScheduled = S.sales.length * 2;
+    const complianceRate = totalSrvScheduled > 0 ? Math.round((totalSrvDone / totalSrvScheduled) * 100) : 100;
+
     const upcomingServices = [];
     S.sales.forEach(s => {
         const c = cust(s.cid);
@@ -987,7 +1024,7 @@ function overview() {
     <div class="ph">
         <div>
             <h1>Dashboard</h1>
-            <p>${esc(S.set.store)} · Third-Party AC Sales & Automated Service Care System</p>
+            <p>${esc(S.set.store)} · AC Sales, Complimentary Services & Automated Care Management</p>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn" data-act="nav" data-p="calendar">${ic('cal')} Service Calendar</button>
@@ -996,63 +1033,141 @@ function overview() {
     </div>
 
     <div class="kp k4" style="margin-bottom:20px">
-        <div class="k"><span>Total AC Sales</span><b>${totalSales}</b><small>Recorded in system</small></div>
-        <div class="k"><span>Pending Installations</span><b>${pendingInstall}</b><small>Units being dispatched</small></div>
-        <div class="k"><span>1st Service Due Soon</span><b style="color:var(--wa)">${srv1Due}</b><small>3 to 5 months window</small></div>
-        <div class="k"><span>2nd Service Due Soon</span><b style="color:var(--wa)">${srv2Due}</b><small>Before 11 months window</small></div>
+        <div class="k clickable" data-act="nav" data-p="sales">
+            <div class="k-top"><span>Total AC Sales</span><div class="k-ico">${ic('cart')}</div></div>
+            <b>${totalSales}</b>
+            <small>Recorded in registry · Click to view</small>
+        </div>
+        <div class="k clickable" data-act="nav" data-p="sales">
+            <div class="k-top"><span>Pending Installations</span><div class="k-ico amber">${ic('wrench')}</div></div>
+            <b style="color:var(--wa)">${pendingInstall}</b>
+            <small>Awaiting OEM dispatch</small>
+        </div>
+        <div class="k clickable" data-act="nav" data-p="calendar">
+            <div class="k-top"><span>1st Service Due Soon</span><div class="k-ico amber">${ic('bell')}</div></div>
+            <b style="color:var(--wa)">${srv1Due}</b>
+            <small>Within 30-day window</small>
+        </div>
+        <div class="k clickable" data-act="nav" data-p="reports">
+            <div class="k-top"><span>Service Compliance</span><div class="k-ico green">${ic('check')}</div></div>
+            <b style="color:var(--ok)">${complianceRate}%</b>
+            <small>${totalSrvDone} of ${totalSrvScheduled} visits complete</small>
+        </div>
     </div>
 
-    <div class="cw2">
+    <div class="panel pad" style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+            <div>
+                <h2 style="margin:0 0 2px;font-size:16px">Quick Actions &amp; Workflows</h2>
+                <small class="mu">One-click shortcuts to record sales, manage customers, and dispatch reminders</small>
+            </div>
+            <button class="btn sm" data-act="new">${ic('plus')} Action Menu</button>
+        </div>
+        <div class="qa-card-grid">
+            <div class="qa-item" data-act="nav" data-p="sales/new">
+                <div class="qa-ico">${ic('plus')}</div>
+                <div class="qa-meta">
+                    <b>Record AC Sale</b>
+                    <small>Customer, AC specs &amp; serial #</small>
+                </div>
+                <div class="qa-arr">→</div>
+            </div>
+            <div class="qa-item" data-act="nav" data-p="customers/new">
+                <div class="qa-ico green">${ic('users')}</div>
+                <div class="qa-meta">
+                    <b>Add Customer</b>
+                    <small>Name, WhatsApp &amp; address</small>
+                </div>
+                <div class="qa-arr">→</div>
+            </div>
+            <div class="qa-item" data-act="nav" data-p="calendar">
+                <div class="qa-ico amber">${ic('cal')}</div>
+                <div class="qa-meta">
+                    <b>Service Calendar</b>
+                    <small>1st &amp; 2nd service milestones</small>
+                </div>
+                <div class="qa-arr">→</div>
+            </div>
+            <div class="qa-item" data-act="nav" data-p="automations/broadcasts/new">
+                <div class="qa-ico purple">${ic('zap')}</div>
+                <div class="qa-meta">
+                    <b>WhatsApp Campaign</b>
+                    <small>Instant broadcast to buyers</small>
+                </div>
+                <div class="qa-arr">→</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dgr" style="margin-bottom:20px">
         <div class="panel">
             <div class="hd" style="display:flex;justify-content:space-between;align-items:center">
-                <h2>Upcoming AC Services (Free Warranty Milestones)</h2>
+                <div>
+                    <h2>Monthly AC Sales Trend</h2>
+                    <span class="mu" style="font-size:12px">${totalSales} total units recorded</span>
+                </div>
+                <button class="btn sm" data-act="nav" data-p="reports">Full Reports</button>
+            </div>
+            ${dchart(trendItems, { fmt: n => n + ' units', ax: v => String(v) })}
+        </div>
+
+        <div class="panel">
+            <div class="hd" style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                    <h2>Brand Market Share</h2>
+                    <span class="mu" style="font-size:12px">${donutItems.length} brands in store</span>
+                </div>
+                <button class="btn sm" data-act="nav" data-p="products">Catalog</button>
+            </div>
+            ${donut(donutItems, n => n + ' units', 'Total ACs')}
+        </div>
+    </div>
+
+    <div class="db-grid">
+        <div class="panel">
+            <div class="hd" style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                    <h2>Upcoming AC Services (Free Warranty Milestones)</h2>
+                    <span class="mu" style="font-size:12px">Company &amp; brand technician reminders</span>
+                </div>
                 <button class="btn sm" data-act="nav" data-p="calendar">Open Calendar</button>
             </div>
             ${upcomingServices.slice(0, 6).map(u => `
                 <div class="li" style="padding:12px 16px;cursor:pointer" data-act="nav" data-p="sales/${u.sale.id}">
                     <div>
                         <b><span class="mu" style="font-weight:500">Customer: </span>${esc(u.cust.name)}</b>
-                        <small style="display:block">${esc(u.sale.brand)} ${esc(u.sale.model)} · S/N: ${esc(u.sale.sn)}</small>
+                        <small style="display:block;margin-top:2px">${esc(u.sale.brand)} ${esc(u.sale.model)} · S/N: ${esc(u.sale.sn)}</small>
                         <small class="mu">${esc(u.type)} · Due: <b>${fd(u.date)}</b></small>
                     </div>
                     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
                         ${srvBadge(u.status, u.date)}
-                        <button class="btn sm" style="font-size:11px;padding:3px 8px" data-act="wa-remind" data-id="${u.sale.id}" data-type="${u.type.startsWith('1st') ? '1' : '2'}">WhatsApp Reminder</button>
+                        <button class="btn sm" style="font-size:11px;padding:3px 8px" data-act="wa-remind" data-id="${u.sale.id}" data-type="${u.type.startsWith('1st') ? '1' : '2'}">${ic('zap')} WhatsApp</button>
                     </div>
                 </div>
             `).join('') || '<div class="empty">No services due at this moment</div>'}
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:20px">
-            <div class="panel">
-                <div class="hd" style="display:flex;justify-content:space-between;align-items:center">
+        <div class="panel">
+            <div class="hd" style="display:flex;justify-content:space-between;align-items:center">
+                <div>
                     <h2>Recent AC Sales</h2>
-                    <button class="btn sm" data-act="nav" data-p="sales">View All Sales</button>
+                    <span class="mu" style="font-size:12px">Latest registered installations</span>
                 </div>
-                ${S.sales.slice(0, 5).map(s => `
-                    <div class="li" style="padding:12px 16px;cursor:pointer" data-act="nav" data-p="sales/${s.id}">
-                        <div>
-                            <b>${esc(s.custName)}</b>
-                            <small style="display:block">${esc(s.brand)} ${esc(s.model)} · ${fd(s.date)}</small>
-                            <small class="mu">${esc(s.custLocality || s.shopName)}</small>
-                        </div>
-                        <div style="text-align:right">
-                            <span class="b ok">Recorded</span>
-                            <small class="mu" style="display:block;margin-top:4px">${(s.images || []).length} photos</small>
-                        </div>
+                <button class="btn sm" data-act="nav" data-p="sales">View All</button>
+            </div>
+            ${S.sales.slice(0, 6).map(s => `
+                <div class="li" style="padding:12px 16px;cursor:pointer" data-act="nav" data-p="sales/${s.id}">
+                    <div>
+                        <b>${esc(s.custName)}</b>
+                        <small style="display:block;margin-top:2px">${esc(s.brand)} ${esc(s.model)} · ${fd(s.date)}</small>
+                        <small class="mu">${esc(s.custLocality || s.shopName)}</small>
                     </div>
-                `).join('') || '<div class="empty">No sales recorded yet</div>'}
-            </div>
-
-            <div class="panel pad">
-                <h2>Quick Actions</h2>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:10px">
-                    <button class="btn" style="justify-content:center;padding:12px" data-act="nav" data-p="sales/new">${ic('plus')} Record Sale</button>
-                    <button class="btn" style="justify-content:center;padding:12px" data-act="nav" data-p="customers/new">${ic('users')} New Customer</button>
-                    <button class="btn" style="justify-content:center;padding:12px" data-act="nav" data-p="products/new">${ic('wind')} Add AC Model</button>
-                    <button class="btn" style="justify-content:center;padding:12px" data-act="nav" data-p="automations">${ic('zap')} Broadcast Offer</button>
+                    <div style="text-align:right">
+                        <span class="b ok">Recorded</span>
+                        <small class="mu" style="display:block;margin-top:4px">${(s.images || []).length} photos</small>
+                    </div>
                 </div>
-            </div>
+            `).join('') || '<div class="empty">No sales recorded yet</div>'}
         </div>
     </div>
 </div>`;
