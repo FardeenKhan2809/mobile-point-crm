@@ -1,0 +1,472 @@
+.cal-g {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr))
+        }
+
+        .cal-g>* {
+            border-right: 1px solid var(--bd);
+            border-bottom: 1px solid var(--bd)
+        }
+
+        .cal-g>:nth-child(7n) {
+            border-right: 0
+        }
+
+        .cal-g>:nth-last-child(-n+7) {
+            border-bottom: 0
+        }
+
+        .cal-h {
+            padding: 9px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--mu);
+            background: color-mix(in srgb, var(--bg) 70%, var(--sf))
+        }
+
+        .cal .cd {
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+            transition: background .12s
+        }
+
+        .cal .cd:hover,
+        .cal .cd.over {
+            background: color-mix(in srgb, var(--ac) 6%, var(--sf))
+        }
+
+        .cal .cd.out {
+            background: color-mix(in srgb, var(--bg) 60%, var(--sf))
+        }
+
+        .cal .cd.out .dn {
+            color: var(--mu);
+            opacity: .55
+        }
+
+        .cal .cd.we:not(.out) {
+            background: color-mix(in srgb, var(--bg) 35%, var(--sf))
+        }
+
+        .ch {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 2px
+        }
+
+        .cal .dn {
+            width: 26px;
+            height: 26px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 50%
+        }
+
+        .cal .dn:hover {
+            background: var(--bg)
+        }
+
+        .cal .today .dn {
+            background: var(--ac);
+            color: #fff
+        }
+
+        .cn {
+            margin-left: auto;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--mu);
+            background: var(--bg);
+            border-radius: 99px;
+            padding: 0 7px
+        }
+
+        .wd {
+            font-size: 12px;
+            color: var(--mu)
+        }
+
+        .cal .ev {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+            padding: 3px 7px;
+            border: 0;
+            border-radius: 6px;
+            font-size: 12px;
+            background: var(--acs);
+            color: var(--ac)
+        }
+
+        .cal .ev i {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            flex: none
+        }
+
+        .cal .ev {
+            overflow: hidden;
+            white-space: nowrap;
+            text-align: left
+        }
+
+        .cal .ev span {
+            flex: none;
+            max-width: 70%;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .cal .ev em {
+            flex: 1 1 0;
+            min-width: 0;
+            font-style: normal;
+            opacity: .75;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .cal .ev:hover {
+            filter: brightness(.96)
+        }
+
+        .cal .ev.ok {
+            background: var(--oks);
+            color: var(--ok)
+        }
+
+        .cal .ev.wa {
+            background: var(--was);
+            color: var(--wa)
+        }
+
+        .cal .ev.er {
+            background: var(--ers);
+            color: var(--er)
+        }
+
+        .mr {
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--mu);
+            padding: 1px 4px
+        }
+
+        .mr:hover {
+            color: var(--ac)
+        }
+
+        .cside {
+            display: grid;
+            gap: 16px;
+            align-content: start
+        }
+
+        .cside .pad {
+            display: grid;
+            gap: 6px
+        }
+
+        .lg {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 10px 16px;
+            font-size: 12px;
+            color: var(--mu);
+            border-top: 1px solid var(--bd)
+        }
+
+        .lg i {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px
+        }
+
+        .dv-h {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--bd);
+            background: color-mix(in srgb, var(--bg) 60%, var(--sf))
+        }
+
+        .ag {
+            display: grid;
+            grid-template-columns: 84px 1fr;
+            border-bottom: 1px solid var(--bd);
+            transition: background .12s
+        }
+
+        .ag:last-child {
+            border: 0
+        }
+
+        .ag>.agd {
+            padding: 16px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 2px;
+            border-right: 1px solid var(--bd);
+            background: color-mix(in srgb, var(--bg) 40%, var(--sf))
+        }
+
+        .ag .agd b {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -.02em
+        }
+
+        .ag .agd span {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: var(--mu)
+        }
+
+        .ag .agd.t {
+            background: color-mix(in srgb, var(--acs) 45%, var(--sf))
+        }
+
+        .ag .agd.t b {
+            color: var(--ac)
+        }
+
+        .ag-items {
+            display: grid;
+            gap: 0;
+            min-width: 0
+        }
+
+        .ev-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0
+        }
+
+        .ev-dots {
+            display: none
+        }
+
+        @media(max-width:1100px) {
+            .cw {
+                grid-template-columns: 1fr;
+                gap: 16px
+            }
+        }
+
+        @media(max-width:820px) {
+            .calbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px
+            }
+
+            .cal-t {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%
+            }
+
+            .cal-title {
+                font-size: 18px
+            }
+
+            .cal-ctl {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 8px;
+                width: 100%
+            }
+
+            .cal-ctl .seg-b {
+                display: flex;
+                width: 100%
+            }
+
+            .cal-ctl .seg-b button {
+                flex: 1;
+                text-align: center;
+                padding: 8px 0
+            }
+
+            .cal-ctl .tabs {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                width: 100%;
+                text-align: center
+            }
+
+            .cal-ctl .tabs button {
+                padding: 8px 4px;
+                font-size: 12.5px;
+                justify-content: center;
+                display: flex;
+                align-items: center;
+            }
+
+            #ctech {
+                width: 100%
+            }
+
+            .cal-g.wk {
+                grid-template-columns: 1fr;
+                gap: 8px;
+                padding: 10px;
+                background: var(--bg)
+            }
+
+            .cal-g.wk>.cal-h {
+                display: none
+            }
+
+            .cal-g.wk>* {
+                border: 1px solid var(--bd) !important;
+                border-radius: 12px;
+                background: var(--sf);
+                min-height: auto !important;
+                padding: 10px 12px
+            }
+
+            .cal-g.wk .ev-list {
+                display: flex !important
+            }
+
+            .cal-g.wk .ev-dots {
+                display: none !important
+            }
+
+            .cal-g.wk .ch {
+                justify-content: flex-start !important;
+                gap: 8px !important;
+                margin-bottom: 6px
+            }
+
+            .cal-g.wk .cn {
+                display: inline-block !important
+            }
+
+            .cal-g.wk .wd {
+                font-weight: 600;
+                color: var(--tx)
+            }
+
+            .ag {
+                grid-template-columns: 68px 1fr
+            }
+
+            .ag>.agd {
+                padding: 12px 6px
+            }
+
+            .ag .agd b {
+                font-size: 20px
+            }
+
+            .ag .agd span {
+                font-size: 10px
+            }
+        }
+
+        @media(max-width:768px) {
+            .cal .cd {
+                min-height: 56px !important;
+                padding: 4px 2px;
+                cursor: pointer
+            }
+
+            .cal .cd .ch {
+                justify-content: center;
+                gap: 2px;
+                margin-bottom: 0
+            }
+
+            .cal .cd .cn {
+                display: none
+            }
+
+            .cal .cd .dn {
+                width: 26px;
+                height: 26px;
+                font-size: 12.5px
+            }
+
+            .cal-h {
+                padding: 8px 2px;
+                font-size: 11px;
+                text-align: center
+            }
+
+            .ev-list {
+                display: none
+            }
+
+            .ev-dots {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 3px;
+                margin-top: 3px
+            }
+
+            .ev-dots i {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: var(--ac);
+                display: inline-block
+            }
+
+            .ev-dots i.ok {
+                background: var(--ok)
+            }
+
+            .ev-dots i.wa {
+                background: var(--wa)
+            }
+
+            .ev-dots i.er {
+                background: var(--er)
+            }
+
+            .ev-dots small {
+                font-size: 9px;
+                font-weight: 700;
+                color: var(--mu)
+            }
+        }
+
+        @media(min-width:821px) {
+            .sd {
+                position: fixed;
+                left: 0;
+                top: 0
+            }
+
+            .mn {
+                margin-left: 236px;
+                transition: margin-left .22s var(--ease)
+            }
+
+            .col .mn {
+                margin-left: 68px
+            }
+        }
