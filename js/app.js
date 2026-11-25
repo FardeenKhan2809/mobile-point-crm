@@ -54,7 +54,8 @@ const IC = {
     reply: 'M3 10h10a5 5 0 0 1 5 5v2M3 10l6-6M3 10l6 6',
     refresh: 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
     trash: 'M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2',
-    copy: 'M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M16 4h2a2 2 0 0 1 2 2v4M21 14H11a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2z'
+    copy: 'M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M16 4h2a2 2 0 0 1 2 2v4M21 14H11a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2z',
+    arrowLeft: 'M19 12H5M12 19l-7-7 7-7'
 };
 
 const ic = n => `<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${IC[n] || IC.home}"/></svg>`;
@@ -383,7 +384,7 @@ function seed() {
             lead: 0,
             on: true,
             sentCount: 220,
-            body: '🌟 Special Season Offer from {{store}}! Upgrade to 5-Star Inverter ACs with heavy exchange bonus & free standard installation. Reply YES or call {{phone}} to claim your voucher!'
+            body: 'Special Season Offer from {{store}}! Upgrade to 5-Star Inverter ACs with heavy exchange bonus & free standard installation. Reply YES or call {{phone}} to claim your voucher!'
         }
     ];
 
@@ -415,6 +416,8 @@ function seed() {
             wabaId: 'WABA-919825012345',
             phone: '+91 98250 12345',
             displayName: 'Mobile Point AC Care',
+            category: 'Air Conditioner Sales & Services',
+            locality: 'Alkapuri, Vadodara',
             verified: true,
             qualityRating: 'HIGH',
             dailyLimit: '10,000 / day (Tier 2)',
@@ -428,8 +431,8 @@ function seed() {
             cat: 'MARKETING',
             status: 'APPROVED',
             lang: 'en_US',
-            header: 'Welcome to Mobile Point AC Care ❄️',
-            body: 'Hello {{customer_name}},\n\nWelcome to {{store_name}}! We are delighted to register you as our valued customer. Our team is committed to delivering premier cooling comfort, genuine AC spares, and OEM authorized service support.\n\n📞 Customer Care: {{shop_phone}}\n📍 Location: {{store_address}}',
+            header: 'Welcome to Mobile Point AC Care',
+            body: 'Hello {{customer_name}},\n\nWelcome to {{store_name}}! We are delighted to register you as our valued customer. Our team is committed to delivering premier cooling comfort, genuine AC spares, and OEM authorized service support.\n\nCustomer Care: {{shop_phone}}\nLocation: {{store_address}}',
             footer: 'Mobile Point AC Care • Authorized Sales & Support',
             buttons: [
                 { type: 'PHONE_NUMBER', text: 'Call Helpline', val: '+91 98250 00000' },
@@ -442,8 +445,8 @@ function seed() {
             cat: 'UTILITY',
             status: 'APPROVED',
             lang: 'en_US',
-            header: 'AC Purchase & Warranty Confirmation 📜',
-            body: 'Dear {{customer_name}},\n\nCongratulations on your purchase of *{{brand}} {{model}}* (S/N: {{serial_number}}) from {{store_name}}!\n\n🗓 Purchase Date: {{purchase_date}}\n🛠 Installation Date: {{install_date}}\n🛡 Complimentary Services (1st Year):\n• 1st Service: Due around {{srv1_date}} (3-5 Months)\n• 2nd Service: Due around {{srv2_date}} (Before 11 Months)\n\nPlease keep your invoice handy for authorized warranty claims.',
+            header: 'AC Purchase & Warranty Confirmation',
+            body: 'Dear {{customer_name}},\n\nCongratulations on your purchase of *{{brand}} {{model}}* (S/N: {{serial_number}}) from {{store_name}}!\n\nPurchase Date: {{purchase_date}}\nInstallation Date: {{install_date}}\nComplimentary Services (1st Year):\n• 1st Service: Due around {{srv1_date}} (3-5 Months)\n• 2nd Service: Due around {{srv2_date}} (Before 11 Months)\n\nPlease keep your invoice handy for authorized warranty claims.',
             footer: 'Mobile Point AC Care • Official Warranty Record',
             buttons: [
                 { type: 'QUICK_REPLY', text: 'View E-Invoice' },
@@ -456,7 +459,7 @@ function seed() {
             cat: 'UTILITY',
             status: 'APPROVED',
             lang: 'en_US',
-            header: '1st Free AC Service Reminder 🔔',
+            header: '1st Free AC Service Reminder',
             body: 'Hi {{customer_name}},\n\nGentle reminder from {{store_name}}: Your *1st Free AC Service* for your {{brand}} AC (S/N: {{serial_number}}) is scheduled around *{{due_date}}*.\n\nTimely servicing maximizes cooling efficiency, cleans air filters, and prevents peak summer breakdown. Authorized OEM company technicians are dispatched for service.\n\nPlease reply *CONFIRM* to schedule technician visit or call {{shop_phone}}.',
             footer: 'Complimentary Service • OEM Certified',
             buttons: [
@@ -470,7 +473,7 @@ function seed() {
             cat: 'UTILITY',
             status: 'APPROVED',
             lang: 'en_US',
-            header: '2nd Free AC Service (Warranty Due) ⚠️',
+            header: '2nd Free AC Service (Warranty Due)',
             body: 'Dear {{customer_name}},\n\nUrgent notification from {{store_name}}: Your *2nd Complimentary AC Service* for {{brand}} AC (S/N: {{serial_number}}) is due on *{{due_date}}*, before your 1-year complimentary warranty expires.\n\nDon\'t let your free service lapse! Reply *BOOK NOW* or reach our support team on {{shop_phone}} to schedule your authorized technician visit.',
             footer: 'Expires before 11 months • Free under warranty',
             buttons: [
@@ -484,8 +487,8 @@ function seed() {
             cat: 'MARKETING',
             status: 'APPROVED',
             lang: 'en_US',
-            header: 'Summer AC Mega Exchange Blitz 🌞',
-            body: 'Beat the heat with {{store_name}}! Upgrade your existing air conditioner with up to *₹8,000 Exchange Bonus* on 5-Star Inverter Split ACs (Daikin, Voltas, Hitachi, O General).\n\n✨ 0% Interest EMI Options\n✨ Free Standard Installation\n✨ Comprehensive 10-Yr Compressor Warranty\n\nVisit our Alkapuri showroom or WhatsApp OFFER to claim your voucher!',
+            header: 'Summer AC Mega Exchange Blitz',
+            body: 'Beat the heat with {{store_name}}! Upgrade your existing air conditioner with up to *₹8,000 Exchange Bonus* on 5-Star Inverter Split ACs (Daikin, Voltas, Hitachi, O General).\n\n• 0% Interest EMI Options\n• Free Standard Installation\n• Comprehensive 10-Yr Compressor Warranty\n\nVisit our Alkapuri showroom or WhatsApp OFFER to claim your voucher!',
             footer: 'Limited Period Festive Offer • T&C Apply',
             buttons: [
                 { type: 'QUICK_REPLY', text: 'Claim Voucher' },
@@ -498,7 +501,7 @@ function seed() {
             cat: 'MARKETING',
             status: 'PENDING',
             lang: 'en_US',
-            header: 'Monsoon AC Maintenance Guide 🌧️',
+            header: 'Monsoon AC Maintenance Guide',
             body: 'Hello {{customer_name}}, high humidity in monsoon affects AC cooling coils and promotes mold growth. Keep your filters clean and run Dry Mode during rains. For deep coil chemical wash, book our monsoon care package at special discounted rates.',
             footer: 'Seasonal Health Tips • Mobile Point',
             buttons: [
@@ -601,8 +604,8 @@ if (!S.templates || !S.templates.length) S.templates = [
             cat: 'MARKETING',
             status: 'APPROVED',
             lang: 'en_US',
-            header: 'Welcome to Mobile Point AC Care ❄️',
-            body: 'Hello {{customer_name}},\n\nWelcome to {{store_name}}! We are delighted to register you as our valued customer. Our team is committed to delivering premier cooling comfort, genuine AC spares, and OEM authorized service support.\n\n📞 Customer Care: {{shop_phone}}\n📍 Location: {{store_address}}',
+            header: 'Welcome to Mobile Point AC Care',
+            body: 'Hello {{customer_name}},\n\nWelcome to {{store_name}}! We are delighted to register you as our valued customer. Our team is committed to delivering premier cooling comfort, genuine AC spares, and OEM authorized service support.\n\nCustomer Care: {{shop_phone}}\nLocation: {{store_address}}',
             footer: 'Mobile Point AC Care • Authorized Sales & Support',
             buttons: [
                 { type: 'PHONE_NUMBER', text: 'Call Helpline', val: '+91 98250 00000' },
@@ -615,8 +618,8 @@ if (!S.templates || !S.templates.length) S.templates = [
             cat: 'UTILITY',
             status: 'APPROVED',
             lang: 'en_US',
-            header: 'AC Purchase & Warranty Confirmation 📜',
-            body: 'Dear {{customer_name}},\n\nCongratulations on your purchase of *{{brand}} {{model}}* (S/N: {{serial_number}}) from {{store_name}}!\n\n🗓 Purchase Date: {{purchase_date}}\n🛠 Installation Date: {{install_date}}\n🛡 Complimentary Services (1st Year):\n• 1st Service: Due around {{srv1_date}} (3-5 Months)\n• 2nd Service: Due around {{srv2_date}} (Before 11 Months)\n\nPlease keep your invoice handy for authorized warranty claims.',
+            header: 'AC Purchase & Warranty Confirmation',
+            body: 'Dear {{customer_name}},\n\nCongratulations on your purchase of *{{brand}} {{model}}* (S/N: {{serial_number}}) from {{store_name}}!\n\nPurchase Date: {{purchase_date}}\nInstallation Date: {{install_date}}\nComplimentary Services (1st Year):\n• 1st Service: Due around {{srv1_date}} (3-5 Months)\n• 2nd Service: Due around {{srv2_date}} (Before 11 Months)\n\nPlease keep your invoice handy for authorized warranty claims.',
             footer: 'Mobile Point AC Care • Official Warranty Record',
             buttons: [
                 { type: 'QUICK_REPLY', text: 'View E-Invoice' },
@@ -629,7 +632,7 @@ if (!S.templates || !S.templates.length) S.templates = [
             cat: 'UTILITY',
             status: 'APPROVED',
             lang: 'en_US',
-            header: '1st Free AC Service Reminder 🔔',
+            header: '1st Free AC Service Reminder',
             body: 'Hi {{customer_name}},\n\nGentle reminder from {{store_name}}: Your *1st Free AC Service* for your {{brand}} AC (S/N: {{serial_number}}) is scheduled around *{{due_date}}*.\n\nTimely servicing maximizes cooling efficiency, cleans air filters, and prevents peak summer breakdown. Authorized OEM company technicians are dispatched for service.\n\nPlease reply *CONFIRM* to schedule technician visit or call {{shop_phone}}.',
             footer: 'Complimentary Service • OEM Certified',
             buttons: [
@@ -643,7 +646,7 @@ if (!S.templates || !S.templates.length) S.templates = [
             cat: 'UTILITY',
             status: 'APPROVED',
             lang: 'en_US',
-            header: '2nd Free AC Service (Warranty Due) ⚠️',
+            header: '2nd Free AC Service (Warranty Due)',
             body: 'Dear {{customer_name}},\n\nUrgent notification from {{store_name}}: Your *2nd Complimentary AC Service* for {{brand}} AC (S/N: {{serial_number}}) is due on *{{due_date}}*, before your 1-year complimentary warranty expires.\n\nDon\'t let your free service lapse! Reply *BOOK NOW* or reach our support team on {{shop_phone}} to schedule your authorized technician visit.',
             footer: 'Expires before 11 months • Free under warranty',
             buttons: [
@@ -657,8 +660,8 @@ if (!S.templates || !S.templates.length) S.templates = [
             cat: 'MARKETING',
             status: 'APPROVED',
             lang: 'en_US',
-            header: 'Summer AC Mega Exchange Blitz 🌞',
-            body: 'Beat the heat with {{store_name}}! Upgrade your existing air conditioner with up to *₹8,000 Exchange Bonus* on 5-Star Inverter Split ACs (Daikin, Voltas, Hitachi, O General).\n\n✨ 0% Interest EMI Options\n✨ Free Standard Installation\n✨ Comprehensive 10-Yr Compressor Warranty\n\nVisit our Alkapuri showroom or WhatsApp OFFER to claim your voucher!',
+            header: 'Summer AC Mega Exchange Blitz',
+            body: 'Beat the heat with {{store_name}}! Upgrade your existing air conditioner with up to *₹8,000 Exchange Bonus* on 5-Star Inverter Split ACs (Daikin, Voltas, Hitachi, O General).\n\n• 0% Interest EMI Options\n• Free Standard Installation\n• Comprehensive 10-Yr Compressor Warranty\n\nVisit our Alkapuri showroom or WhatsApp OFFER to claim your voucher!',
             footer: 'Limited Period Festive Offer • T&C Apply',
             buttons: [
                 { type: 'QUICK_REPLY', text: 'Claim Voucher' },
@@ -671,7 +674,7 @@ if (!S.templates || !S.templates.length) S.templates = [
             cat: 'MARKETING',
             status: 'PENDING',
             lang: 'en_US',
-            header: 'Monsoon AC Maintenance Guide 🌧️',
+            header: 'Monsoon AC Maintenance Guide',
             body: 'Hello {{customer_name}}, high humidity in monsoon affects AC cooling coils and promotes mold growth. Keep your filters clean and run Dry Mode during rains. For deep coil chemical wash, book our monsoon care package at special discounted rates.',
             footer: 'Seasonal Health Tips • Mobile Point',
             buttons: [
@@ -3305,7 +3308,7 @@ function renderWABubble(tpl, customVars, inPhone) {
 
 function newTemplatePage() {
     const dummy = {
-        header: 'Special AC Care Alert ❄️',
+        header: 'Special AC Care Alert',
         body: 'Hello {{customer_name}}, gentle reminder from {{store_name}}: Ensure your {{brand}} AC (S/N: {{serial_number}}) is ready for optimal cooling. Call {{shop_phone}} to book your OEM technician visit!',
         footer: 'Mobile Point AC Care • Authorized Sales & Support',
         buttons: [
@@ -3317,7 +3320,7 @@ function newTemplatePage() {
     return `<div class="pg">
         <div class="ph">
             <div>
-                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
+                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('arrowLeft')} Back to Automations</button>
                 <h1>Create Message Template</h1>
                 <p class="mu">Design an official WhatsApp Business template for automated service alerts, purchase greetings, or customer care.</p>
             </div>
@@ -3345,7 +3348,7 @@ function newTemplatePage() {
                         </label>
                     </div>
                     <label>Header Text (Optional)
-                        <input id="tpl-hdr" placeholder="e.g. AC Maintenance Alert ❄️" value="Special AC Care Alert ❄️">
+                        <input id="tpl-hdr" placeholder="e.g. AC Maintenance Alert" value="Special AC Care Alert">
                     </label>
                     <label>Message Body Text
                         <textarea id="tpl-body" rows="6">Hello {{customer_name}}, gentle reminder from {{store_name}}: Ensure your {{brand}} AC (S/N: {{serial_number}}) is ready for optimal cooling. Call {{shop_phone}} to book your OEM technician visit!</textarea>
@@ -3398,7 +3401,7 @@ function newBroadcastPage(preselectedTplId) {
     return `<div class="pg">
         <div class="ph">
             <div>
-                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
+                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('arrowLeft')} Back to Automations</button>
                 <h1>Launch Broadcast Campaign</h1>
                 <p class="mu">Dispatch approved WhatsApp templates to targeted AC customer segments.</p>
             </div>
@@ -3428,7 +3431,7 @@ function newBroadcastPage(preselectedTplId) {
                     <div id="camp-matched-info" class="panel pad" style="background:var(--bg)">
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
                             <b>Matched Recipients: ${S.customers.length} Customers</b>
-                            <span class="tag-pill" style="color:#10b981;font-weight:600">✓ Official WhatsApp API Compliant</span>
+                            <span class="tag-pill" style="color:#10b981;font-weight:600">Official WhatsApp API Compliant</span>
                         </div>
                         <div style="display:flex;flex-wrap:wrap;gap:4px">
                             ${S.customers.map(c => `<span class="tag-pill" style="font-size:11px">${esc(c.name)}</span>`).join('')}
@@ -3465,74 +3468,213 @@ function newBroadcastPage(preselectedTplId) {
     </div>`;
 }
 
-function waAccountPage() {
-    const wa = S.whatsapp || { connected: true, phone: '+91 98250 12345', displayName: S.set.store, qualityRating: 'HIGH', dailyLimit: '10,000 / day (Tier 2)', lastSync: 'Just now' };
+function renderWhatsAppAccountSetup(isSubPage) {
+    const wa = S.whatsapp || {
+        connected: true,
+        phone: '+91 98250 12345',
+        displayName: S.set.store,
+        category: 'Air Conditioner Sales & Services',
+        locality: 'Alkapuri, Vadodara',
+        qualityRating: 'HIGH',
+        dailyLimit: '10,000 / day (Tier 2)',
+        lastSync: 'Just now'
+    };
+    const isCustom = V.waMode === 'custom';
 
-    return `<div class="pg">
-        <div class="ph">
-            <div>
-                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('home')} Back to Automations</button>
-                <h1>WhatsApp Business Connection</h1>
-                <p class="mu">Simple and direct connection for your shop's official WhatsApp Business number.</p>
-            </div>
+    const wizardSteps = `<div class="wa-steps">
+        <div class="wa-step-item active">
+            <span class="wa-step-num">1</span>
+            <span>Business Profile</span>
         </div>
-        <div class="g g2" style="max-width:960px">
-            <div class="panel pad">
-                <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-                    <div style="width:44px;height:44px;border-radius:12px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,211,102,.25);flex:none">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    </div>
-                    <div>
-                        <b>Connect Your WhatsApp Business Number</b>
-                        <div class="mu" style="font-size:12px">Enter your shop's WhatsApp number to send automatic service alerts &amp; greetings</div>
-                    </div>
-                </div>
-                <div class="fg">
-                    <label>Business Display Name
-                        <input id="wa-acc-name" value="${esc(wa.displayName || S.set.store)}" placeholder="Mobile Point AC Care">
-                    </label>
-                    <label>WhatsApp Business Mobile Number
-                        <input id="wa-acc-phone" value="${esc(wa.phone)}" placeholder="+91 98250 12345">
-                    </label>
-                    <label>Shop Location / Locality
-                        <input id="wa-acc-loc" value="Alkapuri Arcade, Vadodara" placeholder="Locality, City">
-                    </label>
-                </div>
-                <div class="acts" style="margin-top:20px">
-                    <button class="btn" data-act="wa-acc-ping">${ic('refresh')} Ping Test</button>
-                    <button class="btn pri" data-act="wa-acc-save">${ic('check')} Save &amp; Connect Number</button>
-                </div>
-            </div>
+        <div class="wa-step-sep"></div>
+        <div class="wa-step-item ${wa.connected ? 'active' : ''}">
+            <span class="wa-step-num">2</span>
+            <span>Connect Number</span>
+        </div>
+        <div class="wa-step-sep"></div>
+        <div class="wa-step-item ${wa.connected ? 'active' : ''}">
+            <span class="wa-step-num">3</span>
+            <span>Verification &amp; Health</span>
+        </div>
+    </div>`;
 
-            <div class="panel pad">
-                <b>Connection Status &amp; Limits</b>
-                <div class="mu" style="font-size:12px;margin-bottom:14px">Official WhatsApp Business Account Health</div>
-                <div class="panel pad" style="background:var(--bg);margin-bottom:16px">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-                        <span class="mu" style="font-size:12px">Connection Status:</span>
-                        <span style="color:#10b981;font-weight:600;display:inline-flex;align-items:center;gap:6px">
+    const statusBanner = wa.connected ? `<div class="panel pad" style="margin-bottom:20px;border-left:4px solid #10b981;background:var(--sf)">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
+            <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:44px;height:44px;border-radius:12px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,211,102,.25);flex:none">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div>
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                        <b style="font-size:15px">${esc(wa.displayName || S.set.store)}</b>
+                        <span class="wa-badge-verified">${ic('check')} Official WhatsApp Number</span>
+                        <span style="color:#10b981;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:5px">
                             <span class="wa-pulse"></span> Active &amp; Verified
                         </span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-                        <span class="mu" style="font-size:12px">Meta Quality Rating:</span>
-                        <b style="color:#10b981">${esc(wa.qualityRating)} (GREEN)</b>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-                        <span class="mu" style="font-size:12px">Daily Sending Limit:</span>
-                        <b>${esc(wa.dailyLimit)}</b>
-                    </div>
-                    <div style="display:flex;justify-content:space-between">
-                        <span class="mu" style="font-size:12px">Last Verified Sync:</span>
-                        <b>${esc(wa.lastSync)}</b>
-                    </div>
+                    <div class="mu" style="font-size:12px;margin-top:2px">Connected via Official Cloud Gateway · Phone: <b>${esc(wa.phone)}</b> · Quality: <b style="color:#10b981">${esc(wa.qualityRating || 'HIGH')}</b></div>
                 </div>
-                <div style="margin-top:14px">
-                    <button class="btn sm" data-act="wa-acc-disc" style="color:#ef4444">${ic('logout')} Disconnect WhatsApp Number</button>
-                </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <button class="btn sm" data-act="wa-acc-ping">${ic('refresh')} Ping Test</button>
+                <button class="btn sm" data-act="wa-acc-disc" style="color:var(--er)">${ic('logout')} Disconnect</button>
+            </div>
+        </div>
+    </div>` : `<div class="panel pad" style="margin-bottom:20px;border-left:4px solid #f59e0b;background:var(--sf)">
+        <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:40px;height:40px;border-radius:10px;background:#fef3c7;color:#b45309;display:flex;align-items:center;justify-content:center;flex:none">
+                ${ic('zap')}
+            </div>
+            <div>
+                <b style="font-size:14px">WhatsApp Business Account Not Connected</b>
+                <div class="mu" style="font-size:12px">Complete the simple setup below to connect your shop's official WhatsApp Business number and activate automated service reminders and customer broadcasts.</div>
             </div>
         </div>
     </div>`;
+
+    const mainBody = `<div class="g g2">
+        <div class="panel pad">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+                <div style="width:36px;height:36px;border-radius:8px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;flex:none">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <div>
+                    <b>Business Profile &amp; WhatsApp Number</b>
+                    <div class="mu" style="font-size:12px">Enter your store details and the WhatsApp number you want to send from</div>
+                </div>
+            </div>
+
+            <div class="fg">
+                <label>Business Display Name (Shown to customers in WhatsApp chat)
+                    <input id="wa-acc-name" value="${esc(wa.displayName || S.set.store)}" placeholder="e.g. Mobile Point AC Care">
+                </label>
+                <label>WhatsApp Business Mobile Number
+                    <input id="wa-acc-phone" value="${esc(wa.phone)}" placeholder="e.g. +91 98250 12345">
+                </label>
+                <label>Business Category
+                    <select id="wa-acc-cat" class="shadcn-select">
+                        <option value="Air Conditioner Sales &amp; Services" ${(!wa.category || wa.category === 'Air Conditioner Sales & Services') ? 'selected' : ''}>Air Conditioner Sales &amp; Services</option>
+                        <option value="Consumer Electronics &amp; Appliances" ${wa.category === 'Consumer Electronics & Appliances' ? 'selected' : ''}>Consumer Electronics &amp; Appliances</option>
+                        <option value="HVAC Technical Contracting" ${wa.category === 'HVAC Technical Contracting' ? 'selected' : ''}>HVAC Technical Contracting</option>
+                        <option value="Multi-brand AC Showroom &amp; Spares" ${wa.category === 'Multi-brand AC Showroom & Spares' ? 'selected' : ''}>Multi-brand AC Showroom &amp; Spares</option>
+                    </select>
+                </label>
+                <label>Shop Locality / City
+                    <input id="wa-acc-loc" value="${esc(wa.locality || 'Alkapuri, Vadodara')}" placeholder="e.g. Alkapuri, Vadodara">
+                </label>
+
+                <div>
+                    <span class="mu" style="font-size:12px;font-weight:600;display:block;margin-bottom:8px">Connection Mode:</span>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px">
+                        <div class="wa-opt-card ${!isCustom ? 'selected' : ''}" data-act="wa-acc-toggle-mode" data-mode="direct">
+                            <span class="wa-opt-radio"></span>
+                            <div>
+                                <b style="font-size:13px;display:block">Direct Cloud Connect</b>
+                                <span class="mu" style="font-size:11.5px">Official pre-configured cloud gateway. Instant activation.</span>
+                            </div>
+                        </div>
+                        <div class="wa-opt-card ${isCustom ? 'selected' : ''}" data-act="wa-acc-toggle-mode" data-mode="custom">
+                            <span class="wa-opt-radio"></span>
+                            <div>
+                                <b style="font-size:13px;display:block">Custom Meta Cloud API</b>
+                                <span class="mu" style="font-size:11.5px">For developers with their own Meta Developer App / WABA.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                ${isCustom ? `<div class="panel pad" style="background:var(--bg);margin-top:6px">
+                    <label>WhatsApp Business Account ID (WABA ID)
+                        <input id="wa-acc-waba" value="${esc(wa.wabaId || 'WABA-919825012345')}" placeholder="WABA-XXXXXXXXXXXX">
+                    </label>
+                    <label style="margin-top:8px">Phone Number ID
+                        <input id="wa-acc-phoneid" value="${esc(wa.phoneId || '104829104928192')}" placeholder="Phone Number ID">
+                    </label>
+                    <label style="margin-top:8px">Permanent System User Access Token
+                        <input id="wa-acc-token" type="password" value="${esc(wa.apiKey || 'wa_cloud_sec_9942a7b8e10d48f6820c7e2b144fae93')}" placeholder="Bearer Token">
+                    </label>
+                </div>` : ''}
+            </div>
+
+            <div class="acts" style="margin-top:20px">
+                <button class="btn pri" data-act="wa-acc-save">${ic('check')} Save &amp; Connect WhatsApp Number</button>
+                <button class="btn" data-act="wa-acc-ping">${ic('refresh')} Ping API Test</button>
+            </div>
+        </div>
+
+        <div class="panel pad" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px">
+            <div>
+                <b>Connection Health &amp; Limits</b>
+                <div class="mu" style="font-size:12px;margin-bottom:12px">Official Meta WhatsApp Cloud API SLA and quality metrics</div>
+
+                <div class="panel pad" style="background:var(--bg);margin-bottom:16px">
+                    <div class="wa-status-row">
+                        <span class="mu">Gateway Status:</span>
+                        <b style="color:#10b981;display:inline-flex;align-items:center;gap:6px">
+                            <span class="wa-pulse"></span> Active &amp; Verified
+                        </b>
+                    </div>
+                    <div class="wa-status-row">
+                        <span class="mu">Meta Quality Score:</span>
+                        <b style="color:#10b981">${esc(wa.qualityRating || 'HIGH')} (GREEN)</b>
+                    </div>
+                    <div class="wa-status-row">
+                        <span class="mu">Messaging Tier Limit:</span>
+                        <b>${esc(wa.dailyLimit || '10,000 / day (Tier 2)')}</b>
+                    </div>
+                    <div class="wa-status-row">
+                        <span class="mu">Verified WABA ID:</span>
+                        <span class="tag-pill" style="font-family:monospace;font-size:11px">${esc(wa.wabaId || 'WABA-919825012345')}</span>
+                    </div>
+                    <div class="wa-status-row">
+                        <span class="mu">Last Sync Check:</span>
+                        <b>${esc(wa.lastSync || 'Just now')}</b>
+                    </div>
+                </div>
+
+                <b>Instant Live Test Message Tool</b>
+                <div class="mu" style="font-size:12px;margin-bottom:8px">Test that your store's WhatsApp number can deliver messages to real phones</div>
+                <div class="fg" style="margin-bottom:12px">
+                    <label>Test Recipient Phone Number
+                        <div style="display:flex;gap:8px">
+                            <input id="wa-test-acc-phone" value="${esc(wa.phone || '+91 98250 12345')}" placeholder="+91 9XXXXXXXXX">
+                            <button class="btn pri sm" data-act="wa-acc-send-test" style="flex:none">${ic('send')} Send Test Hello</button>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div style="border-top:1px solid var(--bd);padding-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+                <span class="mu" style="font-size:11.5px">Official WhatsApp Cloud SLA: 99.9% Uptime</span>
+                <button class="btn sm" data-act="wa-acc-disc" style="color:var(--er)">${ic('logout')} Disconnect Number</button>
+            </div>
+        </div>
+    </div>`;
+
+    if (isSubPage) {
+        return `<div class="pg">
+            <div class="ph">
+                <div>
+                    <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('arrowLeft')} Back to Automations</button>
+                    <h1>WhatsApp Business Account Setup</h1>
+                    <p class="mu">Simple, self-serve connection for your shop's official WhatsApp Business number.</p>
+                </div>
+            </div>
+            ${wizardSteps}
+            ${statusBanner}
+            ${mainBody}
+        </div>`;
+    }
+
+    return `<div>
+        ${wizardSteps}
+        ${statusBanner}
+        ${mainBody}
+    </div>`;
+}
+
+function waAccountPage() {
+    return renderWhatsAppAccountSetup(true);
 }
 
 function updateTplPageLivePreview() {
@@ -3585,7 +3727,7 @@ function updateCampPageAudience() {
     const unique = [...new Set(matched.filter(Boolean))];
     info.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
         <b>Matched Recipients: ${unique.length} Customers</b>
-        <span class="tag-pill" style="color:#10b981;font-weight:600">✓ Official WhatsApp API Compliant</span>
+        <span class="tag-pill" style="color:#10b981;font-weight:600">Official WhatsApp API Compliant</span>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:4px">
         ${unique.map(n => `<span class="tag-pill" style="font-size:11px">${esc(n)}</span>`).join('') || '<span class="mu" style="font-size:12px">No customer records currently match this filter.</span>'}
@@ -3644,11 +3786,11 @@ function automationsPage() {
         </div>
     </div>`;
 
-    const tabsBar = `<div class="chips" style="margin-bottom:20px;padding-bottom:4px">
-        <button class="chip ${V.waTab === 'campaigns' ? 'on' : ''}" data-act="wa-tab" data-tab="campaigns">📢 Broadcast Campaigns <span class="tag-pill" style="margin-left:4px">${totalCamps}</span></button>
-        <button class="chip ${V.waTab === 'templates' ? 'on' : ''}" data-act="wa-tab" data-tab="templates">📑 Templates Library <span class="tag-pill" style="margin-left:4px">${(S.templates || []).length}</span></button>
-        <button class="chip ${V.waTab === 'workflows' ? 'on' : ''}" data-act="wa-tab" data-tab="workflows">⚡ Automated Triggers <span class="tag-pill" style="margin-left:4px">${(S.automations || []).length}</span></button>
-        <button class="chip ${V.waTab === 'gateway' ? 'on' : ''}" data-act="wa-tab" data-tab="gateway">🔌 WhatsApp Setup</button>
+    const tabsBar = `<div class="chips" style="margin-bottom:20px;padding-bottom:4px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch">
+        <button class="chip ${V.waTab === 'campaigns' ? 'on' : ''}" data-act="wa-tab" data-tab="campaigns">${ic('send')} Broadcast Campaigns <span class="tag-pill" style="margin-left:4px">${totalCamps}</span></button>
+        <button class="chip ${V.waTab === 'templates' ? 'on' : ''}" data-act="wa-tab" data-tab="templates">${ic('file')} Templates Library <span class="tag-pill" style="margin-left:4px">${(S.templates || []).length}</span></button>
+        <button class="chip ${V.waTab === 'workflows' ? 'on' : ''}" data-act="wa-tab" data-tab="workflows">${ic('zap')} Automated Triggers <span class="tag-pill" style="margin-left:4px">${(S.automations || []).length}</span></button>
+        <button class="chip ${V.waTab === 'gateway' ? 'on' : ''}" data-act="wa-tab" data-tab="gateway">${ic('gear')} WhatsApp Setup</button>
     </div>`;
 
     let content = '';
@@ -3777,7 +3919,7 @@ function automationsPage() {
         }).join('');
 
         content = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
-            <div class="chips">${filterChips}</div>
+            <div class="chips" style="overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch">${filterChips}</div>
             <button class="btn pri sm" data-act="nav" data-p="automations/templates/new">${ic('plus')} Create New Template</button>
         </div>
         <div class="g g2">${tplCards || '<div class="panel pad mu" style="grid-column:1/-1;text-align:center">No templates found matching current filter.</div>'}</div>`;
@@ -3817,60 +3959,7 @@ function automationsPage() {
         </div>
         <div>${workflowsList}</div>`;
     } else if (V.waTab === 'gateway') {
-        content = `<div class="g g2">
-            <div class="panel pad">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-                    <div style="width:36px;height:36px;border-radius:8px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    </div>
-                    <div>
-                        <b>WhatsApp Business Connection Settings</b>
-                        <div class="mu" style="font-size:12px">Official Cloud Messaging Gateway for Mobile Point AC Care</div>
-                    </div>
-                </div>
-                <div class="fg">
-                    <label>Business Display Name
-                        <input id="wa-gw-name" value="${esc(wa.displayName || S.set.store)}">
-                    </label>
-                    <label>WhatsApp Business Phone Number
-                        <input id="wa-gw-phone" value="${esc(wa.phone)}" placeholder="+91 98250 12345">
-                    </label>
-                    <label>WhatsApp Cloud Endpoint
-                        <input id="wa-gw-endpoint" value="${esc(wa.endpoint || 'https://graph.facebook.com/v19.0')}" readonly style="background:var(--bg)">
-                    </label>
-                </div>
-                <div class="acts" style="margin-top:16px">
-                    <button class="btn" data-act="wa-acc-ping">${ic('refresh')} Ping API Test</button>
-                    <button class="btn pri" data-act="wa-save-conn">${ic('check')} Save Settings</button>
-                </div>
-            </div>
-
-            <div class="panel pad">
-                <b>Account Health &amp; Limits</b>
-                <div class="mu" style="font-size:12px;margin-bottom:14px">Live connection health &amp; messaging tier</div>
-                <div class="panel pad" style="background:var(--bg);margin-bottom:16px">
-                    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-                        <span class="mu" style="font-size:12px">Account Status:</span>
-                        <b style="color:#10b981">Verified &amp; Active</b>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-                        <span class="mu" style="font-size:12px">Quality Rating:</span>
-                        <b style="color:#10b981">${esc(wa.qualityRating)} (GREEN)</b>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-                        <span class="mu" style="font-size:12px">Messaging Tier:</span>
-                        <b>${esc(wa.dailyLimit)}</b>
-                    </div>
-                    <div style="display:flex;justify-content:space-between">
-                        <span class="mu" style="font-size:12px">Last Health Ping:</span>
-                        <b>${esc(wa.lastSync)}</b>
-                    </div>
-                </div>
-                <div style="margin-top:14px">
-                    <button class="btn sm" data-act="wa-acc-disc" style="color:#ef4444">${ic('logout')} Disconnect Gateway</button>
-                </div>
-            </div>
-        </div>`;
+        content = renderWhatsAppAccountSetup(false);
     }
 
     return `<div class="pg">
@@ -4243,15 +4332,26 @@ function act(a, e) {
         case 'wa-acc-save': {
             const nameEl = $('#wa-acc-name');
             const phoneEl = $('#wa-acc-phone');
+            const catEl = $('#wa-acc-cat');
+            const locEl = $('#wa-acc-loc');
+            const wabaEl = $('#wa-acc-waba');
+            const phoneIdEl = $('#wa-acc-phoneid');
+            const tokenEl = $('#wa-acc-token');
             if (S.whatsapp) {
                 if (nameEl && nameEl.value) S.whatsapp.displayName = nameEl.value.trim();
                 if (phoneEl && phoneEl.value) S.whatsapp.phone = phoneEl.value.trim();
+                if (catEl && catEl.value) S.whatsapp.category = catEl.value.trim();
+                if (locEl && locEl.value) S.whatsapp.locality = locEl.value.trim();
+                if (wabaEl && wabaEl.value) S.whatsapp.wabaId = wabaEl.value.trim();
+                if (phoneIdEl && phoneIdEl.value) S.whatsapp.phoneId = phoneIdEl.value.trim();
+                if (tokenEl && tokenEl.value) S.whatsapp.apiKey = tokenEl.value.trim();
                 S.whatsapp.connected = true;
                 S.whatsapp.lastSync = 'Just now';
             }
             save();
-            toast('WhatsApp Business connection details saved', 'ok');
-            go('automations');
+            toast('WhatsApp Business connection verified & saved', 'ok');
+            if (V.page === 'automations/account') go('automations');
+            else render(true);
             return;
         }
         case 'wa-acc-ping': {
@@ -4262,6 +4362,26 @@ function act(a, e) {
             if (S.whatsapp) S.whatsapp.connected = false;
             save();
             toast('WhatsApp Business number disconnected');
+            render(true);
+            return;
+        }
+        case 'wa-acc-send-test': {
+            const numEl = $('#wa-test-acc-phone');
+            const testNum = numEl && numEl.value.trim() ? numEl.value.trim() : (S.whatsapp ? S.whatsapp.phone : '+91 98250 12345');
+            S.feed.unshift({
+                id: 'EV' + Date.now(),
+                t: 'Live WhatsApp connection test sent to ' + testNum,
+                time: 'Just now',
+                k: 'messages',
+                p: 'automations'
+            });
+            save();
+            toast('Test message delivered to ' + testNum + ' (200 OK)', 'ok');
+            render(true);
+            return;
+        }
+        case 'wa-acc-toggle-mode': {
+            V.waMode = d.mode || (V.waMode === 'custom' ? 'direct' : 'custom');
             render(true);
             return;
         }
