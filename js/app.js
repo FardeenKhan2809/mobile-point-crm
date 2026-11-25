@@ -3320,23 +3320,22 @@ function newTemplatePage() {
     return `<div class="pg">
         <div class="ph">
             <div>
-                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('arrowLeft')} Back to Automations</button>
-                <h1>Create Message Template</h1>
-                <p class="mu">Design an official WhatsApp Business template for automated service alerts, purchase greetings, or customer care.</p>
+                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('arrowLeft')} Back</button>
+                <h1>Create Template</h1>
             </div>
         </div>
         <div class="wa-creator-grid">
             <div class="panel pad">
                 <div class="fg">
-                    <label>Template Identifier (Unique name in lowercase and underscores)
-                        <input id="tpl-name" placeholder="e.g. ac_service_reminder_drive" value="ac_service_special_offer">
+                    <label>Template Name
+                        <input id="tpl-name" placeholder="e.g. ac_service_reminder" value="ac_service_special_offer">
                     </label>
                     <div class="g g2">
                         <label>Category
                             <select id="tpl-cat" class="shadcn-select">
-                                <option value="UTILITY" selected>Service Reminders &amp; Care (UTILITY)</option>
-                                <option value="MARKETING">Promotions &amp; Offers (MARKETING)</option>
-                                <option value="AUTHENTICATION">Security &amp; OTP (AUTHENTICATION)</option>
+                                <option value="UTILITY" selected>Utility (Service &amp; Care)</option>
+                                <option value="MARKETING">Marketing (Promotions)</option>
+                                <option value="AUTHENTICATION">Authentication (OTP)</option>
                             </select>
                         </label>
                         <label>Language
@@ -3347,14 +3346,14 @@ function newTemplatePage() {
                             </select>
                         </label>
                     </div>
-                    <label>Header Text (Optional)
+                    <label>Header (Optional)
                         <input id="tpl-hdr" placeholder="e.g. AC Maintenance Alert" value="Special AC Care Alert">
                     </label>
-                    <label>Message Body Text
-                        <textarea id="tpl-body" rows="6">Hello {{customer_name}}, gentle reminder from {{store_name}}: Ensure your {{brand}} AC (S/N: {{serial_number}}) is ready for optimal cooling. Call {{shop_phone}} to book your OEM technician visit!</textarea>
+                    <label>Body
+                        <textarea id="tpl-body" rows="5">Hello {{customer_name}}, gentle reminder from {{store_name}}: Ensure your {{brand}} AC (S/N: {{serial_number}}) is ready for optimal cooling. Call {{shop_phone}} to book your OEM technician visit!</textarea>
                     </label>
                     <div>
-                        <span class="mu" style="font-size:12px;display:block;margin-bottom:6px;font-weight:600">Quick-Insert Variable Placeholders:</span>
+                        <span class="mu" style="font-size:12px;display:block;margin-bottom:6px;font-weight:600">Insert Variable</span>
                         <div style="display:flex;flex-wrap:wrap;gap:6px">
                             <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{customer_name}}">+ Customer Name</button>
                             <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{brand}}">+ AC Brand</button>
@@ -3365,27 +3364,27 @@ function newTemplatePage() {
                             <button type="button" class="wa-var-pill" data-act="wa-var-pill" data-tag="{{shop_phone}}">+ Store Phone</button>
                         </div>
                     </div>
-                    <label>Footer Note (Optional)
-                        <input id="tpl-ftr" placeholder="e.g. Mobile Point AC Care • Authorized Partner" value="Mobile Point AC Care • Authorized Sales &amp; Support">
+                    <label>Footer (Optional)
+                        <input id="tpl-ftr" placeholder="e.g. Mobile Point AC Care" value="Mobile Point AC Care • Authorized Sales &amp; Support">
                     </label>
                     <div class="g g2">
-                        <label>Action Button 1 (Text)
+                        <label>Button 1
                             <input id="tpl-btn1" placeholder="e.g. Confirm Service" value="Confirm Service">
                         </label>
-                        <label>Action Button 2 (Text)
+                        <label>Button 2
                             <input id="tpl-btn2" placeholder="e.g. Call Support" value="Call Support">
                         </label>
                     </div>
                 </div>
                 <div class="sticky-form-acts">
                     <button class="btn" data-act="nav" data-p="automations">Cancel</button>
-                    <button class="btn pri" data-act="wa-submit-tpl">${ic('check')} Save &amp; Submit Template</button>
+                    <button class="btn pri" data-act="wa-submit-tpl">${ic('check')} Save Template</button>
                 </div>
             </div>
             <div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                    <span class="mu" style="font-size:12px;font-weight:600">Live Phone Simulation</span>
-                    <span class="tag-pill" style="color:#10b981;font-weight:600">Real-time Reactive Preview</span>
+                    <span class="mu" style="font-size:12px;font-weight:600">Preview</span>
+                    <span class="tag-pill" style="font-size:11px">Live</span>
                 </div>
                 <div id="tpl-live-phone-preview">${renderWABubble(dummy, {}, true)}</div>
             </div>
@@ -3401,9 +3400,8 @@ function newBroadcastPage(preselectedTplId) {
     return `<div class="pg">
         <div class="ph">
             <div>
-                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('arrowLeft')} Back to Automations</button>
-                <h1>Launch Broadcast Campaign</h1>
-                <p class="mu">Dispatch approved WhatsApp templates to targeted AC customer segments.</p>
+                <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('arrowLeft')} Back</button>
+                <h1>New Broadcast</h1>
             </div>
         </div>
         <div class="wa-creator-grid">
@@ -3412,55 +3410,50 @@ function newBroadcastPage(preselectedTplId) {
                     <label>Campaign Name
                         <input id="camp-name" placeholder="e.g. Summer Free Service Drive 2026" value="AC Service Drive ${fd(D(0))}">
                     </label>
-                    <label>Select Approved Template
+                    <label>Template
                         <select id="camp-tpl" class="shadcn-select">
                             ${tpls.map(t => `<option value="${t.id}" ${t.id === selectedTplId ? 'selected' : ''}>${esc(t.name)} (${esc(t.cat)})</option>`).join('')}
                         </select>
                     </label>
-                    <label>Target Audience Segment
+                    <label>Target Audience
                         <select id="camp-aud" class="shadcn-select">
-                            <option value="all">All Registered Customers (${S.customers.length} total)</option>
-                            <option value="srv1_due">1st AC Service Due in Next 30 Days</option>
-                            <option value="srv2_due">2nd AC Service Due in Next 30 Days</option>
-                            <option value="brand_daikin">Daikin AC Owners Only</option>
-                            <option value="brand_voltas">Voltas AC Owners Only</option>
-                            <option value="brand_hitachi">Hitachi AC Owners Only</option>
+                            <option value="all">All Registered Customers (${S.customers.length})</option>
+                            <option value="srv1_due">1st AC Service Due (Next 30 Days)</option>
+                            <option value="srv2_due">2nd AC Service Due (Next 30 Days)</option>
+                            <option value="brand_daikin">Daikin AC Owners</option>
+                            <option value="brand_voltas">Voltas AC Owners</option>
+                            <option value="brand_hitachi">Hitachi AC Owners</option>
                             <option value="alkapuri">Alkapuri Locality Customers</option>
                         </select>
                     </label>
-                    <div id="camp-matched-info" class="panel pad" style="background:var(--bg)">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                            <b>Matched Recipients: ${S.customers.length} Customers</b>
-                            <span class="tag-pill" style="color:#10b981;font-weight:600">Official WhatsApp API Compliant</span>
-                        </div>
-                        <div style="display:flex;flex-wrap:wrap;gap:4px">
-                            ${S.customers.map(c => `<span class="tag-pill" style="font-size:11px">${esc(c.name)}</span>`).join('')}
-                        </div>
+                    <div id="camp-matched-info" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);font-size:13px">
+                        <div><b>${S.customers.length}</b> recipients selected</div>
+                        <span class="b ok">Eligible</span>
                     </div>
                     <div class="g g2">
-                        <label>Dispatch Timing
+                        <label>Timing
                             <select id="camp-sched" class="shadcn-select">
                                 <option value="now" selected>Send Immediately</option>
-                                <option value="sched">Schedule for Tomorrow 10:00 AM</option>
+                                <option value="sched">Schedule Tomorrow 10:00 AM</option>
                             </select>
                         </label>
-                        <label>Throttle Rate
+                        <label>Dispatch Rate
                             <select id="camp-throttle" class="shadcn-select">
-                                <option value="fast">Maximum Speed (100 msgs / min)</option>
-                                <option value="safe" selected>Safe Standard (30 msgs / min)</option>
+                                <option value="safe" selected>Standard (30 msg / min)</option>
+                                <option value="fast">High Speed (100 msg / min)</option>
                             </select>
                         </label>
                     </div>
                 </div>
                 <div class="sticky-form-acts">
                     <button class="btn" data-act="nav" data-p="automations">Cancel</button>
-                    <button class="btn pri" data-act="wa-launch-camp-page">${ic('send')} Launch Broadcast Campaign</button>
+                    <button class="btn pri" data-act="wa-launch-camp-page">${ic('send')} Launch Broadcast</button>
                 </div>
             </div>
             <div>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                    <span class="mu" style="font-size:12px;font-weight:600">Message Broadcast Preview</span>
-                    <span class="tag-pill" style="color:#0284c7;font-weight:600">Recipient Phone View</span>
+                    <span class="mu" style="font-size:12px;font-weight:600">Preview</span>
+                    <span class="tag-pill" style="font-size:11px">Live</span>
                 </div>
                 <div id="camp-live-phone-preview">${renderWABubble(currentTpl, {}, true)}</div>
             </div>
@@ -3481,53 +3474,31 @@ function renderWhatsAppAccountSetup(isSubPage) {
     };
     const isCustom = V.waMode === 'custom';
 
-    const wizardSteps = `<div class="wa-steps">
-        <div class="wa-step-item active">
-            <span class="wa-step-num">1</span>
-            <span>Business Profile</span>
-        </div>
-        <div class="wa-step-sep"></div>
-        <div class="wa-step-item ${wa.connected ? 'active' : ''}">
-            <span class="wa-step-num">2</span>
-            <span>Connect Number</span>
-        </div>
-        <div class="wa-step-sep"></div>
-        <div class="wa-step-item ${wa.connected ? 'active' : ''}">
-            <span class="wa-step-num">3</span>
-            <span>Verification &amp; Health</span>
-        </div>
-    </div>`;
-
-    const statusBanner = wa.connected ? `<div class="panel pad" style="margin-bottom:20px;border-left:4px solid #10b981;background:var(--sf)">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
-            <div style="display:flex;align-items:center;gap:12px">
-                <div style="width:44px;height:44px;border-radius:12px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,211,102,.25);flex:none">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                </div>
-                <div>
-                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                        <b style="font-size:15px">${esc(wa.displayName || S.set.store)}</b>
-                        <span class="wa-badge-verified">${ic('check')} Official WhatsApp Number</span>
-                        <span style="color:#10b981;font-weight:600;font-size:12px;display:inline-flex;align-items:center;gap:5px">
-                            <span class="wa-pulse"></span> Active &amp; Verified
-                        </span>
-                    </div>
-                    <div class="mu" style="font-size:12px;margin-top:2px">Connected via Official Cloud Gateway · Phone: <b>${esc(wa.phone)}</b> · Quality: <b style="color:#10b981">${esc(wa.qualityRating || 'HIGH')}</b></div>
-                </div>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <button class="btn sm" data-act="wa-acc-ping">${ic('refresh')} Ping Test</button>
-                <button class="btn sm" data-act="wa-acc-disc" style="color:var(--er)">${ic('logout')} Disconnect</button>
-            </div>
-        </div>
-    </div>` : `<div class="panel pad" style="margin-bottom:20px;border-left:4px solid #f59e0b;background:var(--sf)">
+    const statusBanner = wa.connected ? `<div class="panel pad" style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
         <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:40px;height:40px;border-radius:10px;background:#fef3c7;color:#b45309;display:flex;align-items:center;justify-content:center;flex:none">
+            <div style="width:38px;height:38px;border-radius:10px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;flex:none">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <b>${esc(wa.displayName || S.set.store)}</b>
+                    <span class="b ok">${ic('check')} Connected</span>
+                    <span class="mu" style="font-size:12.5px">${esc(wa.phone)}</span>
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn sm" data-act="wa-acc-ping">${ic('refresh')} Ping Test</button>
+            <button class="btn sm" data-act="wa-acc-disc" style="color:var(--er)">Disconnect</button>
+        </div>
+    </div>` : `<div class="panel pad" style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:38px;height:38px;border-radius:10px;background:var(--sf);color:var(--er);display:flex;align-items:center;justify-content:center;flex:none;border:1px solid var(--bd)">
                 ${ic('zap')}
             </div>
             <div>
-                <b style="font-size:14px">WhatsApp Business Account Not Connected</b>
-                <div class="mu" style="font-size:12px">Complete the simple setup below to connect your shop's official WhatsApp Business number and activate automated service reminders and customer broadcasts.</div>
+                <b>WhatsApp Gateway Disconnected</b>
+                <div class="mu" style="font-size:12px">Enter store details below to activate WhatsApp messaging.</div>
             </div>
         </div>
     </div>`;
@@ -3535,23 +3506,22 @@ function renderWhatsAppAccountSetup(isSubPage) {
     const mainBody = `<div class="g g2">
         <div class="panel pad">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-                <div style="width:36px;height:36px;border-radius:8px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;flex:none">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <div style="width:32px;height:32px;border-radius:8px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;flex:none">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 </div>
                 <div>
-                    <b>Business Profile &amp; WhatsApp Number</b>
-                    <div class="mu" style="font-size:12px">Enter your store details and the WhatsApp number you want to send from</div>
+                    <b>Business Profile &amp; Number</b>
                 </div>
             </div>
 
             <div class="fg">
-                <label>Business Display Name (Shown to customers in WhatsApp chat)
+                <label>Business Name
                     <input id="wa-acc-name" value="${esc(wa.displayName || S.set.store)}" placeholder="e.g. Mobile Point AC Care">
                 </label>
-                <label>WhatsApp Business Mobile Number
+                <label>WhatsApp Number
                     <input id="wa-acc-phone" value="${esc(wa.phone)}" placeholder="e.g. +91 98250 12345">
                 </label>
-                <label>Business Category
+                <label>Category
                     <select id="wa-acc-cat" class="shadcn-select">
                         <option value="Air Conditioner Sales &amp; Services" ${(!wa.category || wa.category === 'Air Conditioner Sales & Services') ? 'selected' : ''}>Air Conditioner Sales &amp; Services</option>
                         <option value="Consumer Electronics &amp; Appliances" ${wa.category === 'Consumer Electronics & Appliances' ? 'selected' : ''}>Consumer Electronics &amp; Appliances</option>
@@ -3559,94 +3529,92 @@ function renderWhatsAppAccountSetup(isSubPage) {
                         <option value="Multi-brand AC Showroom &amp; Spares" ${wa.category === 'Multi-brand AC Showroom & Spares' ? 'selected' : ''}>Multi-brand AC Showroom &amp; Spares</option>
                     </select>
                 </label>
-                <label>Shop Locality / City
+                <label>Locality / City
                     <input id="wa-acc-loc" value="${esc(wa.locality || 'Alkapuri, Vadodara')}" placeholder="e.g. Alkapuri, Vadodara">
                 </label>
 
                 <div>
-                    <span class="mu" style="font-size:12px;font-weight:600;display:block;margin-bottom:8px">Connection Mode:</span>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px">
+                    <span class="mu" style="font-size:12px;font-weight:600;display:block;margin-bottom:8px">Connection Mode</span>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:8px">
                         <div class="wa-opt-card ${!isCustom ? 'selected' : ''}" data-act="wa-acc-toggle-mode" data-mode="direct">
                             <span class="wa-opt-radio"></span>
                             <div>
-                                <b style="font-size:13px;display:block">Direct Cloud Connect</b>
-                                <span class="mu" style="font-size:11.5px">Official pre-configured cloud gateway. Instant activation.</span>
+                                <b style="font-size:13px;display:block">Cloud Gateway</b>
+                                <span class="mu" style="font-size:11px">Direct instant connection</span>
                             </div>
                         </div>
                         <div class="wa-opt-card ${isCustom ? 'selected' : ''}" data-act="wa-acc-toggle-mode" data-mode="custom">
                             <span class="wa-opt-radio"></span>
                             <div>
-                                <b style="font-size:13px;display:block">Custom Meta Cloud API</b>
-                                <span class="mu" style="font-size:11.5px">For developers with their own Meta Developer App / WABA.</span>
+                                <b style="font-size:13px;display:block">Custom Meta API</b>
+                                <span class="mu" style="font-size:11px">Own WABA &amp; API credentials</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 ${isCustom ? `<div class="panel pad" style="background:var(--bg);margin-top:6px">
-                    <label>WhatsApp Business Account ID (WABA ID)
+                    <label>WABA ID
                         <input id="wa-acc-waba" value="${esc(wa.wabaId || 'WABA-919825012345')}" placeholder="WABA-XXXXXXXXXXXX">
                     </label>
                     <label style="margin-top:8px">Phone Number ID
                         <input id="wa-acc-phoneid" value="${esc(wa.phoneId || '104829104928192')}" placeholder="Phone Number ID">
                     </label>
-                    <label style="margin-top:8px">Permanent System User Access Token
+                    <label style="margin-top:8px">Access Token
                         <input id="wa-acc-token" type="password" value="${esc(wa.apiKey || 'wa_cloud_sec_9942a7b8e10d48f6820c7e2b144fae93')}" placeholder="Bearer Token">
                     </label>
                 </div>` : ''}
             </div>
 
-            <div class="acts" style="margin-top:20px">
-                <button class="btn pri" data-act="wa-acc-save">${ic('check')} Save &amp; Connect WhatsApp Number</button>
-                <button class="btn" data-act="wa-acc-ping">${ic('refresh')} Ping API Test</button>
+            <div class="acts" style="margin-top:18px">
+                <button class="btn pri" data-act="wa-acc-save">${ic('check')} Save &amp; Connect</button>
+                <button class="btn" data-act="wa-acc-ping">${ic('refresh')} Ping Test</button>
             </div>
         </div>
 
         <div class="panel pad" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px">
             <div>
-                <b>Connection Health &amp; Limits</b>
-                <div class="mu" style="font-size:12px;margin-bottom:12px">Official Meta WhatsApp Cloud API SLA and quality metrics</div>
-
-                <div class="panel pad" style="background:var(--bg);margin-bottom:16px">
+                <b>Gateway Telemetry</b>
+                <div class="panel pad" style="background:var(--sf);margin:12px 0 16px">
                     <div class="wa-status-row">
-                        <span class="mu">Gateway Status:</span>
+                        <span class="mu">Status</span>
                         <b style="color:#10b981;display:inline-flex;align-items:center;gap:6px">
-                            <span class="wa-pulse"></span> Active &amp; Verified
+                            <span class="wa-pulse"></span> Active
                         </b>
                     </div>
                     <div class="wa-status-row">
-                        <span class="mu">Meta Quality Score:</span>
-                        <b style="color:#10b981">${esc(wa.qualityRating || 'HIGH')} (GREEN)</b>
+                        <span class="mu">Quality</span>
+                        <b style="color:#10b981">${esc(wa.qualityRating || 'HIGH')}</b>
                     </div>
                     <div class="wa-status-row">
-                        <span class="mu">Messaging Tier Limit:</span>
-                        <b>${esc(wa.dailyLimit || '10,000 / day (Tier 2)')}</b>
+                        <span class="mu">Daily Limit</span>
+                        <b>${esc(wa.dailyLimit || '10,000 / day')}</b>
                     </div>
                     <div class="wa-status-row">
-                        <span class="mu">Verified WABA ID:</span>
+                        <span class="mu">WABA ID</span>
                         <span class="tag-pill" style="font-family:monospace;font-size:11px">${esc(wa.wabaId || 'WABA-919825012345')}</span>
                     </div>
                     <div class="wa-status-row">
-                        <span class="mu">Last Sync Check:</span>
+                        <span class="mu">Last Sync</span>
                         <b>${esc(wa.lastSync || 'Just now')}</b>
                     </div>
                 </div>
 
-                <b>Instant Live Test Message Tool</b>
-                <div class="mu" style="font-size:12px;margin-bottom:8px">Test that your store's WhatsApp number can deliver messages to real phones</div>
+                <b>Test Message</b>
+                <div class="mu" style="font-size:12px;margin-bottom:8px">Send test ping to verify handset delivery</div>
                 <div class="fg" style="margin-bottom:12px">
-                    <label>Test Recipient Phone Number
+                    <label>Recipient Phone
                         <div style="display:flex;gap:8px">
                             <input id="wa-test-acc-phone" value="${esc(wa.phone || '+91 98250 12345')}" placeholder="+91 9XXXXXXXXX">
-                            <button class="btn pri sm" data-act="wa-acc-send-test" style="flex:none">${ic('send')} Send Test Hello</button>
+                            <button class="btn pri sm" data-act="wa-acc-send-test" style="flex:none">${ic('send')} Test</button>
                         </div>
                     </label>
                 </div>
             </div>
 
             <div style="border-top:1px solid var(--bd);padding-top:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-                <span class="mu" style="font-size:11.5px">Official WhatsApp Cloud SLA: 99.9% Uptime</span>
-                <button class="btn sm" data-act="wa-acc-disc" style="color:var(--er)">${ic('logout')} Disconnect Number</button>
+                <span class="mu" style="font-size:11.5px">Cloud SLA: 99.9% Uptime</span>
+                <button class="btn sm" data-act="wa-acc-disc" style="color:var(--er)">Disconnect</button>
             </div>
         </div>
     </div>`;
@@ -3655,19 +3623,16 @@ function renderWhatsAppAccountSetup(isSubPage) {
         return `<div class="pg">
             <div class="ph">
                 <div>
-                    <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('arrowLeft')} Back to Automations</button>
-                    <h1>WhatsApp Business Account Setup</h1>
-                    <p class="mu">Simple, self-serve connection for your shop's official WhatsApp Business number.</p>
+                    <button class="btn sm" data-act="nav" data-p="automations" style="margin-bottom:8px">${ic('arrowLeft')} Back</button>
+                    <h1>WhatsApp Setup</h1>
                 </div>
             </div>
-            ${wizardSteps}
             ${statusBanner}
             ${mainBody}
         </div>`;
     }
 
     return `<div>
-        ${wizardSteps}
         ${statusBanner}
         ${mainBody}
     </div>`;
@@ -3724,14 +3689,9 @@ function updateCampPageAudience() {
         matched = S.customers.filter(c => (c.locality || '').toLowerCase().includes('alkapuri') || (c.address || '').toLowerCase().includes('alkapuri')).map(c => c.name);
     }
 
-    const unique = [...new Set(matched.filter(Boolean))];
-    info.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <b>Matched Recipients: ${unique.length} Customers</b>
-        <span class="tag-pill" style="color:#10b981;font-weight:600">Official WhatsApp API Compliant</span>
-    </div>
-    <div style="display:flex;flex-wrap:wrap;gap:4px">
-        ${unique.map(n => `<span class="tag-pill" style="font-size:11px">${esc(n)}</span>`).join('') || '<span class="mu" style="font-size:12px">No customer records currently match this filter.</span>'}
-    </div>`;
+    const count = [...new Set(matched.filter(Boolean))].length;
+    info.innerHTML = `<div><b>${count}</b> recipients selected</div>
+    <span class="b ${count > 0 ? 'ok' : 'wa'}">${count > 0 ? 'Eligible' : 'None matched'}</span>`;
 }
 
 function updateCampPagePreview() {
@@ -3757,40 +3717,11 @@ function automationsPage() {
 
     const wa = S.whatsapp || { connected: true, phone: '+91 98250 12345', wabaId: 'WABA-919825012345', qualityRating: 'HIGH', dailyLimit: '10,000 / day (Tier 2)', lastSync: 'Just now' };
 
-    const topBanner = `<div class="panel pad" style="margin-bottom:20px;border-left:4px solid #10b981;background:var(--sf)">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
-            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-                <div style="width:46px;height:46px;border-radius:12px;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,211,102,.25);flex:none">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                </div>
-                <div>
-                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-                        <b style="font-size:16px">${esc(wa.displayName || S.set.store)}</b>
-                        <span class="wa-badge-verified"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> WhatsApp Verified</span>
-                        <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:${wa.connected ? '#10b981' : '#ef4444'};font-weight:600">
-                            <span class="${wa.connected ? 'wa-pulse' : ''}" style="${wa.connected ? '' : 'width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block'}"></span>
-                            ${wa.connected ? 'Connected' : 'Offline'}
-                        </span>
-                    </div>
-                    <div class="mu" style="font-size:12px;display:flex;gap:14px;flex-wrap:wrap;margin-top:4px">
-                        <span><b>Phone:</b> ${esc(wa.phone)}</span>
-                        <span><b>Tier:</b> ${esc(wa.dailyLimit)}</span>
-                        <span><b>Quality:</b> <span style="color:#10b981;font-weight:600">${esc(wa.qualityRating)}</span></span>
-                    </div>
-                </div>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <button class="btn sm" data-act="wa-sync" title="Sync templates and status">${ic('refresh')} Sync</button>
-                <button class="btn sm" data-act="nav" data-p="automations/account">${ic('gear')} WhatsApp Setup</button>
-            </div>
-        </div>
-    </div>`;
-
-    const tabsBar = `<div class="chips" style="margin-bottom:20px;padding-bottom:4px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch">
-        <button class="chip ${V.waTab === 'campaigns' ? 'on' : ''}" data-act="wa-tab" data-tab="campaigns">${ic('send')} Broadcast Campaigns <span class="tag-pill" style="margin-left:4px">${totalCamps}</span></button>
-        <button class="chip ${V.waTab === 'templates' ? 'on' : ''}" data-act="wa-tab" data-tab="templates">${ic('file')} Templates Library <span class="tag-pill" style="margin-left:4px">${(S.templates || []).length}</span></button>
-        <button class="chip ${V.waTab === 'workflows' ? 'on' : ''}" data-act="wa-tab" data-tab="workflows">${ic('zap')} Automated Triggers <span class="tag-pill" style="margin-left:4px">${(S.automations || []).length}</span></button>
-        <button class="chip ${V.waTab === 'gateway' ? 'on' : ''}" data-act="wa-tab" data-tab="gateway">${ic('gear')} WhatsApp Setup</button>
+    const tabsBar = `<div class="seg-nav" style="margin-bottom:20px">
+        <button class="seg-btn ${V.waTab === 'campaigns' ? 'active' : ''}" data-act="wa-tab" data-tab="campaigns">${ic('send')} Campaigns <span class="seg-badge">${totalCamps}</span></button>
+        <button class="seg-btn ${V.waTab === 'templates' ? 'active' : ''}" data-act="wa-tab" data-tab="templates">${ic('file')} Templates <span class="seg-badge">${(S.templates || []).length}</span></button>
+        <button class="seg-btn ${V.waTab === 'workflows' ? 'active' : ''}" data-act="wa-tab" data-tab="workflows">${ic('zap')} Triggers <span class="seg-badge">${(S.automations || []).length}</span></button>
+        <button class="seg-btn ${V.waTab === 'gateway' ? 'active' : ''}" data-act="wa-tab" data-tab="gateway">${ic('gear')} WhatsApp Setup</button>
     </div>`;
 
     let content = '';
@@ -3800,25 +3731,22 @@ function automationsPage() {
             <div class="wa-stat-card">
                 <span class="mu" style="font-size:12px">Total Broadcasts</span>
                 <b>${totalCamps}</b>
-                <span style="font-size:11px;color:#10b981">Official WhatsApp Broadcasts</span>
+                <span class="tag-pill" style="align-self:flex-start">All time</span>
             </div>
             <div class="wa-stat-card">
-                <span class="mu" style="font-size:12px">Messages Dispatched</span>
+                <span class="mu" style="font-size:12px">Messages Sent</span>
                 <b>${totalMsgsSent.toLocaleString('en-IN')}</b>
-                <span style="font-size:11px;color:#0284c7">${totalDelivered} Delivered successfully</span>
+                <span class="b ok" style="align-self:flex-start">${totalDelivered} delivered</span>
             </div>
             <div class="wa-stat-card">
-                <span class="mu" style="font-size:12px">Delivery Success Rate</span>
+                <span class="mu" style="font-size:12px">Delivery Rate</span>
                 <b>${delPct}%</b>
-                <span style="font-size:11px;color:#10b981">Optimal Delivery SLA</span>
+                <span class="b ok" style="align-self:flex-start">Standard SLA</span>
             </div>
             <div class="wa-stat-card">
-                <span class="mu" style="font-size:12px">Read / Open Rate</span>
+                <span class="mu" style="font-size:12px">Read Rate</span>
                 <b>${readPct}%</b>
-                <span style="font-size:11px;color:#53bdeb;display:flex;align-items:center;gap:4px">
-                    <svg width="14" height="10" viewBox="0 0 16 11" fill="none"><path d="M11.05 1L5.5 6.55L4.45 5.5" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 1L9.45 6.55L8.4 5.5" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 5.5L4.45 9L9.5 3.95" stroke="#53bdeb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    Double Blue Tick Verified
-                </span>
+                <span class="tag-pill" style="align-self:flex-start;color:#0284c7">Read verified</span>
             </div>
         </div>`;
 
@@ -3827,12 +3755,12 @@ function automationsPage() {
             const pct = c.sentCount ? Math.round((c.deliveredCount / c.sentCount) * 100) : 100;
             const rPct = c.deliveredCount ? Math.round((c.readCount / c.deliveredCount) * 100) : 95;
             return `<tr>
-                <td data-label="Campaign Name">
+                <td data-label="Campaign">
                     <b>${esc(c.name)}</b>
                     <small class="mu" style="display:block;white-space:normal">${esc(c.createdAt)}</small>
                 </td>
                 <td data-label="Template"><span class="tag-pill" style="font-family:monospace;font-size:11px">${esc(tpl.name)}</span></td>
-                <td data-label="Target Segment"><span class="tag-pill">${esc(c.audience || 'Target Segment')}</span></td>
+                <td data-label="Segment"><span class="tag-pill">${esc(c.audience || 'Target Segment')}</span></td>
                 <td data-label="Dispatched"><b>${c.sentCount || 0}</b></td>
                 <td data-label="Delivered">
                     <div style="display:flex;align-items:center;gap:6px">
@@ -3841,7 +3769,7 @@ function automationsPage() {
                     </div>
                 </td>
                 <td data-label="Read">
-                    <div style="display:flex;align-items:center;gap:4px;color:#53bdeb">
+                    <div style="display:flex;align-items:center;gap:4px;color:#0284c7">
                         <b>${c.readCount || 0}</b>
                         <small>(${rPct}%)</small>
                     </div>
@@ -3849,8 +3777,8 @@ function automationsPage() {
                 <td data-label="Status"><span class="b ok">${esc(c.status || 'Completed')}</span></td>
                 <td data-label="Actions">
                     <div style="display:flex;gap:6px">
-                        <button class="btn sm" data-act="wa-preview-tpl" data-id="${tpl.id || ''}" title="Preview Template">${ic('send')} Preview</button>
-                        <button class="btn sm" data-act="wa-del-camp" data-id="${c.id}" title="Delete Record" style="color:#ef4444">${ic('trash')}</button>
+                        <button class="btn sm" data-act="wa-preview-tpl" data-id="${tpl.id || ''}" title="Preview">${ic('send')} Preview</button>
+                        <button class="btn sm" data-act="wa-del-camp" data-id="${c.id}" title="Delete" style="color:var(--er)">${ic('trash')}</button>
                     </div>
                 </td>
             </tr>`;
@@ -3859,19 +3787,16 @@ function automationsPage() {
         content = `${kpis}
         <div class="panel">
             <div class="panel pad" style="border:none;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-                <div>
-                    <b>Broadcast Campaigns History</b>
-                    <div class="mu" style="font-size:12px">All mass outreach campaigns sent through official WhatsApp Business Gateway</div>
-                </div>
-                <button class="btn pri sm" data-act="nav" data-p="automations/broadcasts/new">${ic('send')} Launch New Broadcast</button>
+                <b>Broadcast History</b>
+                <button class="btn pri sm" data-act="nav" data-p="automations/broadcasts/new">${ic('send')} New Broadcast</button>
             </div>
             <div class="tw">
                 <table class="tbl rt">
                     <thead>
                         <tr>
-                            <th>Campaign Name</th>
+                            <th>Campaign</th>
                             <th>Template</th>
-                            <th>Target Segment</th>
+                            <th>Segment</th>
                             <th>Dispatched</th>
                             <th>Delivered</th>
                             <th>Read</th>
@@ -3879,7 +3804,7 @@ function automationsPage() {
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>${campsList || '<tr><td colspan="8" style="text-align:center;padding:24px" class="mu">No campaigns launched yet. Click "+ Launch New Broadcast" to start.</td></tr>'}</tbody>
+                    <tbody>${campsList || '<tr><td colspan="8" style="text-align:center;padding:24px" class="mu">No campaigns launched yet.</td></tr>'}</tbody>
                 </table>
             </div>
         </div>`;
@@ -3904,60 +3829,53 @@ function automationsPage() {
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">
                         <div>
                             <b style="font-size:14px;font-family:monospace;color:var(--pr)">${esc(t.name)}</b>
-                            <div class="mu" style="font-size:11px;margin-top:2px">Lang: ${esc(t.lang || 'en_US')} · Category: <b>${esc(t.cat)}</b></div>
+                            <div class="mu" style="font-size:11px;margin-top:2px">${esc(t.lang || 'en_US')} · <b>${esc(t.cat)}</b></div>
                         </div>
                         <span class="b ${t.status === 'APPROVED' ? 'ok' : 'wa'}">${esc(t.status)}</span>
                     </div>
                     <div style="margin:12px 0">${renderWABubble(t)}</div>
                 </div>
                 <div style="display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--bd);padding-top:10px;flex-wrap:wrap">
-                    <button class="btn sm" data-act="wa-test-tpl" data-id="${t.id}" title="Send test WhatsApp to your phone">${ic('phone')} Test Send</button>
-                    <button class="btn sm pri" data-act="nav" data-p="automations/broadcasts/new/${t.id}" title="Launch broadcast with this template">${ic('send')} Broadcast</button>
-                    <button class="btn sm" data-act="wa-del-tpl" data-id="${t.id}" style="color:#ef4444" title="Delete Template">${ic('trash')}</button>
+                    <button class="btn sm" data-act="wa-test-tpl" data-id="${t.id}">${ic('phone')} Test</button>
+                    <button class="btn sm pri" data-act="nav" data-p="automations/broadcasts/new/${t.id}">${ic('send')} Broadcast</button>
+                    <button class="btn sm" data-act="wa-del-tpl" data-id="${t.id}" style="color:var(--er)">${ic('trash')}</button>
                 </div>
             </div>`;
         }).join('');
 
         content = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
             <div class="chips" style="overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch">${filterChips}</div>
-            <button class="btn pri sm" data-act="nav" data-p="automations/templates/new">${ic('plus')} Create New Template</button>
+            <button class="btn pri sm" data-act="nav" data-p="automations/templates/new">${ic('plus')} New Template</button>
         </div>
-        <div class="g g2">${tplCards || '<div class="panel pad mu" style="grid-column:1/-1;text-align:center">No templates found matching current filter.</div>'}</div>`;
+        <div class="g g2">${tplCards || '<div class="panel pad mu" style="grid-column:1/-1;text-align:center">No templates found.</div>'}</div>`;
     } else if (V.waTab === 'workflows') {
         const workflowsList = (S.automations || []).map(a => {
             const matchedTpl = (S.templates || []).find(t => t.name.toLowerCase().includes(a.id === 'W1' ? 'welcome' : a.id === 'W2' ? 'purchase' : a.id === 'W3' ? 'reminder_1' : a.id === 'W4' ? 'reminder_2' : 'offer')) || S.templates[0];
-            return `<div class="panel pad" style="margin-bottom:14px;border-left:4px solid ${a.on ? '#10b981' : 'var(--bd)'}">
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">
-                    <div style="flex:1;min-width:280px">
-                        <div style="display:flex;align-items:center;gap:8px">
-                            <b style="font-size:15px">${esc(a.name)}</b>
-                            <span class="tag-pill" style="font-family:monospace;font-size:11px">Template: ${esc(matchedTpl ? matchedTpl.name : 'default')}</span>
+            return `<div class="panel pad" style="margin-bottom:12px">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+                    <div style="flex:1;min-width:260px">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                            <b>${esc(a.name)}</b>
+                            <span class="tag-pill" style="font-family:monospace;font-size:11px">${esc(matchedTpl ? matchedTpl.name : 'default')}</span>
+                            <span class="b ${a.on ? 'ok' : 'wa'}">${a.on ? 'Active' : 'Paused'}</span>
                         </div>
-                        <div class="mu" style="font-size:12px;margin-top:4px">Trigger Condition: <b style="color:var(--fg)">${esc(a.trig)}</b> · Lead: ${a.lead ? a.lead + ' days prior' : 'Instant on action'}</div>
-                        <div style="margin-top:10px;background:var(--bg);padding:10px;border-radius:8px;font-size:12.5px;line-height:1.45;color:var(--fg);border:1px solid var(--bd)">
+                        <div class="mu" style="font-size:12px;margin-top:4px">Trigger: <b>${esc(a.trig)}</b> · ${a.lead ? a.lead + ' days prior' : 'Immediate'}</div>
+                        <div style="margin-top:10px;background:var(--sf);padding:10px 12px;border-radius:var(--r);font-size:12.5px;line-height:1.45;color:var(--fg);border:1px solid var(--bd)">
                             ${esc(a.body)}
                         </div>
                     </div>
                     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
-                        <div style="display:flex;align-items:center;gap:8px">
-                            <span style="font-size:12px;color:var(--mu)">${a.on ? 'Active' : 'Paused'}</span>
-                            <button class="sw" role="switch" aria-checked="${a.on}" aria-label="Toggle ${esc(a.name)}" data-act="auto-toggle" data-id="${a.id}"></button>
-                        </div>
-                        <span class="tag-pill" style="font-size:11px">${a.sentCount || 0} messages sent</span>
+                        <button class="sw" role="switch" aria-checked="${a.on}" aria-label="Toggle ${esc(a.name)}" data-act="auto-toggle" data-id="${a.id}"></button>
                         <div style="display:flex;gap:6px">
-                            <button class="btn sm" data-act="auto-test" data-id="${a.id}" title="Simulate instant automated trigger">${ic('send')} Test Trigger</button>
-                            <button class="btn sm" data-act="auto-edit" data-id="${a.id}" title="Edit Template Text">${ic('edit')} Customize</button>
+                            <button class="btn sm" data-act="auto-test" data-id="${a.id}">${ic('send')} Test</button>
+                            <button class="btn sm" data-act="auto-edit" data-id="${a.id}">${ic('edit')} Edit</button>
                         </div>
                     </div>
                 </div>
             </div>`;
         }).join('');
 
-        content = `<div class="panel pad" style="margin-bottom:16px;background:var(--sf)">
-            <b>Automated AC Lifecycle Triggers</b>
-            <div class="mu" style="font-size:12px;margin-top:2px">When events occur (new customer recorded, new AC sale saved, or service dates approaching), Mobile Point AC Care automatically triggers approved templates directly to the customer's WhatsApp number.</div>
-        </div>
-        <div>${workflowsList}</div>`;
+        content = `<div>${workflowsList}</div>`;
     } else if (V.waTab === 'gateway') {
         content = renderWhatsAppAccountSetup(false);
     }
@@ -3965,15 +3883,21 @@ function automationsPage() {
     return `<div class="pg">
         <div class="ph">
             <div>
-                <h1>WhatsApp Automation &amp; Broadcasts</h1>
-                <p class="mu">Official WhatsApp Business suite with approved message templates, mass broadcast campaigns, and automated AC service reminders.</p>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                    <h1>Automations</h1>
+                    <span class="live-pill">
+                        <span class="wa-pulse"></span>
+                        <span>WhatsApp Cloud</span>
+                        <span class="live-sub">${esc(wa.phone)}</span>
+                    </span>
+                </div>
             </div>
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <button class="btn sm" data-act="nav" data-p="automations/templates/new">${ic('plus')} Create Template</button>
+                <button class="btn sm" data-act="wa-sync" title="Sync">${ic('refresh')} Sync</button>
+                <button class="btn sm" data-act="nav" data-p="automations/templates/new">${ic('plus')} Template</button>
                 <button class="btn pri sm" data-act="nav" data-p="automations/broadcasts/new">${ic('send')} New Campaign</button>
             </div>
         </div>
-        ${topBanner}
         ${tabsBar}
         ${content}
     </div>`;

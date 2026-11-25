@@ -1953,15 +1953,16 @@
             width: 100%;
             text-align: left;
             font-size: 11px;
-            padding: 2px 6px;
+            padding: 3px 8px;
             margin-top: 3px;
-            border-radius: 5px;
+            border-radius: 6px;
             background: var(--acs);
             color: var(--ac);
-            border-left: 3px solid var(--ac);
+            border: 1px solid color-mix(in srgb, var(--ac) 25%, transparent);
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap
+            white-space: nowrap;
+            font-weight: 500
         }
 
         .ev[draggable=true] {
@@ -6202,8 +6203,8 @@
             font-size: 0;
         }
         .li.unread {
-            background: color-mix(in srgb, var(--acs) 35%, var(--sf));
-            border-left: 3px solid var(--ac);
+            background: color-mix(in srgb, var(--acs) 20%, var(--sf));
+            border-color: color-mix(in srgb, var(--ac) 28%, var(--bd));
         }
         .np-seg {
             display: flex;
@@ -6352,4 +6353,111 @@
         .wa-status-row:last-child {
             border-bottom: 0;
             padding-bottom: 0;
+        }
+        .seg-nav {
+            display: inline-flex;
+            align-items: center;
+            background: var(--bg);
+            border: 1px solid var(--bd);
+            border-radius: 10px;
+            padding: 3px;
+            gap: 2px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+        .seg-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--mu);
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            transition: all .15s ease;
+            white-space: nowrap;
+        }
+        .seg-btn:hover {
+            color: var(--tx);
+        }
+        .seg-btn.on {
+            background: var(--sf);
+            color: var(--tx);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .seg-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 99px;
+            background: var(--bd);
+            color: var(--mu);
+        }
+        .seg-btn.on .seg-badge {
+            background: var(--bg);
+            color: var(--tx);
+        }
+        .live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--bg);
+            border: 1px solid var(--bd);
+            color: var(--tx);
+        }
+        .live-pill.ok {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.06);
+        }
+        .live-sub {
+            color: var(--mu);
+            font-size: 11px;
+        }
+        .badge-subtle {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-subtle.ok {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .badge-subtle.wa {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        .badge-subtle.ac {
+            background: rgba(2, 132, 199, 0.1);
+            color: #0284c7;
+            border: 1px solid rgba(2, 132, 199, 0.2);
+        }
+        .wa-stat-card .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--mu);
+        }
+        .wa-stat-card .stat-sub {
+            font-size: 11.5px;
+            color: var(--mu);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
