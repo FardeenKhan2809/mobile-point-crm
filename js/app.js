@@ -2426,7 +2426,6 @@ function notifs() {
         const c = cust(s.cid);
         const cName = c ? c.name : (s.custName || 'Customer');
         const cPhone = c ? c.phone : (s.custPhone || '');
-        const cLoc = c ? (c.loc || c.area || '') : '';
         const todayStr = D(0);
         if (s.srv1Status !== 'Completed' && s.srv1Date) {
             const diff1 = Math.round((new Date(s.srv1Date + 'T00:00:00Z') - new Date(todayStr + 'T00:00:00Z')) / 864e5);
@@ -2437,11 +2436,9 @@ function notifs() {
                     t: '1st AC Service Due: ' + cName,
                     sub: s.brand + ' ' + s.model + ' (S/N: ' + s.sn + ') due ' + fd(s.srv1Date),
                     time: fd(s.srv1Date),
-                    date: s.srv1Date,
                     diff: diff1,
                     custName: cName,
                     custPhone: cPhone,
-                    locality: cLoc,
                     brand: s.brand,
                     model: s.model,
                     sn: s.sn,
@@ -2460,11 +2457,9 @@ function notifs() {
                     t: '2nd AC Service Due: ' + cName,
                     sub: s.brand + ' ' + s.model + ' (S/N: ' + s.sn + ') due ' + fd(s.srv2Date),
                     time: fd(s.srv2Date),
-                    date: s.srv2Date,
                     diff: diff2,
                     custName: cName,
                     custPhone: cPhone,
-                    locality: cLoc,
                     brand: s.brand,
                     model: s.model,
                     sn: s.sn,
@@ -2480,13 +2475,11 @@ function notifs() {
                 id: 'N-INS-' + s.id,
                 cat: 'Sales',
                 t: 'Pending Installation: ' + cName,
-                sub: s.brand + ' ' + s.model + ' · ' + (s.installDate ? 'Scheduled ' + fd(s.installDate) : 'Schedule Pending'),
+                sub: s.brand + ' ' + s.model + ' · Scheduled ' + (s.installDate ? fd(s.installDate) : 'Pending'),
                 time: s.installDate ? fd(s.installDate) : fd(s.date),
-                date: s.installDate || s.date,
                 diff: diffIns,
                 custName: cName,
                 custPhone: cPhone,
-                locality: cLoc,
                 brand: s.brand,
                 model: s.model,
                 sn: s.sn,
@@ -2515,11 +2508,11 @@ function npPos() {
         p.style.maxWidth = 'calc(100vw - 16px)';
         return;
     }
-    const r = b.getBoundingClientRect(), w = 400;
+    const r = b.getBoundingClientRect(), w = 380;
     p.style.top = (r.bottom + 8) + 'px';
     p.style.left = Math.max(12, Math.min(r.right - w, innerWidth - w - 12)) + 'px';
     p.style.width = w + 'px';
-    p.style.maxWidth = '400px';
+    p.style.maxWidth = '380px';
 }
 
 function npClose() {
@@ -2538,9 +2531,6 @@ function npToggle() {
     const b = $('#bl');
     if (!b) return;
     const allN = notifs();
-    const unreadCount = allN.filter(n => !isRd(n.id)).length;
-    const servCount = allN.filter(n => n.cat === 'Services').length;
-    const saleCount = allN.filter(n => n.cat === 'Sales').length;
     const p = document.createElement('div');
     p.id = 'np';
     p.className = 'np';
@@ -2550,47 +2540,31 @@ function npToggle() {
     const filteredN = allN.filter(n => NT === 'All' || n.cat === NT || (NT === 'Unread' && !isRd(n.id)));
 
     p.innerHTML = `<div class="np-h">
-        <div style="display:flex;align-items:center;gap:8px">
-            <span style="display:flex;align-items:center;color:var(--ac)">${ic('bell')}</span>
-            <b>Notifications</b>
-            ${unreadCount > 0 ? `<span class="tag-pill" style="background:var(--acs);color:var(--ac);font-weight:700;font-size:11px">${unreadCount} New</span>` : ''}
-        </div>
+        <b>Notifications</b>
         <div style="display:flex;align-items:center;gap:6px">
-            <button class="btn sm" data-act="nall" style="padding:4px 8px;font-size:11.5px">${ic('check')} Mark read</button>
+            <button class="btn sm" data-act="nall">Mark read</button>
             <button class="ib sm" data-act="close-np" aria-label="Close" style="font-size:20px;line-height:1;width:28px;height:28px">×</button>
         </div>
     </div>
-    <div class="np-seg">
-        ${[
-            ['All', 'All (' + allN.length + ')'],
-            ['Services', 'Services (' + servCount + ')'],
-            ['Sales', 'Sales & Installs (' + saleCount + ')']
-        ].map(([val, label]) => `<button type="button" class="np-seg-btn${NT === val ? ' on' : ''}" data-act="ntab" data-v="${val}">${label}</button>`).join('')}
+    <div class="tabs" style="padding:6px 12px 0">
+        ${['All', 'Services', 'Sales'].map(t => `<button type="button" class="${NT === t ? 'on' : ''}" data-act="ntab" data-v="${t}">${t}</button>`).join('')}
     </div>
     <div class="np-l">
-        ${filteredN.map(n => {
-            const rd = isRd(n.id);
-            const isService = n.cat === 'Services';
-            const diffClass = n.diff < 0 ? 'er' : n.diff <= 7 ? 'wa' : 'ok';
-            const countdownText = n.diff < 0 ? Math.abs(n.diff) + 'd overdue' : n.diff === 0 ? 'Due Today' : 'In ' + n.diff + 'd';
-            return `<div class="nti${rd ? '' : ' un'}" data-act="nread" data-id="${n.id}" data-p="${n.go[0]}">
-                <div class="nic ${diffClass}">
-                    ${ic(isService ? 'wrench' : 'cart')}
-                </div>
-                <div class="ntx">
-                    <b>${esc(n.t)}</b>
-                    <small>${esc(n.sub)}</small>
-                    <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
-                        <span class="srv-countdown ${diffClass}" style="font-size:10.5px;padding:2px 6px">${countdownText}</span>
-                        <span class="tag-pill" style="font-size:10.5px">${esc(n.time)}</span>
+        ${filteredN.map(n => `
+            <div class="li${isRd(n.id) ? '' : ' unread'}" data-act="nread" data-id="${n.id}" data-p="${n.go[0]}" style="cursor:pointer;padding:10px 14px">
+                <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:6px">
+                        <b>${esc(n.t)}</b>
+                        ${isRd(n.id) ? '' : '<span class="b ok">New</span>'}
                     </div>
+                    <small style="display:block;margin-top:2px">${esc(n.sub)}</small>
                 </div>
-                ${rd ? '' : '<span class="ud" title="Unread"></span>'}
-            </div>`;
-        }).join('') || `<div class="empty" style="padding:32px 16px;text-align:center">${ic('check')}<p style="margin-top:8px;font-weight:600">All caught up!</p><small class="mu">No notifications matching this filter</small></div>`}
+                <small class="mu" style="flex:none">${esc(n.time)}</small>
+            </div>
+        `).join('') || '<div class="empty">No notifications</div>'}
     </div>
     <div class="np-f">
-        <button class="npv" data-act="nav" data-p="notifications">${ic('bell')} View all notifications & alerts →</button>
+        <button class="btn sm" data-act="nav" data-p="notifications" style="width:100%;justify-content:center">View full notifications page</button>
     </div>`;
     document.body.append(p);
     npPos();
@@ -2611,8 +2585,6 @@ function notifPage() {
     const unreadCount = allN.filter(n => !isRd(n.id)).length;
     const servCount = allN.filter(n => n.cat === 'Services').length;
     const insCount = allN.filter(n => n.cat === 'Sales').length;
-    const s1Count = allN.filter(n => n.id.startsWith('N-S1-')).length;
-    const s2Count = allN.filter(n => n.id.startsWith('N-S2-')).length;
 
     const curF = V.notifFilter || 'All';
     const filteredN = allN.filter(n => {
@@ -2622,108 +2594,45 @@ function notifPage() {
         return true;
     });
 
-    const kpiCards = `
-    <div class="db-kpi g g4" style="margin-bottom:16px">
-        <div class="k-card">
-            <div class="k-top">
-                <span class="k-lbl">Total Alerts</span>
-                <div class="k-ico blue">${ic('bell')}</div>
-            </div>
-            <div class="k-val">${allN.length}</div>
-            <div class="k-sub">${unreadCount} active unread</div>
-        </div>
-        <div class="k-card">
-            <div class="k-top">
-                <span class="k-lbl">1st Free Service</span>
-                <div class="k-ico amber">${ic('wrench')}</div>
-            </div>
-            <div class="k-val">${s1Count}</div>
-            <div class="k-sub">3-5 month milestone</div>
-        </div>
-        <div class="k-card">
-            <div class="k-top">
-                <span class="k-lbl">2nd Free Service</span>
-                <div class="k-ico teal">${ic('wrench')}</div>
-            </div>
-            <div class="k-val">${s2Count}</div>
-            <div class="k-sub">&lt;11 month milestone</div>
-        </div>
-        <div class="k-card">
-            <div class="k-top">
-                <span class="k-lbl">Pending Installs</span>
-                <div class="k-ico green">${ic('cart')}</div>
-            </div>
-            <div class="k-val">${insCount}</div>
-            <div class="k-sub">Awaiting technician setup</div>
-        </div>
-    </div>`;
-
-    const filterTabs = `
-    <div class="panel pad" style="margin-bottom:14px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-        <div class="tabs" style="margin:0;padding:0">
-            ${[
-                ['All', 'All Alerts (' + allN.length + ')'],
-                ['Unread', 'Unread (' + unreadCount + ')'],
-                ['Services', 'AC Services (' + servCount + ')'],
-                ['Sales', 'Installations (' + insCount + ')']
-            ].map(([fKey, fLabel]) => `<button type="button" class="${curF === fKey ? 'on' : ''}" data-act="notif-filter" data-v="${fKey}">${fLabel}</button>`).join('')}
-        </div>
-        <div class="mu" style="font-size:12px;font-weight:600">Showing ${filteredN.length} of ${allN.length} alerts</div>
-    </div>`;
-
-    const notifItems = filteredN.map(n => {
-        const rd = isRd(n.id);
-        const isService = n.cat === 'Services';
-        const diffClass = n.diff < 0 ? 'er' : n.diff <= 7 ? 'wa' : 'ok';
-        const countdownText = n.diff < 0 ? Math.abs(n.diff) + 'd Overdue' : n.diff === 0 ? 'Due Today' : 'In ' + n.diff + 'd';
-        const cleanPhone = (n.custPhone || '').replace(/\D/g, '');
-        const waMsg = encodeURIComponent('Hello ' + n.custName + ', this is Mobile Point AC Care regarding your ' + n.brand + ' AC ' + n.type + ' due on ' + n.time + '. Please let us know your preferred technician visit time.');
-        const waUrl = cleanPhone ? 'https://wa.me/' + cleanPhone + '?text=' + waMsg : '';
-
-        return `<div class="notif-card${rd ? '' : ' unread'}">
-            <div class="nic ${diffClass}" style="width:42px;height:42px;border-radius:12px">
-                ${ic(isService ? 'wrench' : 'cart')}
-            </div>
-            <div class="notif-info">
-                <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px">
-                    <b style="font-size:14.5px">${esc(n.t)}</b>
-                    <span class="tag-pill" style="font-size:11px">${esc(n.cat)}</span>
-                    <span class="srv-countdown ${diffClass}">${countdownText}</span>
-                    <span class="srv-type-pill" style="font-size:11px">${esc(n.type)}</span>
-                </div>
-                <div style="font-size:12.5px;color:var(--mu);margin-bottom:6px">
-                    <b>${esc(n.brand)}</b> ${esc(n.model)} · S/N: <span style="font-family:monospace;background:var(--bg);padding:1px 5px;border-radius:4px;border:1px solid var(--bd)">${esc(n.sn)}</span>
-                    ${n.locality ? ' · Locality: ' + esc(n.locality) : ''}
-                </div>
-                <div style="display:flex;align-items:center;gap:12px;font-size:12px;color:var(--mu)">
-                    <span>${ic('cal')} Due: <b style="color:var(--fg)">${esc(n.time)}</b></span>
-                    ${n.custPhone ? '<span>' + ic('phone') + ' ' + esc(n.custPhone) + '</span>' : ''}
-                </div>
-            </div>
-            <div class="notif-acts">
-                ${waUrl ? `<a class="wa-btn" href="${waUrl}" target="_blank" rel="noopener">${ic('msg')} WhatsApp</a>` : ''}
-                <button class="btn sm" data-act="nav" data-p="${n.go[0]}">Open Sale Record</button>
-            </div>
-        </div>`;
-    }).join('') || `<div class="panel pad" style="text-align:center;padding:48px 20px">
-        <div style="width:52px;height:52px;border-radius:50%;background:var(--acs);color:var(--ac);display:grid;place-items:center;margin:0 auto 12px">
-            ${ic('check')}
-        </div>
-        <b style="font-size:16px;display:block">All Clear!</b>
-        <p class="mu" style="font-size:13px;max-width:380px;margin:4px auto 0">No notifications found under the "${curF}" filter. Service reminders and installation tasks will appear here as dates approach.</p>
-    </div>`;
-
     return `<div class="pg">
         <div class="ph">
             <div>
-                <h1>Notifications & Alerts</h1>
-                <p>AC warranty service milestones, technician dispatch schedules, and pending installations.</p>
+                <h1>Notifications</h1>
+                <p>Service milestones, upcoming free warranty visits, and pending installation alerts.</p>
             </div>
             <button class="btn" data-act="nall">${ic('check')} Mark All as Read</button>
         </div>
-        ${kpiCards}
-        ${filterTabs}
-        <div class="notif-list">${notifItems}</div>
+        <div class="bar">
+            <div class="chips">
+                <button class="chip${curF === 'All' ? ' on' : ''}" data-act="notif-filter" data-v="All">All (${allN.length})</button>
+                <button class="chip${curF === 'Unread' ? ' on' : ''}" data-act="notif-filter" data-v="Unread">Unread (${unreadCount})</button>
+                <button class="chip${curF === 'Services' ? ' on' : ''}" data-act="notif-filter" data-v="Services">Services (${servCount})</button>
+                <button class="chip${curF === 'Sales' ? ' on' : ''}" data-act="notif-filter" data-v="Sales">Installations (${insCount})</button>
+            </div>
+        </div>
+        <div class="panel">
+            ${filteredN.map(n => {
+                const rd = isRd(n.id);
+                const cleanPhone = (n.custPhone || '').replace(/\D/g, '');
+                const waUrl = cleanPhone ? 'https://wa.me/' + cleanPhone + '?text=' + encodeURIComponent('Hello ' + n.custName + ', message from ' + S.set.store + ' regarding your AC ' + n.type + ' due on ' + n.time) : '';
+                return `<div class="li${rd ? '' : ' unread'}" style="cursor:pointer;padding:12px 16px" data-act="nav" data-p="${n.go[0]}">
+                    <div style="flex:1;min-width:0">
+                        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                            <b>${esc(n.t)}</b>
+                            ${rd ? '' : '<span class="b ok">New</span>'}
+                            <span class="tag-pill">${esc(n.cat)}</span>
+                            <span class="tag-pill">${esc(n.type)}</span>
+                        </div>
+                        <small style="display:block;margin-top:3px">${esc(n.sub)}</small>
+                        <small class="mu" style="display:block;margin-top:2px">Scheduled: <b>${esc(n.time)}</b>${n.custPhone ? ' · ' + esc(n.custPhone) : ''}</small>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;flex:none">
+                        ${waUrl ? `<a class="btn sm" href="${waUrl}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${ic('msg')} WhatsApp</a>` : ''}
+                        <button class="btn sm" data-act="nav" data-p="${n.go[0]}">Open Sale</button>
+                    </div>
+                </div>`;
+            }).join('') || '<div class="empty">All clear, no notifications matching current filter.</div>'}
+        </div>
     </div>`;
 }
 
@@ -2734,34 +2643,22 @@ function feed() {
 const adHTML = () => {
     const list = feed();
     return `<div class="ad-h">
-        <div style="display:flex;align-items:center;gap:8px">
-            <span style="display:flex;align-items:center;color:var(--ac)">${ic('pulse')}</span>
-            <b>Recent Activity</b>
-            <span class="tag-pill" style="font-size:11px">${list.length}</span>
-        </div>
-        <button class="ib" data-act="adx" aria-label="Close activity" title="Close" style="font-size:22px;line-height:1">×</button>
+        <b>Recent Activity</b>
+        <button class="ib" data-act="adx" aria-label="Close activity" title="Close" style="font-size:20px;line-height:1">×</button>
     </div>
     <div class="ad-l">
-        <div class="ad-timeline">
-            ${list.map(f => {
-                const k = f.k || 'system';
-                const nodeClass = k === 'sales' ? 'sales' : k === 'messages' || k === 'whatsapp' ? 'messages' : k === 'calendar' ? 'calendar' : 'customer';
-                const iconName = k === 'sales' ? 'cart' : k === 'messages' || k === 'whatsapp' ? 'msg' : k === 'calendar' ? 'cal' : 'users';
-                return `<div class="ad-item" style="cursor:pointer" data-act="nav" data-p="${f.p || 'sales'}">
-                    <div class="ad-node ${nodeClass}">${ic(iconName)}</div>
-                    <div class="ad-content">
-                        <div style="font-size:13px;font-weight:600;line-height:1.35">${esc(f.t)}</div>
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
-                            <span class="tag-pill" style="font-size:10.5px">${esc(k)}</span>
-                            <small class="mu" style="font-size:11.5px">${esc(f.time)}</small>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('') || '<div class="empty" style="padding:32px 16px;text-align:center">No recent activity records</div>'}
-        </div>
+        ${list.map(f => `
+            <div class="li" style="cursor:pointer;padding:10px 14px" data-act="nav" data-p="${f.p || 'sales'}">
+                <div style="flex:1;min-width:0">
+                    <b>${esc(f.t)}</b>
+                    <small class="mu" style="display:block;margin-top:2px">${esc(f.time)} · Event ID: ${esc(f.id)}</small>
+                </div>
+                <span class="tag-pill" style="flex:none">${esc(f.k || 'system')}</span>
+            </div>
+        `).join('') || '<div class="empty">No recent activity</div>'}
     </div>
     <div class="np-f">
-        <button class="btn sm" data-act="nav" data-p="activity" style="width:100%;justify-content:center">${ic('pulse')} Open full activity log page</button>
+        <button class="btn sm" data-act="nav" data-p="activity" style="width:100%;justify-content:center">Open full activity page</button>
     </div>`;
 };
 
@@ -2806,107 +2703,43 @@ function actPage() {
     const salesCount = list.filter(f => f.k === 'sales').length;
     const msgCount = list.filter(f => f.k === 'messages' || f.k === 'whatsapp').length;
     const calCount = list.filter(f => f.k === 'calendar').length;
-    const custCount = list.filter(f => f.k === 'customer').length;
 
     const filtered = list.filter(f => {
-        if (curF === 'Sales') return f.k === 'sales';
-        if (curF === 'Messages') return f.k === 'messages' || f.k === 'whatsapp';
-        if (curF === 'Calendar') return f.k === 'calendar';
-        if (curF === 'Customers') return f.k === 'customer';
+        if (curF === 'sales') return f.k === 'sales';
+        if (curF === 'messages') return f.k === 'messages' || f.k === 'whatsapp';
+        if (curF === 'calendar') return f.k === 'calendar';
         return true;
     });
-
-    const kpiCards = `
-    <div class="db-kpi g g4" style="margin-bottom:16px">
-        <div class="k-card">
-            <div class="k-top">
-                <span class="k-lbl">Total Events</span>
-                <div class="k-ico blue">${ic('pulse')}</div>
-            </div>
-            <div class="k-val">${list.length}</div>
-            <div class="k-sub">Chronological audit log</div>
-        </div>
-        <div class="k-card">
-            <div class="k-top">
-                <span class="k-lbl">Sales Recorded</span>
-                <div class="k-ico green">${ic('cart')}</div>
-            </div>
-            <div class="k-val">${salesCount}</div>
-            <div class="k-sub">AC invoices & purchases</div>
-        </div>
-        <div class="k-card">
-            <div class="k-top">
-                <span class="k-lbl">WhatsApp Messages</span>
-                <div class="k-ico teal">${ic('msg')}</div>
-            </div>
-            <div class="k-val">${msgCount}</div>
-            <div class="k-sub">Automated & manual</div>
-        </div>
-        <div class="k-card">
-            <div class="k-top">
-                <span class="k-lbl">Service Milestones</span>
-                <div class="k-ico amber">${ic('cal')}</div>
-            </div>
-            <div class="k-val">${calCount}</div>
-            <div class="k-sub">Scheduled reminders</div>
-        </div>
-    </div>`;
-
-    const filterTabs = `
-    <div class="panel pad" style="margin-bottom:14px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-        <div class="tabs" style="margin:0;padding:0">
-            ${[
-                ['All', 'All Events (' + list.length + ')'],
-                ['Sales', 'Sales (' + salesCount + ')'],
-                ['Messages', 'WhatsApp (' + msgCount + ')'],
-                ['Calendar', 'Services (' + calCount + ')'],
-                ['Customers', 'Customers (' + custCount + ')']
-            ].map(([fKey, fLabel]) => `<button type="button" class="${curF === fKey ? 'on' : ''}" data-act="act-filter" data-v="${fKey}">${fLabel}</button>`).join('')}
-        </div>
-        <div class="mu" style="font-size:12px;font-weight:600">Showing ${filtered.length} of ${list.length} events</div>
-    </div>`;
-
-    const timelineItems = filtered.map(f => {
-        const k = f.k || 'system';
-        const nodeClass = k === 'sales' ? 'sales' : k === 'messages' || k === 'whatsapp' ? 'messages' : k === 'calendar' ? 'calendar' : 'customer';
-        const iconName = k === 'sales' ? 'cart' : k === 'messages' || k === 'whatsapp' ? 'msg' : k === 'calendar' ? 'cal' : 'users';
-
-        return `<div class="act-item">
-            <div class="act-node ${nodeClass}">
-                ${ic(iconName)}
-            </div>
-            <div class="act-content">
-                <div style="flex:1;min-width:0">
-                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
-                        <b style="font-size:14px">${esc(f.t)}</b>
-                        <span class="tag-pill" style="font-size:11px">${esc(k)}</span>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:12px;font-size:12px;color:var(--mu)">
-                        <span>${ic('pulse')} Timestamp: <b style="color:var(--fg)">${esc(f.time)}</b></span>
-                        <span style="font-family:monospace;font-size:11px">Event ID: ${esc(f.id)}</span>
-                    </div>
-                </div>
-                ${f.p ? `<button class="btn sm" data-act="nav" data-p="${esc(f.p)}">View Record →</button>` : ''}
-            </div>
-        </div>`;
-    }).join('') || `<div class="panel pad" style="text-align:center;padding:48px 20px">
-        <div style="width:52px;height:52px;border-radius:50%;background:var(--acs);color:var(--ac);display:grid;place-items:center;margin:0 auto 12px">
-            ${ic('pulse')}
-        </div>
-        <b style="font-size:16px;display:block">No Activity Found</b>
-        <p class="mu" style="font-size:13px;max-width:380px;margin:4px auto 0">No activity events recorded under the "${curF}" filter yet.</p>
-    </div>`;
 
     return `<div class="pg">
         <div class="ph">
             <div>
-                <h1>Activity Log & Audit Trail</h1>
-                <p>Chronological feed of recorded AC sales, customer additions, service milestones, and WhatsApp automations.</p>
+                <h1>Activity</h1>
+                <p>Chronological feed of recorded AC sales, customer additions, and WhatsApp automations.</p>
             </div>
         </div>
-        ${kpiCards}
-        ${filterTabs}
-        <div class="act-timeline">${timelineItems}</div>
+        <div class="bar">
+            <div class="chips">
+                <button class="chip${curF === 'All' ? ' on' : ''}" data-act="act-filter" data-v="All">All Events (${list.length})</button>
+                <button class="chip${curF === 'sales' ? ' on' : ''}" data-act="act-filter" data-v="sales">Sales (${salesCount})</button>
+                <button class="chip${curF === 'messages' ? ' on' : ''}" data-act="act-filter" data-v="messages">WhatsApp (${msgCount})</button>
+                <button class="chip${curF === 'calendar' ? ' on' : ''}" data-act="act-filter" data-v="calendar">Services (${calCount})</button>
+            </div>
+        </div>
+        <div class="panel">
+            ${filtered.map(f => `
+                <div class="li" style="padding:12px 16px;cursor:pointer" data-act="nav" data-p="${f.p || 'sales'}">
+                    <div style="flex:1;min-width:0">
+                        <b>${esc(f.t)}</b>
+                        <small class="mu" style="display:block;margin-top:2px">${esc(f.time)} · Event ID: ${esc(f.id)}</small>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;flex:none">
+                        <span class="tag-pill">${esc(f.k || 'system')}</span>
+                        <button class="btn sm" data-act="nav" data-p="${f.p || 'sales'}">View →</button>
+                    </div>
+                </div>
+            `).join('') || '<div class="empty">No activity records yet</div>'}
+        </div>
     </div>`;
 }
 
@@ -4154,26 +3987,15 @@ function render(keep) {
     const nv = $('#nv');
     if (nv) {
         const unreadNCount = notifs().filter(n => !isRd(n.id)).length;
-        const upcomingSrvCount = (S.sales || []).filter(s => {
-            const d1 = s.srv1Status !== 'Completed' && s.srv1Date ? Math.round((new Date(s.srv1Date + 'T00:00:00Z') - new Date(D(0) + 'T00:00:00Z')) / 864e5) : 999;
-            const d2 = s.srv2Status !== 'Completed' && s.srv2Date ? Math.round((new Date(s.srv2Date + 'T00:00:00Z') - new Date(D(0) + 'T00:00:00Z')) / 864e5) : 999;
-            return (d1 >= 0 && d1 <= 30) || (d2 >= 0 && d2 <= 30);
-        }).length;
-
         nv.innerHTML = NAV.map((n, i) => {
-            let bdg = '';
-            if (n[0] === 'notifications' && unreadNCount > 0) {
-                bdg = `<span class="nav-bdg">${unreadNCount > 9 ? '9+' : unreadNCount}</span>`;
-            } else if (n[0] === 'calendar' && upcomingSrvCount > 0) {
-                bdg = `<span class="nav-bdg wa">${upcomingSrvCount}</span>`;
-            }
+            const bdg = (n[0] === 'notifications' && unreadNCount > 0) ? `<span class="nav-bdg">${unreadNCount > 9 ? '9+' : unreadNCount}</span>` : '';
             return (n[3] != (NAV[i - 1] || [])[3] ? '<div class="gh lb">' + esc(n[3]) + '</div>' : '') + `<button class="ni${n[0] == p ? ' on' : ''}" data-act="nav" data-p="${n[0]}" title="${esc(n[1])}"${n[0] == p ? ' aria-current="page"' : ''}>${ic(n[2])}<span class="lb">${esc(n[1])}</span>${bdg}</button>`;
         }).join('');
     }
 
     const ub = $('#user-badge');
     if (ub && currentUser) {
-        ub.innerHTML = `<div class="us-card"><div class="us-av-wrap"><span class="av" title="${esc(currentUser.name)}">${esc(ini(currentUser.name))}</span><span class="us-dot" title="Online"></span></div><div class="lb us-info"><b title="${esc(currentUser.name)}">${esc(currentUser.name)}</b><span class="us-role-pill">Store Admin</span><small title="${esc(currentUser.email)}">${esc(currentUser.email)}</small></div><button class="ib lb us-logout-btn" data-act="logout" aria-label="Sign out" title="Sign out">${ic('logout')}</button></div>`;
+        ub.innerHTML = `<span class="av" title="${esc(currentUser.name)}">${esc(ini(currentUser.name))}</span><div class="lb us-info"><b title="${esc(currentUser.name)}">${esc(currentUser.name)}</b><small title="${esc(currentUser.email)}">${esc(currentUser.email)}</small></div><button class="ib lb" data-act="logout" aria-label="Sign out" title="Sign out">${ic('logout')}</button>`;
     }
 
     const bn = $('#bn');
