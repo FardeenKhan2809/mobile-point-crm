@@ -1133,21 +1133,54 @@ function overview() {
                     <h2>Upcoming AC Services</h2>
                     <span class="mu" style="font-size:12px">Free warranty milestones &amp; technician reminders</span>
                 </div>
-                <button class="btn sm" data-act="nav" data-p="calendar">Open Calendar</button>
-            </div>
-            ${upcomingServices.slice(0, 6).map(u => `
-                <div class="db-li" data-act="nav" data-p="sales/${u.sale.id}">
-                    <div class="db-li-main">
-                        <b>${esc(u.cust.name)}</b>
-                        <small>${esc(u.sale.brand)} ${esc(u.sale.model)} · S/N: ${esc(u.sale.sn)}</small>
-                        <small class="mu">${esc(u.type)} · Due: <b style="color:var(--tx)">${fd(u.date)}</b></small>
-                    </div>
-                    <div class="db-li-side" onclick="event.stopPropagation()">
-                        ${srvBadge(u.status, u.date)}
-                        <button class="btn sm" style="font-size:11px;padding:3px 8px" data-act="wa-remind" data-id="${u.sale.id}" data-type="${u.type.startsWith('1st') ? '1' : '2'}">${ic('zap')} WhatsApp</button>
-                    </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                    <span class="tag-pill" style="font-weight:600;color:var(--ac)"><i style="width:6px;height:6px;border-radius:50%;background:var(--ac);display:inline-block;margin-right:4px"></i>${upcomingServices.length} Milestones</span>
+                    <button class="btn sm" data-act="nav" data-p="calendar">${ic('cal')} Calendar</button>
                 </div>
-            `).join('') || '<div class="empty">No services due at this moment</div>'}
+            </div>
+            <div class="srv-list">
+                ${upcomingServices.slice(0, 6).map(u => {
+                    const diffDays = Math.round((new Date(u.date + 'T00:00:00Z') - new Date(D(0) + 'T00:00:00Z')) / 864e5);
+                    const dueText = diffDays === 0 ? 'Due Today' : diffDays > 0 ? `In ${diffDays}d` : `${Math.abs(diffDays)}d Overdue`;
+                    const dueCls = diffDays < 0 ? 'er' : diffDays <= 30 ? 'wa' : 'ok';
+                    return `<div class="srv-card" data-act="nav" data-p="sales/${u.sale.id}">
+                        <div class="srv-card-top">
+                            <div class="srv-cust">
+                                <span class="av sm">${esc(ini(u.cust.name))}</span>
+                                <div class="srv-cust-info">
+                                    <b class="srv-cust-name">${esc(u.cust.name)}</b>
+                                    <span class="srv-cust-sub">${esc(u.cust.phone)} · ${esc(u.cust.locality || 'Vadodara')}</span>
+                                </div>
+                            </div>
+                            <div class="srv-badge-wrap">
+                                ${srvBadge(u.status, u.date)}
+                                <span class="srv-countdown ${dueCls}">${dueText}</span>
+                            </div>
+                        </div>
+                        <div class="srv-card-body">
+                            <div class="srv-ac-info">
+                                <span class="srv-brand-pill">${esc(u.sale.brand)}</span>
+                                <span class="srv-model">${esc(u.sale.model)}</span>
+                                <span class="srv-sn">S/N: ${esc(u.sale.sn)}</span>
+                            </div>
+                            <div class="srv-sched-info">
+                                <span class="srv-type-pill ${u.type.startsWith('1st') ? 'srv1' : 'srv2'}">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>
+                                    ${esc(u.type)}
+                                </span>
+                                <span class="srv-date">${ic('cal')} Due: <b>${fd(u.date)}</b></span>
+                            </div>
+                        </div>
+                        <div class="srv-card-foot" onclick="event.stopPropagation()">
+                            <span class="srv-technician"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> OEM Brand Technician</span>
+                            <button class="btn sm wa-btn" data-act="wa-remind" data-id="${u.sale.id}" data-type="${u.type.startsWith('1st') ? '1' : '2'}">
+                                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                Send WhatsApp Reminder
+                            </button>
+                        </div>
+                    </div>`;
+                }).join('') || '<div class="empty">No services due at this moment</div>'}
+            </div>
         </div>
 
         <div class="panel">
@@ -1158,19 +1191,30 @@ function overview() {
                 </div>
                 <button class="btn sm" data-act="nav" data-p="sales">View All Sales</button>
             </div>
-            ${S.sales.slice(0, 6).map(s => `
-                <div class="db-li" data-act="nav" data-p="sales/${s.id}">
-                    <div class="db-li-main">
-                        <b>${esc(s.custName)}</b>
-                        <small>${esc(s.brand)} ${esc(s.model)} · ${fd(s.date)}</small>
-                        <small class="mu">${esc(s.custLocality || s.shopName)}</small>
+            <div class="sale-list">
+                ${S.sales.slice(0, 6).map(s => `
+                    <div class="sale-card" data-act="nav" data-p="sales/${s.id}">
+                        <div class="sale-card-top">
+                            <div class="sale-cust">
+                                <span class="av sm" style="background:color-mix(in srgb,var(--ok) 14%,var(--sf));color:var(--ok)">${esc(ini(s.custName))}</span>
+                                <div>
+                                    <b class="sale-cust-name">${esc(s.custName)}</b>
+                                    <span class="sale-cust-sub">${fd(s.date)} · ${esc(s.custLocality || s.shopName)}</span>
+                                </div>
+                            </div>
+                            <span class="b ok">Recorded</span>
+                        </div>
+                        <div class="sale-card-body">
+                            <div style="display:flex;align-items:center;gap:6px">
+                                <span class="srv-brand-pill">${esc(s.brand)}</span>
+                                <span style="font-weight:600;color:var(--tx)">${esc(s.model)}</span>
+                            </div>
+                            <small class="mu" style="font-family:monospace">S/N: ${esc(s.sn)}</small>
+                            ${(s.images || []).length > 0 ? `<span class="tag-pill">${s.images.length} photos</span>` : '<span class="mu" style="font-size:11px">No photos</span>'}
+                        </div>
                     </div>
-                    <div class="db-li-side" style="text-align:right">
-                        <span class="b ok">Recorded</span>
-                        <small class="mu">${(s.images || []).length} photos</small>
-                    </div>
-                </div>
-            `).join('') || '<div class="empty">No sales recorded yet</div>'}
+                `).join('') || '<div class="empty">No sales recorded yet</div>'}
+            </div>
         </div>
     </div>
 </div>`;
